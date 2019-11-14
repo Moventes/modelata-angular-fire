@@ -1,0 +1,41 @@
+{
+  "name": "@modelata/angular-fire",
+  "version": "3.0.0",
+  "description": "@modelata/types-fire implementation for angular",
+  "main": "public_api.ts",
+  "devDependencies": {
+    "@angular/common": "~8.2.14",
+    "@angular/core": "~8.2.14",
+    "@angular/fire": "^5.2.3",
+    "@angular/forms": "~8.2.14",
+    "@angular/platform-browser": "~8.2.14",
+    "@angular/platform-browser-dynamic": "~8.2.14",
+    "@angular/compiler": "~8.2.14",
+    "firebase": "^7.3.0",
+    "rxjs": "~6.4.0",
+    "typescript": "~3.5.3",
+    "zone.js": "~0.9.1"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  },
+  "peerDependencies": {
+    "@angular/common": "~8.2.14",
+    "@angular/core": "~8.2.14",
+    "@angular/forms": "~8.2.14",
+    "rxjs": "~6.4.0",
+    "typescript": "~3.5.3",
+    "zone.js": "~0.9.1",
+    "@angular/fire": "^5.2.3",
+    "firebase": "^7.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "moventes",
+  "license": "ISC"
+}
