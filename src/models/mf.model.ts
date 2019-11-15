@@ -1,10 +1,14 @@
-import { Validators } from '@angular/forms';
+import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
 import { MFControlConfig } from 'interfaces/control-config.interface';
 import { Enumerable } from '../decorators/enumerable.decorator';
 import { MissingFieldNotifier } from '../helpers/missing-field-notifier';
-import { ModelHelper } from '../helpers/model.helper';
-import { ObjectHelper } from '../helpers/object.helper';
+import { getPath } from '../helpers/model.helper';
+import { createHiddenProperty } from '../helpers/object.helper';
+
+// type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T];
+// type MFModelProps = { [K in keyof MFModel]: MFModel[K] extends Function ? never : K }[keyof MFModel];
+// type Props<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T];
 
 /**
  * Abstract Model class
@@ -12,31 +16,31 @@ import { ObjectHelper } from '../helpers/object.helper';
 export abstract class MFModel implements IMFModel {
 
   @Enumerable(false)
-  public _id: string;
+  public _id: string = null;
 
   @Enumerable(false)
-  public _collectionPath: string;
+  public _collectionPath: string = null;
 
   @Enumerable(false)
-  public _controlsConfig: { [property: string]: MFControlConfig } = {};
+  public _controlsConfig: { [P in keyof this]?: MFControlConfig } = {};
 
   @Enumerable(false)
-  protected _fromCache: boolean;
+  protected _fromCache: boolean = null;
 
   @Enumerable(false)
-  protected lastUpdateDate: Date = null;
+  public updateDate: Date = null;
 
   @Enumerable(false)
-  protected creationDate: Date = null;
+  public creationDate: Date = null;
 
 
   /**
    * initializes the instance of the model with the given data and location
    * @param data the data to inject in the instance
+   * @param mustachePath the mustache path of the collection
    * @param location the identifier to set in the path
-   * @param abstractPath the mustach path of the collection
    */
-  protected initialize(data: Partial<this>, location: Partial<IMFLocation>, abstractPath: string): void {
+  initialize(data: Partial<this>, mustachePath: string, location: Partial<IMFLocation>): void {
     if (data) {
       for (const key in data) {
         if (!key.startsWith('_') && typeof data[key] !== 'function') {
@@ -53,69 +57,65 @@ export abstract class MFModel implements IMFModel {
       }
     }
     if (location && location.id) {
-      ObjectHelper.createHiddenProperty(this, 'id', location.id);
+      createHiddenProperty(this, 'id', location.id);
     } else if (data && data._id) {
-      ObjectHelper.createHiddenProperty(this, 'id', data['_id']);
+      createHiddenProperty(this, 'id', data._id);
     }
 
-    if (
-      data
-      && data['_collectionPath']
-      && !(<string>data['_collectionPath']).includes('{')
-      && (!location || Object.keys(location).length === (location.id ? 1 : 0))
-    ) {
-      ObjectHelper.createHiddenProperty(this, 'collectionPath', data['_collectionPath']);
-    } else if (path) {
-      ObjectHelper.createHiddenProperty(this, 'collectionPath', ModelHelper.getPath(path, pathIds));
-    } else if (data && data['_collectionPath']) {
-      ObjectHelper.createHiddenProperty(this, 'collectionPath', data['_collectionPath']);
+    if (mustachePath && location) {
+      createHiddenProperty(this, 'collectionPath', getPath(mustachePath, location));
+    } else if (data && data._collectionPath) {
+      createHiddenProperty(this, 'collectionPath', data._collectionPath);
     }
 
-    if (data && data['_fromCache']) {
-      ObjectHelper.createHiddenProperty(this, 'fromCache', data['_fromCache']);
+    if (data && typeof (data as any)._fromCache === 'boolean') {
+      createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
     }
 
-    if (data && data['_updateDate'] && typeof data['_updateDate'].toDate === 'function') {
-      ObjectHelper.createHiddenProperty(this, 'updateDate', data['_updateDate'].toDate());
-    }
   }
 
-  toFormBuilderData(requiredFields: Array<string> = []): { [key: string]: Array<any> } {
-    const formControls = {
-      _id: [this._id, []],
-      _collectionPath: [this._collectionPath, []]
+  toFormBuilderData(
+    requiredFields: { [P in keyof this]?: boolean } = {}
+  ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
+
+    const formControls: { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } = {
+      _id: [this._id, ([] as ValidatorFn[])],
+      _collectionPath: [this._collectionPath, ([] as ValidatorFn[])]
     };
-    if (!this._controls) {
-      this._controls = {};
-    }
-    if (!this._notControls) {
-      this._notControls = {};
-    }
-    // tslint:disable-next-line: forin
+
     for (const controlNameP in this) {
-      const controlName = controlNameP.toString();
+      const controlName = controlNameP.toString() as keyof this;
+      const isVisibleProperty = !(controlName as string).startsWith('_') && typeof (this as any)[controlName] !== 'function';
+      const isForcedControl = this._controlsConfig[controlName] && !this._controlsConfig[controlName].notControl;
+      const isRemovedControl = this._controlsConfig[controlName] && this._controlsConfig[controlName].notControl;
       if (
-        ((!controlName.startsWith('_') &&
-          !controlName.startsWith('$') &&
-          typeof this[controlName] !== 'function') ||
-          this._controls[controlName]) &&
-        !this._notControls[controlName]
+        (
+          isVisibleProperty || isForcedControl
+        ) &&
+        !isRemovedControl
       ) {
 
-        const validators = ([]).concat(this._controls[controlName] || []);
-        if (requiredFields.includes(controlName)) {
+        const validators = [...(this._controlsConfig[controlName] || {}).validators];
+        if (requiredFields[controlName]) {
           validators.push(Validators.required);
         }
-        formControls[controlName] = [this[controlName] !== undefined ? this[controlName] : null, validators];
+        if (this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction) {
+          formControls[controlName] = this._controlsConfig[controlName].toFormGroupFunction(
+            this[controlName] !== undefined ? this[controlName] : null,
+            validators
+          );
+        } else {
+          formControls[controlName] = [
+            this[controlName] !== undefined ? this[controlName] : null,
+            validators
+          ];
+        }
       }
     }
 
     return formControls;
   }
 
-  // toFormGroup(requiredFields: Array<string> = []): FormGroup {
-  //   return new FormBuilder().group(this.toFormGroupData(requiredFields));
-  // }
 
   toString(): string {
     return `${this._collectionPath}/${this._id}`;

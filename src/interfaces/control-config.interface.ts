@@ -1,5 +1,7 @@
-import { Validator, ValidatorFn } from '@angular/forms';
+import { FormGroup, ValidatorFn } from '@angular/forms';
 
 export interface MFControlConfig {
-  validators?: (Validator | ValidatorFn)[];
+  validators?: ValidatorFn[];
+  notControl?: boolean;
+  toFormGroupFunction?: (value: any, validators: ValidatorFn[]) => FormGroup;
 }
