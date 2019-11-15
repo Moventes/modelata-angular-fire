@@ -1,5 +1,5 @@
 {
-  "extends": "tslint:recommended",
+  "extends": "tslint-config-airbnb",
   "rulesDirectory": [
     "codelyzer"
   ],
@@ -86,6 +86,11 @@
       "element",
       "lib",
       "kebab-case"
-    ]
+    ],
+    "variable-name": {
+      "options": [
+        "allow-leading-underscore"
+      ]
+    }
   }
 }

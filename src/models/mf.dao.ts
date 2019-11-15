@@ -4,10 +4,10 @@ import 'reflect-metadata';
 import { Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from '../decorators/cacheable.decorator';
-import { ModelHelper } from '../helpers/model.helper';
-import { ObjectHelper } from '../helpers/object.helper';
+import { ModelHelper } from '../lib/helpers/model.helper';
+import { ObjectHelper } from '../lib/helpers/object.helper';
 import { Offset, OrderBy, Where } from '../types/get-list-types.interface';
-import { AbstractModel } from './abstract.model';
+import { AbstractModel } from './mf.model';
 
 
 
@@ -15,21 +15,6 @@ import { AbstractModel } from './abstract.model';
  * Abstract DAO class
  */
 export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extends DaoCache {
-
-
-  ////////////////////////////////////////////////
-  ////////////////////////////////////////////////
-  ////////////////// Attributes //////////////////
-  ////////////////////////////////////////////////
-  ////////////////////////////////////////////////
-
-  protected collectionPath: string = Reflect.getMetadata('collectionPath', this.constructor);
-
-
-
-
-  public static clearAllCacheAndSubscription = new Subject();
-  public cacheable: boolean;
 
 
 
@@ -49,6 +34,21 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
       this.clearCache();
     });
   }
+
+
+
+
+  public static clearAllCacheAndSubscription = new Subject();
+
+
+  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////
+  ////////////////// Attributes //////////////////
+  ////////////////////////////////////////////////
+  ////////////////////////////////////////////////
+
+  protected collectionPath: string = Reflect.getMetadata('collectionPath', this.constructor);
+  public cacheable: boolean;
 
 
 
@@ -79,9 +79,9 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
     const splittedPath = path.split('/');
     if (splittedPath.length % 2 === (path.startsWith('/') ? 1 : 0)) {
       return splittedPath[splittedPath.length - 1];
-    } else {
-      return null;
     }
+    return null;
+
   }
 
   getListToStringForCacheable(
@@ -130,20 +130,20 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
         pathIds
       );
       return model;
-    } else {
-      console.error(
-        '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
-        documentSnapshot
-      );
-      return null;
     }
+    console.error(
+      '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
+      documentSnapshot
+    );
+    return null;
+
   }
 
   protected getModelFromDbDoc(doc: M, path: string, docId?: string): M {
     if (!doc) {
       console.log('dbDoc', doc, 'path', path, 'docId', docId);
       return null;
-    } else {
+    } {
       if (!doc._id) {
         doc._id = docId ? docId : this.getIdFromPath(path);
       }
@@ -229,7 +229,7 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
       if ((<FormGroup>modelObjP).pristine && !force) {
         // no change, dont need to save
         return Promise.resolve(this.getModel((<FormGroup>modelObjP).value, docId, pathIds));
-      } else if ((<FormGroup>modelObjP).invalid) {
+      } if ((<FormGroup>modelObjP).invalid) {
         // form is invalid, reject with errors
         return Promise.reject((<FormGroup>modelObjP).errors || 'invalid form');
       } else {
@@ -297,15 +297,15 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
           console.log('error for ', dbObj);
           return Promise.reject(error);
         });
-    } else {
-      return this.db
-        .collection(ModelHelper.getPath(this.collectionPath, pathIds))
-        .add(dbObj)
-        .then(ref => {
-          ObjectHelper.createHiddenProperty(dbObj, 'id', ref.id);
-          return dbObj;
-        });
     }
+    return this.db
+      .collection(ModelHelper.getPath(this.collectionPath, pathIds))
+      .add(dbObj)
+      .then(ref => {
+        ObjectHelper.createHiddenProperty(dbObj, 'id', ref.id);
+        return dbObj;
+      });
+
   }
 
   public getByReference(docRef: DocumentReference, cacheable = this.cacheable): Observable<M> {
@@ -314,9 +314,9 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
     if (this.isCompatible(docRef)) {
       if (docRef && docRef.parent) {
         return this.getByPath(docRef.path, false, cacheable);
-      } else {
-        throw new Error('getByReference missing parameter : dbRef.');
       }
+      throw new Error('getByReference missing parameter : dbRef.');
+
     } else {
       throw new Error('docRef is not compatible with this dao!');
     }
@@ -349,9 +349,9 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
           map((docSnap: DocumentSnapshot<M>) => {
             if (!docSnap.exists) {
               return null;
-            } else {
-              return this.getModelFromSnapshot(docSnap);
             }
+            return this.getModelFromSnapshot(docSnap);
+
           })
         ) :
       this.db
@@ -365,9 +365,9 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
           map((doc: M) => {
             if (!doc) {
               return null;
-            } else {
-              return this.getModelFromDbDoc(doc, docPath, docId);
             }
+            return this.getModelFromDbDoc(doc, docPath, docId);
+
           })
         );
   }
@@ -466,11 +466,11 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
               map((snap) => {
                 if (snap.size === 0) {
                   return [];
-                } else {
-                  return snap.docs.filter(doc => doc.exists).map((docSnap: DocumentSnapshot<M>) => {
-                    return this.getModelFromSnapshot(docSnap);
-                  });
                 }
+                return snap.docs.filter(doc => doc.exists).map((docSnap: DocumentSnapshot<M>) => {
+                  return this.getModelFromSnapshot(docSnap);
+                });
+
               })
             ) :
           queryResult
@@ -484,11 +484,11 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
               map((snap) => {
                 if (snap.length === 0) {
                   return [];
-                } else {
-                  return snap.filter(doc => !!doc).map((doc: M) => {
-                    return this.getModelFromDbDoc(doc, ModelHelper.getPath(this.collectionPath, pathIds));
-                  });
                 }
+                return snap.filter(doc => !!doc).map((doc: M) => {
+                  return this.getModelFromDbDoc(doc, ModelHelper.getPath(this.collectionPath, pathIds));
+                });
+
               })
             );
       })

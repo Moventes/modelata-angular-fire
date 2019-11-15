@@ -1,5 +1,6 @@
-import { DocumentSnapshot } from '@angular/fire/firestore';
 import { Validators } from '@angular/forms';
+import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
+import { MFControlConfig } from 'interfaces/control-config.interface';
 import { Enumerable } from '../decorators/enumerable.decorator';
 import { MissingFieldNotifier } from '../helpers/missing-field-notifier';
 import { ModelHelper } from '../helpers/model.helper';
@@ -8,7 +9,7 @@ import { ObjectHelper } from '../helpers/object.helper';
 /**
  * Abstract Model class
  */
-export abstract class AbstractModel {
+export abstract class MFModel implements IMFModel {
 
   @Enumerable(false)
   public _id: string;
@@ -17,32 +18,33 @@ export abstract class AbstractModel {
   public _collectionPath: string;
 
   @Enumerable(false)
-  protected _controls: Object;
-
-  @Enumerable(false)
-  protected _notControls: Object;
+  public _controlsConfig: { [property: string]: MFControlConfig } = {};
 
   @Enumerable(false)
   protected _fromCache: boolean;
 
   @Enumerable(false)
-  protected _updateDate: Date;
+  protected lastUpdateDate: Date = null;
+
+  @Enumerable(false)
+  protected creationDate: Date = null;
+
 
   /**
-   * initializes the instance of the object with the given data and identifier
-   * @param dbObj the data to inject in the instance
-   * @param id the identifier to set
-   * @param collectionPath the path of the collection hosting the document
+   * initializes the instance of the model with the given data and location
+   * @param data the data to inject in the instance
+   * @param location the identifier to set in the path
+   * @param abstractPath the mustach path of the collection
    */
-  protected initialize(dbObj?: Object, docId?: string, path?: string, pathIds?: Array<string>) {
-    if (dbObj) {
-      for (const key in dbObj) {
-        if (!key.startsWith('_') && !key.startsWith('$') && typeof dbObj[key] !== 'function') {
+  protected initialize(data: Partial<this>, location: Partial<IMFLocation>, abstractPath: string): void {
+    if (data) {
+      for (const key in data) {
+        if (!key.startsWith('_') && typeof data[key] !== 'function') {
           if (this.hasOwnProperty(key)) {
-            if (dbObj[key] && typeof dbObj[key].toDate === 'function') {
-              this[key] = dbObj[key].toDate();
+            if (data[key] && typeof (data[key] as any).toDate === 'function') {
+              this[key] = (data[key] as any).toDate();
             } else {
-              this[key] = dbObj[key];
+              this[key] = data[key];
             }
           } else {
             MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
@@ -50,31 +52,31 @@ export abstract class AbstractModel {
         }
       }
     }
-    if (docId) {
-      ObjectHelper.createHiddenProperty(this, 'id', docId);
-    } else if (dbObj && dbObj['_id']) {
-      ObjectHelper.createHiddenProperty(this, 'id', dbObj['_id']);
+    if (location && location.id) {
+      ObjectHelper.createHiddenProperty(this, 'id', location.id);
+    } else if (data && data._id) {
+      ObjectHelper.createHiddenProperty(this, 'id', data['_id']);
     }
 
     if (
-      dbObj
-      && dbObj['_collectionPath']
-      && !(<string>dbObj['_collectionPath']).includes('?')
-      && (!path || !pathIds || pathIds.length === 0)
+      data
+      && data['_collectionPath']
+      && !(<string>data['_collectionPath']).includes('{')
+      && (!location || Object.keys(location).length === (location.id ? 1 : 0))
     ) {
-      ObjectHelper.createHiddenProperty(this, 'collectionPath', dbObj['_collectionPath']);
+      ObjectHelper.createHiddenProperty(this, 'collectionPath', data['_collectionPath']);
     } else if (path) {
       ObjectHelper.createHiddenProperty(this, 'collectionPath', ModelHelper.getPath(path, pathIds));
-    } else if (dbObj && dbObj['_collectionPath']) {
-      ObjectHelper.createHiddenProperty(this, 'collectionPath', dbObj['_collectionPath']);
+    } else if (data && data['_collectionPath']) {
+      ObjectHelper.createHiddenProperty(this, 'collectionPath', data['_collectionPath']);
     }
 
-    if (dbObj && dbObj['_fromCache']) {
-      ObjectHelper.createHiddenProperty(this, 'fromCache', dbObj['_fromCache']);
+    if (data && data['_fromCache']) {
+      ObjectHelper.createHiddenProperty(this, 'fromCache', data['_fromCache']);
     }
 
-    if (dbObj && dbObj['_updateDate'] && typeof dbObj['_updateDate'].toDate === 'function') {
-      ObjectHelper.createHiddenProperty(this, 'updateDate', dbObj['_updateDate'].toDate());
+    if (data && data['_updateDate'] && typeof data['_updateDate'].toDate === 'function') {
+      ObjectHelper.createHiddenProperty(this, 'updateDate', data['_updateDate'].toDate());
     }
   }
 

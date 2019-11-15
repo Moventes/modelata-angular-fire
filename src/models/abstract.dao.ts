@@ -1,9 +1,9 @@
 import { DocumentSnapshot } from '@angular/fire/firestore';
 import 'reflect-metadata';
 import { Observable } from 'rxjs';
-import { ModelHelper } from '../helpers/model.helper';
+import { ModelHelper } from '../lib/helpers/model.helper';
 import { Offset, OrderBy, Where } from './../types/get-list-types.interface';
-import { AbstractModel } from './abstract.model';
+import { AbstractModel } from './mf.model';
 
 /**
  * Common/super Abstract DAO class
@@ -106,7 +106,7 @@ export abstract class AbstractDao<M extends AbstractModel> {
 
     if (!partialDbObj || !docId || !this.collectionPath) {
       return Promise.reject('required attrs');
-    } else if (this.objectIsM(partialDbObj)) {
+    } if (this.objectIsM(partialDbObj)) {
       return this.save(partialDbObj, docId, pathIds);
     } else {
       return this.pushData(partialDbObj, docId, pathIds)
