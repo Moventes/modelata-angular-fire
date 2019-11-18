@@ -1,21 +1,30 @@
 import { IMFLocation } from '@modelata/types-fire/lib/angular';
 import { mustache } from './string.helper';
 
-export function getPath(collectionPath: string, location: Partial<IMFLocation> = {}): string {
+/**
+ * Returns the path from a collection mustache path ad a location object.
+ * @param collectionPath Collection mustache path
+ * @param location Location object containin path ids and document id or not.
+ */
+export function getPath(collectionPath: string, location?: string | Partial<IMFLocation>): string {
+  const realLocation = getLocation(location);
 
-  if (collectionPath.length <= 0) {
+  if (!(collectionPath && collectionPath.length)) {
     throw new Error('collectionPath must be defined');
   }
-
-  let path = mustache(collectionPath, location);
-  if (path.split('{').length > 1) {
-    throw new Error('some collectionIds missing !!!!');
+  let path = mustache(collectionPath, realLocation);
+  if (path.includes('{')) {
+    const missingIdRegex = /{(.*?)}/g;
+    const missingIds: string[] = [];
+    let missingId;
+    while ((missingId = missingIdRegex.exec(path)) !== null) {
+      missingIds.push(missingId[1]);
+    }
+    throw new Error(`collectionIds ${missingIds.join(', ')} missing !!!!`);
   }
-
-  if (location.id) {
-    path += `${path.endsWith('/') ? '' : '/'}${location.id}`;
+  if (realLocation.id) {
+    path += `${path.endsWith('/') ? '' : '/'}${realLocation.id}`;
   }
-
   return path;
 }
 
@@ -44,5 +53,18 @@ export function isCompatiblePath(collectionPath: string, docPath: string): boole
   }
   return false;
 
+}
+
+/**
+ * Return a location object from either unvalued, string id or location object
+ * @param location string id or location object
+ */
+export function getLocation(location?: string | Partial<IMFLocation>): Partial<IMFLocation> {
+  if (location) {
+    return typeof location === 'string' ?
+      { id: location } :
+      location;
+  }
+  return {};
 }
 

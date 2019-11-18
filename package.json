@@ -18,7 +18,7 @@
     "zone.js": "~0.9.1",
     "codelyzer": "^5.0.0",
     "tslint-config-airbnb": "^5.11.2",
-    "@modelata/types-fire": "3.0.0-alpha6",
+    "@modelata/types-fire": "3.0.0-alpha9",
     "tslint": "^5.20.1"
   },
   "dependencies": {
