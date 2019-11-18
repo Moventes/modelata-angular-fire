@@ -1,20 +1,20 @@
 import { AngularFirestore, AngularFirestoreCollection, DocumentReference, DocumentSnapshot, Query } from '@angular/fire/firestore';
+import { IMFDao } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
-import { Observable, of, Subject, Subscription, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Cacheable } from '../decorators/cacheable.decorator';
-import { ModelHelper } from '../lib/helpers/model.helper';
-import { ObjectHelper } from '../lib/helpers/object.helper';
-import { Offset, OrderBy, Where } from '../types/get-list-types.interface';
-import { AbstractModel } from './mf.model';
+import { Cacheable } from './decorators/cacheable.decorator';
+import { MFCache } from './mf-cache';
+import { MFModel } from './mf-model';
+
 
 
 
 /**
  * Abstract DAO class
  */
-export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extends DaoCache {
+export abstract class MFDao<M extends MFModel> extends MFCache implements IMFDao<M>{
 
 
 
@@ -28,17 +28,9 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
 
 
   constructor(private db: AngularFirestore, cacheable = true) {
-    super();
-    this.cacheable = cacheable;
-    AbstractFirestoreDao.clearAllCacheAndSubscription.subscribe(() => {
-      this.clearCache();
-    });
+    super(cacheable);
   }
 
-
-
-
-  public static clearAllCacheAndSubscription = new Subject();
 
 
   ////////////////////////////////////////////////
@@ -47,7 +39,7 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
   ////////////////////////////////////////////////
   ////////////////////////////////////////////////
 
-  protected collectionPath: string = Reflect.getMetadata('collectionPath', this.constructor);
+  public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
   public cacheable: boolean;
 
 
@@ -61,13 +53,7 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
   /////////////////////////////////////////////
 
 
-  clearCache() {
-    if (this['cachedSubscription']) {
-      Object.values(this['cachedSubscription']).forEach((subscr: Subscription) => subscr.unsubscribe());
-      this['cachedSubscription'] = {};
-      this['cachedSubject'] = {};
-    }
-  }
+
 
   public isCompatible(doc: M | DocumentReference): boolean {
     return ModelHelper.isCompatiblePath(this.collectionPath, doc['path'] || doc['_collectionPath']);
@@ -232,10 +218,10 @@ export abstract class MFDao<M extends AbstractModel> implements IMFDao<M> extend
       } if ((<FormGroup>modelObjP).invalid) {
         // form is invalid, reject with errors
         return Promise.reject((<FormGroup>modelObjP).errors || 'invalid form');
-      } else {
-        // ok, lets save
-        objToSave = this.getModel((<FormGroup>modelObjP).value, docId, pathIds);
       }
+      // ok, lets save
+      objToSave = this.getModel((<FormGroup>modelObjP).value, docId, pathIds);
+
     } else {
       objToSave = modelObjP;
     }

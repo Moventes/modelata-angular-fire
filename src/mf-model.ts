@@ -1,14 +1,10 @@
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
-import { Enumerable } from '../decorators/enumerable.decorator';
-import { MissingFieldNotifier } from '../helpers/missing-field-notifier';
-import { getPath } from '../helpers/model.helper';
-import { createHiddenProperty } from '../helpers/object.helper';
-import { MFControlConfig } from '../interfaces/control-config.interface';
-
-// type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T];
-// type MFModelProps = { [K in keyof MFModel]: MFModel[K] extends Function ? never : K }[keyof MFModel];
-// type Props<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T];
+import { Enumerable } from './decorators/enumerable.decorator';
+import { MissingFieldNotifier } from './helpers/missing-field-notifier';
+import { getPath } from './helpers/model.helper';
+import { createHiddenProperty } from './helpers/object.helper';
+import { MFControlConfig } from './interfaces/control-config.interface';
 
 /**
  * Abstract Model class

@@ -1,5 +1,5 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
-import { MFModel } from 'models/mf.model';
+import { MFModel } from 'mf-model';
 
 export function FormControlValidators<M extends MFModel>(value: ValidatorFn[] = []) {
   return function (target: M, propertyKey: keyof M) {

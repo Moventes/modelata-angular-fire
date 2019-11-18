@@ -4,6 +4,12 @@
     "codelyzer"
   ],
   "rules": {
+    "function-name": [
+      true,
+      {
+        "function-regex": "^[a-zA-Z$][\\w\\d]+$"
+      }
+    ],
     "array-type": false,
     "arrow-parens": false,
     "deprecation": {
