@@ -68,3 +68,43 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
   return {};
 }
 
+export function allDataExistInModel<M>(data: Partial<M>, model: M, logInexistingData: boolean = true): boolean {
+  for (const key in data) {
+    if (!model.hasOwnProperty(key)) {
+      if (logInexistingData) {
+        console.error(`try to update/add an attribute that is not defined in the model = ${key}`);
+      }
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+* method used to prepare the data for save
+* @param modelObj the data to save
+*/
+export function getSavableData<M>(modelObj: M): Partial<M> {
+
+  return Object.keys(modelObj)
+    .filter(key =>
+      !(key as string).startsWith('_') &&
+      typeof modelObj[(key as keyof M)] !== 'undefined' &&
+      typeof modelObj[(key as keyof M)] !== 'function'
+    )
+    .reduce(
+      (dbObj: Partial<M>, keyp) => {
+        const key: keyof M = keyp as keyof M;
+        if (modelObj[key] && modelObj[key].constructor.name === 'Object') {
+          (dbObj[key] as any) = getSavableData<any>(modelObj[key]);
+        } else {
+          dbObj[key] = modelObj[key];
+        }
+        return dbObj;
+      },
+      {}
+    );
+
+}
+
+

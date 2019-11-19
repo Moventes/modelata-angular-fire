@@ -9,7 +9,7 @@ import { MFControlConfig } from './interfaces/control-config.interface';
 /**
  * Abstract Model class
  */
-export abstract class MFModel implements IMFModel {
+export abstract class MFModel<M> implements IMFModel<M> {
 
   @Enumerable(false)
   public _id: string = null;
@@ -36,15 +36,15 @@ export abstract class MFModel implements IMFModel {
    * @param mustachePath the mustache path of the collection
    * @param location the identifier to set in the path
    */
-  initialize(data: Partial<this>, mustachePath: string, location: Partial<IMFLocation>): void {
+  initialize(data: Partial<M>, mustachePath: string, location: Partial<IMFLocation>): void {
     if (data) {
       for (const key in data) {
         if (!key.startsWith('_') && typeof data[key] !== 'function') {
           if (this.hasOwnProperty(key)) {
             if (data[key] && typeof (data[key] as any).toDate === 'function') {
-              this[key] = (data[key] as any).toDate();
+              (this as any)[key] = (data[key] as any).toDate();
             } else {
-              this[key] = data[key];
+              (this as any)[key] = data[key];
             }
           } else {
             MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
@@ -54,14 +54,14 @@ export abstract class MFModel implements IMFModel {
     }
     if (location && location.id) {
       createHiddenProperty(this, 'id', location.id);
-    } else if (data && data._id) {
-      createHiddenProperty(this, 'id', data._id);
+    } else if (data && (data as any)._id) {
+      createHiddenProperty(this, 'id', (data as any)._id);
     }
 
     if (mustachePath && location) {
       createHiddenProperty(this, 'collectionPath', getPath(mustachePath, location));
-    } else if (data && data._collectionPath) {
-      createHiddenProperty(this, 'collectionPath', data._collectionPath);
+    } else if (data && (data as any)._collectionPath) {
+      createHiddenProperty(this, 'collectionPath', (data as any)._collectionPath);
     }
 
     if (data && typeof (data as any)._fromCache === 'boolean') {

@@ -71,8 +71,13 @@ export function Cacheable() {
 
         const cachableIsDisabled = lastArgument &&
           typeof lastArgument === 'object' &&
-          typeof (lastArgument as any).cacheable === 'boolean' &&
-          (lastArgument as any).cacheable;
+          (
+            (
+              typeof (lastArgument as any).cacheable === 'boolean' &&
+              (lastArgument as any).cacheable === false
+            ) ||
+            (lastArgument as any).completeOnFirst === true
+          );
 
         if (!cachableIsDisabled) {
           const cacheId = getCacheId(targetClass, methodName, args);
