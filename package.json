@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.0.0",
+  "version": "3.0.0-alpha1",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -18,12 +18,11 @@
     "zone.js": "~0.9.1",
     "codelyzer": "^5.0.0",
     "tslint-config-airbnb": "^5.11.2",
-    "@modelata/types-fire": "3.0.0-alpha12",
     "tslint": "^5.20.1"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.13",
-    "@modelata/types-fire": "3.0.0-alpha12"
+    "@modelata/types-fire": "3.0.0-alpha14"
   },
   "peerDependencies": {
     "@angular/common": "~8.2.14",

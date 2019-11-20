@@ -1,3 +1,4 @@
+import { DocumentReference } from '@angular/fire/firestore';
 import { IMFLocation } from '@modelata/types-fire/lib/angular';
 import { mustache } from './string.helper';
 
@@ -28,27 +29,27 @@ export function getPath(collectionPath: string, location?: string | Partial<IMFL
   return path;
 }
 
-export function isCompatiblePath(collectionPath: string, docPath: string): boolean {
-  if (collectionPath) {
-    const docPathSplitted = docPath.split('/');
-    const collectionPathSplitted = collectionPath.split('/');
-    if (docPathSplitted[0] === '') {
-      docPathSplitted.shift();
+export function isCompatiblePath(mustachePath: string, refPath: string): boolean {
+  if (mustachePath) {
+    const refPathSplitted = refPath.split('/');
+    const mustachePathSplitted = mustachePath.split('/');
+    if (refPathSplitted[0] === '') {
+      refPathSplitted.shift();
     }
-    if (docPathSplitted[docPathSplitted.length - 1] === '') {
-      docPathSplitted.pop();
+    if (refPathSplitted[refPathSplitted.length - 1] === '') {
+      refPathSplitted.pop();
     }
-    if (collectionPathSplitted[0] === '') {
-      collectionPathSplitted.shift();
+    if (mustachePathSplitted[0] === '') {
+      mustachePathSplitted.shift();
     }
-    if (collectionPathSplitted[collectionPathSplitted.length - 1] === '') {
-      collectionPathSplitted.pop();
+    if (mustachePathSplitted[mustachePathSplitted.length - 1] === '') {
+      mustachePathSplitted.pop();
     }
-    if (collectionPathSplitted.length < docPathSplitted.length - 1 || collectionPathSplitted.length > docPathSplitted.length) {
+    if (mustachePathSplitted.length < refPathSplitted.length - 1 || mustachePathSplitted.length > refPathSplitted.length) {
       return false;
     }
-    return collectionPathSplitted.every((path, index) => {
-      return docPathSplitted[index] && (path.startsWith('{') || docPathSplitted[index] === path);
+    return mustachePathSplitted.every((path, index) => {
+      return refPathSplitted[index] && (path.startsWith('{') || refPathSplitted[index] === path);
     });
   }
   return false;
@@ -67,6 +68,16 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
   }
   return {};
 }
+/**
+ * Return a location object from either unvalued, string id or location object
+ * @param location string id or location object
+ */
+export function getLocationFromRef(ref: DocumentReference): Partial<IMFLocation> {
+  return {
+    id: ref.id
+  }
+}
+
 
 export function allDataExistInModel<M>(data: Partial<M>, model: M, logInexistingData: boolean = true): boolean {
   for (const key in data) {

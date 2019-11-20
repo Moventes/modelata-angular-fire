@@ -1,7 +1,7 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
 import { MFModel } from 'mf-model';
 
-export function FormControlValidators<M extends MFModel>(value: ValidatorFn[] = []) {
+export function FormControlValidators<M extends MFModel<M>>(value: ValidatorFn[] = []) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
       target._controlsConfig[propertyKey] = {};
@@ -12,7 +12,7 @@ export function FormControlValidators<M extends MFModel>(value: ValidatorFn[] = 
   };
 }
 
-export function ToFormControl<M extends MFModel>() {
+export function ToFormControl<M extends MFModel<M>>() {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
       target._controlsConfig[propertyKey] = {};
@@ -21,7 +21,7 @@ export function ToFormControl<M extends MFModel>() {
   };
 }
 
-export function NotInFormControl<M extends MFModel>() {
+export function NotInFormControl<M extends MFModel<M>>() {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
       target._controlsConfig[propertyKey] = {};
@@ -30,7 +30,7 @@ export function NotInFormControl<M extends MFModel>() {
   };
 }
 
-export function ToFormGroupFunction<M extends MFModel>(fn: (value: any, validators: ValidatorFn[]) => FormGroup) {
+export function ToFormGroupFunction<M extends MFModel<M>>(fn: (value: any, validators: ValidatorFn[]) => FormGroup) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
       target._controlsConfig[propertyKey] = {};

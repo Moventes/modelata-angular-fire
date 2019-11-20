@@ -1,3 +1,4 @@
+import { DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
 import { Enumerable } from './decorators/enumerable.decorator';
@@ -18,6 +19,9 @@ export abstract class MFModel<M> implements IMFModel<M> {
   public _collectionPath: string = null;
 
   @Enumerable(false)
+  public _snapshot: DocumentSnapshot<M> = null;
+
+  @Enumerable(false)
   public _controlsConfig: { [P in keyof this]?: MFControlConfig } = {};
 
   @Enumerable(false)
@@ -28,6 +32,8 @@ export abstract class MFModel<M> implements IMFModel<M> {
 
   @Enumerable(false)
   public creationDate: Date = null;
+
+
 
 
   /**
