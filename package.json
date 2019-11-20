@@ -1,9 +1,12 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.0.0-alpha1",
+  "version": "3.0.0-alpha4",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "devDependencies": {
     "@angular/common": "~8.2.14",
     "@angular/core": "~8.2.14",
