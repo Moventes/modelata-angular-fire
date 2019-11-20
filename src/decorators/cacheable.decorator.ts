@@ -1,5 +1,6 @@
 import { MFDao } from 'mf-dao';
 import { Observable, ReplaySubject } from 'rxjs';
+import { MFCache } from 'mf-cache';
 
 function addDecycleOnJSON() {
   if (typeof (<any>JSON).decycle !== 'function') {
@@ -81,14 +82,14 @@ export function Cacheable() {
 
         if (!cachableIsDisabled) {
           const cacheId = getCacheId(targetClass, methodName, args);
-          if (!targetClass.cache[cacheId]) {
+          if (!MFCache.cache[cacheId]) {
             const subject = new ReplaySubject(1);
-            targetClass.cache[cacheId] = {
+            MFCache.cache[cacheId] = {
               subject,
               subscription: originalMethod.apply(this, args).subscribe(doc => subject.next(doc))
             };
           }
-          return targetClass.cache[cacheId].subject;
+          return MFCache.cache[cacheId].subject;
         }
         return originalMethod.apply(this, args);
       };
