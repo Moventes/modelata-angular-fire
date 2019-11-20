@@ -75,7 +75,7 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
 export function getLocationFromRef(ref: DocumentReference): Partial<IMFLocation> {
   return {
     id: ref.id
-  }
+  };
 }
 
 

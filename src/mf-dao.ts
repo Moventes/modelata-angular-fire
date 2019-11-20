@@ -1,4 +1,5 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentReference, CollectionReference, DocumentSnapshot } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentReference, CollectionReference, DocumentSnapshot }
+  from '@angular/fire/firestore';
 import { IMFDao, IMFFile, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFGetListOptions, IMFOffset } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import { allDataExistInModel, getLocation, getPath, getSavableData, isCompatiblePath } from 'helpers/model.helper';
