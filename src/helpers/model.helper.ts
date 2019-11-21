@@ -1,4 +1,3 @@
-import { DocumentReference } from '@angular/fire/firestore';
 import { IMFLocation } from '@modelata/types-fire/lib/angular';
 import { mustache } from './string.helper';
 
@@ -68,15 +67,39 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
   }
   return {};
 }
+
 /**
  * Return a location object from either unvalued, string id or location object
  * @param location string id or location object
  */
-export function getLocationFromRef(ref: DocumentReference): Partial<IMFLocation> {
-  return {
-    id: ref.id
-  };
+export function getLocationFromPath(path: string, mustachePath: string, id?: string): Partial<IMFLocation> {
+  const pathSplitted = path.split('/');
+  const mustachePathSplitted = mustachePath.split('/');
+  if (pathSplitted[0] === '') {
+    pathSplitted.shift();
+  }
+  if (pathSplitted[pathSplitted.length - 1] === '') {
+    pathSplitted.pop();
+  }
+  if (mustachePathSplitted[0] === '') {
+    mustachePathSplitted.shift();
+  }
+  if (mustachePathSplitted[mustachePathSplitted.length - 1] === '') {
+    mustachePathSplitted.pop();
+  }
+
+  return mustachePathSplitted.reduce(
+    (location: Partial<IMFLocation>, partOfMustachePath: string, index: number) => {
+      if (partOfMustachePath.startsWith('{')) {
+        location[partOfMustachePath.slice(1, -1)] = pathSplitted[index];
+      }
+      return location;
+    },
+    {
+      id
+    });
 }
+
 
 
 export function allDataExistInModel<M>(data: Partial<M>, model: M, logInexistingData: boolean = true): boolean {

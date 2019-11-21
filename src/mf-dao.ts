@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getPath, getSavableData, isCompatiblePath } from './helpers/model.helper';
+import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, isCompatiblePath } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -106,7 +106,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     (data as any).creationDate = firestore.FieldValue.serverTimestamp();
 
     const getDataToSave = this.beforeSave(data).then(data2 => getSavableData(data2));
-    const realLocation = getLocation(location);
+    const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
     const reference = this.getAFReference<Partial<M>>(realLocation);
 
     let setOrAddPromise: Promise<any>;
@@ -133,7 +133,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
 
-    const realLocation = getLocation(location);
+    const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
 
     (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
 
