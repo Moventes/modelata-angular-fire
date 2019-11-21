@@ -1,6 +1,6 @@
-import { MFDao } from 'mf-dao';
 import { Observable, ReplaySubject } from 'rxjs';
-import { MFCache } from 'mf-cache';
+import { MFCache } from './../mf-cache';
+import { MFDao } from './../mf-dao';
 
 function addDecycleOnJSON() {
   if (typeof (<any>JSON).decycle !== 'function') {

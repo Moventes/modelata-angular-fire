@@ -1,11 +1,11 @@
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
-import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions } from '@modelata/types-fire/lib/angular';
+import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
-import { allDataExistInModel, getLocation, getPath, getSavableData, isCompatiblePath } from 'helpers/model.helper';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
+import { allDataExistInModel, getLocation, getPath, getSavableData, isCompatiblePath } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -49,7 +49,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return this.getAFReference(location).ref;
   }
 
-  public getList(location?: Omit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+  public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     const realLocation = getLocation(location);
 
     return this.getOffsetSnapshots(options.offset).pipe(
