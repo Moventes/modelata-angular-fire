@@ -1,14 +1,13 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentReference, CollectionReference, DocumentSnapshot }
-  from '@angular/fire/firestore';
-import { IMFDao, IMFFile, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFGetListOptions, IMFOffset } from '@modelata/types-fire/lib/angular';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import { allDataExistInModel, getLocation, getPath, getSavableData, isCompatiblePath } from 'helpers/model.helper';
 import 'reflect-metadata';
-import { Observable, of, combineLatest } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
-import { Cacheable } from './decorators/cacheable.decorator';
 
 /**
  * Abstract DAO class
@@ -32,7 +31,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
     if (location) {
       const reference = this.getAFReference(location) as AngularFirestoreDocument<M>;
-      return this.getByAFReference(reference);
+      return this.getByAFReference(reference, options);
     }
     throw new Error('getById missing parameter : location');
 
