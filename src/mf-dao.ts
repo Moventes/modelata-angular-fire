@@ -1,11 +1,4 @@
-import {
-  AngularFirestore,
-  AngularFirestoreCollection,
-  AngularFirestoreDocument,
-  CollectionReference,
-  DocumentReference,
-  DocumentSnapshot
-} from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -288,19 +281,21 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   private getOffsetSnapshots(iMFOffset: IMFOffset<M>): Observable<IMFOffset<M>> {
-    if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
-      throw new Error('Two many offset options')
-    } else if (iMFOffset && (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt)) {
-      return combineLatest(
-        this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
-        this.getSnapshotFromIMFOffsetPart(iMFOffset.startAfter),
-        this.getSnapshotFromIMFOffsetPart(iMFOffset.endAt),
-        this.getSnapshotFromIMFOffsetPart(iMFOffset.startAt)
-      ).pipe(
-        map(([endBefore, startAfter, endAt, startAt]) => ({
-          endBefore, startAfter, endAt, startAt
-        }))
-      );
+    if (iMFOffset) {
+      if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
+        throw new Error('Two many offset options');
+      } else if (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt) {
+        return combineLatest(
+          this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
+          this.getSnapshotFromIMFOffsetPart(iMFOffset.startAfter),
+          this.getSnapshotFromIMFOffsetPart(iMFOffset.endAt),
+          this.getSnapshotFromIMFOffsetPart(iMFOffset.startAt)
+        ).pipe(
+          map(([endBefore, startAfter, endAt, startAt]) => ({
+            endBefore, startAfter, endAt, startAt
+          }))
+        );
+      }
     }
     return of(null);
   }
