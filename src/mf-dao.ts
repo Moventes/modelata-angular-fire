@@ -1,4 +1,11 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot
+} from '@angular/fire/firestore';
 import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -29,11 +36,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   abstract getNewModel(data?: Partial<M>, location?: Partial<IMFLocation>): M;
 
   public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
-    if (location) {
+    if (location && (typeof location === 'string' || location.id)) {
       const reference = this.getAFReference(location) as AngularFirestoreDocument<M>;
       return this.getByAFReference(reference, options);
     }
-    throw new Error('getById missing parameter : location');
+    throw new Error('getById missing parameter : location and/or id');
 
   }
 

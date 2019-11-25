@@ -1,5 +1,5 @@
 
 export interface MetaRef {
-    attribute: string;
-    dao: string;
+  attribute: string;
+  dao: string;
 }

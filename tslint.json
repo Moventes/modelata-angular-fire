@@ -7,7 +7,8 @@
     "function-name": [
       true,
       {
-        "function-regex": "^[a-zA-Z$][\\w\\d]+$"
+        "function-regex": "^[a-zA-Z$][\\w\\d]+$",
+        "static-method-regex": "^[a-zA-Z$][\\w\\d]+$"
       }
     ],
     "array-type": false,
