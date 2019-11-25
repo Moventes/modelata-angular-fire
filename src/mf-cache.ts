@@ -1,6 +1,11 @@
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
-export abstract class MFCache {
+export class MFCache {
+
+
+  constructor(cacheable: boolean = true) {
+    this.cacheable = cacheable;
+  }
   static readonly cache: {
     [methodId: string]: {
       subscription: Subscription,
@@ -11,9 +16,8 @@ export abstract class MFCache {
   static clearAllCacheSub: Subscription;
   private clearCacheSub: Subscription;
 
-  abstract mustachePath: string;
-
-  constructor(public readonly cacheable = true) { }
+  protected mustachePath: string;
+  protected cacheable = true;
 
   static clearAllMFCache() {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
@@ -27,6 +31,10 @@ export abstract class MFCache {
       MFCache.clearAllCacheSub.unsubscribe();
     }
     MFCache.clearAllCacheSub = clearAllCacheAndSubscription$.subscribe(() => MFCache.clearAllMFCache());
+  }
+
+  public isCacheable() {
+    return this.cacheable;
   }
 
   private clearCache() {

@@ -15,7 +15,7 @@ export function Cacheable() {
     targetClass: MFDao<any>,
     methodName: string,
     propertyDesciptor: PropertyDescriptor): PropertyDescriptor => {
-    if (targetClass.cacheable) {
+    if (targetClass.isCacheable()) {
       const originalMethod: (...args: any[]) => Observable<any> = propertyDesciptor.value;
 
       propertyDesciptor.value = function (...args: any[]) {
