@@ -45,11 +45,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
-    return this.getByAFReference(this.db.doc(reference), options);
+    if (reference) {
+      return this.getByAFReference(this.db.doc(reference), options);
+    }
+    throw new Error('getByReference missing parameter : reference');
   }
 
   public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-    return this.getByAFReference(this.db.doc(path), options);
+    if (path) {
+      return this.getByAFReference(this.db.doc(path), options);
+    }
+    throw new Error('getByPath missing parameter : path');
   }
 
   public getReference(location: string | Partial<IMFLocation>): DocumentReference | CollectionReference {
