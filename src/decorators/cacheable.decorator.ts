@@ -1,60 +1,12 @@
+import * as Flatted from 'flatted';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
 
-function addDecycleOnJSON() {
-  if (typeof (<any>JSON).decycle !== 'function') {
-    (<any>JSON).decycle = function decycle(object: any, replacer: any) {
-      const objects = new WeakMap();
-      return (function derez(value, path) {
-        // tslint:disable-next-line: variable-name
-        let old_path;
-        let nu: any;
-        if (replacer !== undefined) {
-          // tslint:disable-next-line: no-parameter-reassignment
-          value = replacer(value);
-        }
-        if (
-          typeof value === 'object' &&
-          value !== null &&
-          !(value instanceof Boolean) &&
-          !(value instanceof Date) &&
-          !(value instanceof Number) &&
-          !(value instanceof RegExp) &&
-          !(value instanceof String)
-        ) {
-          old_path = objects.get(value);
-          if (old_path !== undefined) {
-            return { $ref: old_path };
-          }
-          objects.set(value, path);
-          if (Array.isArray(value)) {
-            nu = [];
-            value.forEach((element, i) => {
-              nu[i] = derez(element, `${path}[${i}]`);
-            });
-          } else {
-            nu = {};
-            Object.keys(value).forEach((name) => {
-              if (value.hasOwnProperty(name)) {
-                nu[name] = derez(value[name], `${path}[${JSON.stringify(name)}]`);
-              }
-            });
-          }
-          return nu;
-        } if (typeof value !== 'function') {
-          return value;
-        }
-        return null;
 
-      })(object, '$');
-    };
-  }
-}
 
 function getCacheId(targetClass: MFDao<any>, methodName: string, params: any[]): string {
-  addDecycleOnJSON();
-  return `dao(${targetClass.mustachePath}).${methodName}(${JSON.stringify((<any>JSON).decycle({ params }))})`;
+  return `dao(${targetClass.mustachePath}).${methodName}(${Flatted.stringify({ params })})`;
 }
 
 
