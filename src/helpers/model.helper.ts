@@ -28,27 +28,22 @@ export function getPath(collectionPath: string, location?: string | Partial<IMFL
   return path;
 }
 
+/**
+ * Returns true if the document path is in the same format as the collection path (meaning the document is from this kind of collection)
+ * or false if it doesn't
+ * @param mustachePath Collection path
+ * @param refPath Document path
+ */
 export function isCompatiblePath(mustachePath: string, refPath: string): boolean {
   if (mustachePath) {
-    const refPathSplitted = refPath.split('/');
-    const mustachePathSplitted = mustachePath.split('/');
-    if (refPathSplitted[0] === '') {
-      refPathSplitted.shift();
-    }
-    if (refPathSplitted[refPathSplitted.length - 1] === '') {
-      refPathSplitted.pop();
-    }
-    if (mustachePathSplitted[0] === '') {
-      mustachePathSplitted.shift();
-    }
-    if (mustachePathSplitted[mustachePathSplitted.length - 1] === '') {
-      mustachePathSplitted.pop();
-    }
-    if (mustachePathSplitted.length < refPathSplitted.length - 1 || mustachePathSplitted.length > refPathSplitted.length) {
+    const { pathSplitted, mustachePathSplitted } = getSplittedPath(refPath, mustachePath);
+
+
+    if (mustachePathSplitted.length < pathSplitted.length - 1 || mustachePathSplitted.length > pathSplitted.length) {
       return false;
     }
     return mustachePathSplitted.every((path, index) => {
-      return refPathSplitted[index] && (path.startsWith('{') || refPathSplitted[index] === path);
+      return pathSplitted[index] && (path.startsWith('{') || pathSplitted[index] === path);
     });
   }
   return false;
@@ -73,6 +68,24 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
  * @param location string id or location object
  */
 export function getLocationFromPath(path: string, mustachePath: string, id?: string): Partial<IMFLocation> {
+  const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, mustachePath);
+
+  return mustachePathSplitted.reduce(
+    (location: Partial<IMFLocation>, partOfMustachePath: string, index: number) => {
+      if (partOfMustachePath.startsWith('{')) {
+        location[partOfMustachePath.slice(1, -1)] = pathSplitted[index];
+      }
+      return location;
+    },
+    {
+      id
+    });
+}
+
+export function getSplittedPath(path: String, mustachePath: string): {
+  pathSplitted: string[],
+  mustachePathSplitted: string[],
+} {
   const pathSplitted = path.split('/');
   const mustachePathSplitted = mustachePath.split('/');
   if (pathSplitted[0] === '') {
@@ -88,19 +101,11 @@ export function getLocationFromPath(path: string, mustachePath: string, id?: str
     mustachePathSplitted.pop();
   }
 
-  return mustachePathSplitted.reduce(
-    (location: Partial<IMFLocation>, partOfMustachePath: string, index: number) => {
-      if (partOfMustachePath.startsWith('{')) {
-        location[partOfMustachePath.slice(1, -1)] = pathSplitted[index];
-      }
-      return location;
-    },
-    {
-      id
-    });
+  return {
+    pathSplitted,
+    mustachePathSplitted,
+  };
 }
-
-
 
 export function allDataExistInModel<M>(data: Partial<M>, model: M, logInexistingData: boolean = true): boolean {
   for (const key in data) {

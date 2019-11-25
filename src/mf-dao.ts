@@ -188,7 +188,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   public saveFile(fileObject: IMFFile, location: string | IMFLocation): IMFFile {
-    throw new Error('Method not implemented.');
+    throw new Error('Method saveFile not yet implemented in @modelata/angular-fire.');
   }
 
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
@@ -288,7 +288,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   private getOffsetSnapshots(iMFOffset: IMFOffset<M>): Observable<IMFOffset<M>> {
-    if (iMFOffset && (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt)) {
+    if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
+      throw new Error('Two many offset options')
+    } else if (iMFOffset && (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt)) {
       return combineLatest(
         this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
         this.getSnapshotFromIMFOffsetPart(iMFOffset.startAfter),

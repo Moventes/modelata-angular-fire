@@ -24,8 +24,9 @@
     "tslint": "^5.20.1"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13",
-    "@modelata/types-fire": "^3.0.0-alpha17"
+    "@modelata/types-fire": "^3.0.0-alpha17",
+    "flatted": "^2.0.1",
+    "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
     "@angular/common": "~8.2.14",
