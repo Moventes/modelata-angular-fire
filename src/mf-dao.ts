@@ -116,7 +116,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     const reference = this.getAFReference<Partial<M>>(realLocation);
 
     let setOrAddPromise: Promise<any>;
-    if (realLocation.id) {
+    if (realLocation && realLocation.id) {
       setOrAddPromise = getDataToSave
         .then(dataToSave => (reference as AngularFirestoreDocument<Partial<M>>).set(dataToSave, { merge: !options.overwrite }));
     } else {

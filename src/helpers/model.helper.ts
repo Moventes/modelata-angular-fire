@@ -35,7 +35,7 @@ export function getPath(collectionPath: string, location?: string | Partial<IMFL
  * @param refPath Document path
  */
 export function isCompatiblePath(mustachePath: string, refPath: string): boolean {
-  if (mustachePath) {
+  if (mustachePath && refPath) {
     const { pathSplitted, mustachePathSplitted } = getSplittedPath(refPath, mustachePath);
 
 
@@ -68,18 +68,21 @@ export function getLocation(location?: string | Partial<IMFLocation>): Partial<I
  * @param location string id or location object
  */
 export function getLocationFromPath(path: string, mustachePath: string, id?: string): Partial<IMFLocation> {
-  const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, mustachePath);
+  if (path && mustachePath) {
+    const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, mustachePath);
 
-  return mustachePathSplitted.reduce(
-    (location: Partial<IMFLocation>, partOfMustachePath: string, index: number) => {
-      if (partOfMustachePath.startsWith('{')) {
-        location[partOfMustachePath.slice(1, -1)] = pathSplitted[index];
-      }
-      return location;
-    },
-    {
-      id
-    });
+    return mustachePathSplitted.reduce(
+      (location: Partial<IMFLocation>, partOfMustachePath: string, index: number) => {
+        if (partOfMustachePath.startsWith('{')) {
+          location[partOfMustachePath.slice(1, -1)] = pathSplitted[index];
+        }
+        return location;
+      },
+      {
+        id
+      });
+  }
+  return null;
 }
 
 export function getSplittedPath(path: String, mustachePath: string): {
