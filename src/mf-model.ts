@@ -132,11 +132,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
     return formControls;
   }
 
-  setObservableForRef() {
-
-  }
-
-
   toString(): string {
     return `${this._collectionPath}/${this._id}`;
   }
