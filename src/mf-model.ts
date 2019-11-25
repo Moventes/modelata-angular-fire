@@ -1,11 +1,14 @@
-import { DocumentSnapshot } from '@angular/fire/firestore';
+import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
+import { MFDao } from 'mf-dao';
+import 'reflect-metadata';
 import { Enumerable } from './decorators/enumerable.decorator';
 import { MissingFieldNotifier } from './helpers/missing-field-notifier';
 import { getPath } from './helpers/model.helper';
 import { createHiddenProperty } from './helpers/object.helper';
 import { MFControlConfig } from './interfaces/control-config.interface';
+import { MetaRef } from './interfaces/meta-ref.interface';
 
 /**
  * Abstract Model class
@@ -45,15 +48,26 @@ export abstract class MFModel<M> implements IMFModel<M> {
   initialize(data: Partial<M>, mustachePath: string, location: Partial<IMFLocation>): void {
     if (data) {
       for (const key in data) {
-        if (!key.startsWith('_') && typeof data[key] !== 'function') {
-          if (this.hasOwnProperty(key)) {
-            if (data[key] && typeof (data[key] as any).toDate === 'function') {
-              (this as any)[key] = (data[key] as any).toDate();
+        if (typeof data[key] !== 'function') {
+          if (!key.startsWith('_')) {
+            if (this.hasOwnProperty(key)) {
+              if (data[key] && typeof (data[key] as any).toDate === 'function') {
+                (this as any)[key] = (data[key] as any).toDate();
+              } else {
+                (this as any)[key] = data[key];
+              }
             } else {
-              (this as any)[key] = data[key];
+              MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
             }
           } else {
-            MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
+            if (Reflect.hasMetadata('observableFromRef', this, key)) {
+              const meta: MetaRef = Reflect.getMetadata('observableFromRef', this, key);
+              if (meta.attribute && meta.dao && (data as any)[meta.attribute] && (this as any)[meta.dao]) {
+                const dao: MFDao<any> = (this as any)[meta.dao];
+                const ref: DocumentReference = (data as any)[meta.attribute];
+                (this as any)[key] = dao.getByReference(ref);
+              }
+            }
           }
         }
       }
@@ -116,6 +130,10 @@ export abstract class MFModel<M> implements IMFModel<M> {
     }
 
     return formControls;
+  }
+
+  setObservableForRef() {
+
   }
 
 
