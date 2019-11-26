@@ -2,10 +2,6 @@ import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
 export class MFCache {
 
-
-  constructor(cacheable: boolean = true) {
-    this.cacheable = cacheable;
-  }
   static readonly cache: {
     [methodId: string]: {
       subscription: Subscription,
@@ -18,6 +14,11 @@ export class MFCache {
 
   protected mustachePath: string;
   protected cacheable = true;
+
+  constructor(cacheable: boolean = true) {
+    this.cacheable = cacheable;
+  }
+
 
   static clearAllMFCache() {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
