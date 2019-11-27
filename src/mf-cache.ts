@@ -1,4 +1,5 @@
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
+import 'reflect-metadata';
 
 export class MFCache {
 
@@ -13,10 +14,8 @@ export class MFCache {
   private clearCacheSub: Subscription;
 
   protected mustachePath: string;
-  protected cacheable = true;
 
-  constructor(cacheable: boolean = true) {
-    this.cacheable = cacheable;
+  constructor() {
   }
 
 
@@ -35,7 +34,7 @@ export class MFCache {
   }
 
   public isCacheable() {
-    return this.cacheable;
+    return Reflect.hasMetadata('cacheable', this) ? Reflect.getMetadata('cacheable', this) : true;
   }
 
   private clearCache() {

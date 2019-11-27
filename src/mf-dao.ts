@@ -16,8 +16,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
 
-  constructor(private db: AngularFirestore, cacheable = true) {
-    super(cacheable);
+  constructor(private db: AngularFirestore) {
+    super();
   }
 
   //       ///////////////////////////////////
