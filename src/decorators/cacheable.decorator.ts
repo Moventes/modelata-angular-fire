@@ -18,7 +18,8 @@ export function NoCache(target: Object) {
 export function Cacheable(
   targetClass: MFDao<any>,
   methodName: string,
-  propertyDesciptor: PropertyDescriptor): PropertyDescriptor {
+  propertyDesciptor: PropertyDescriptor
+): PropertyDescriptor {
 
   if (targetClass.isCacheable()) {
     const originalMethod: (...args: any[]) => Observable<any> = propertyDesciptor.value;

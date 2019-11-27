@@ -216,7 +216,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
 
 
-  @Cacheable()
+  @Cacheable
   private getByAFReference(reference: AngularFirestoreDocument<M>, options: IMFGetOneOptions = {}): Observable<M> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
@@ -245,7 +245,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByReference missing parameter : reference');
   }
 
-  @Cacheable()
+  @Cacheable
   private getListByAFReference(reference: AngularFirestoreCollection<M>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
