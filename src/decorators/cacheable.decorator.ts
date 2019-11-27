@@ -13,7 +13,7 @@ function getCacheId(targetClass: MFDao<any>, methodName: string, params: any[]):
 export function NoCache() {
   return (target: Object) => {
     Reflect.defineMetadata('cacheable', false, target);
-  }
+  };
 }
 
 
