@@ -35,7 +35,6 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       return this.getByAFReference(reference, options);
     }
     throw new Error('getById missing parameter : location and/or id');
-
   }
 
   public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
