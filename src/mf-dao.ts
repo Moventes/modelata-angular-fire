@@ -1,4 +1,11 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot
+} from '@angular/fire/firestore';
 import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -178,7 +185,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public beforeSave(model: Partial<M>, location?: string | IMFLocation): Promise<Partial<M>> {
     const fileKeys = Object.keys(model).filter((key) => {
-      const property = (model as any)[key]
+      const property = (model as any)[key];
       return typeof property === 'object' && property._file;
     });
     if (fileKeys.length) {
