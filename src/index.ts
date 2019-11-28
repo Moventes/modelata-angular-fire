@@ -8,7 +8,6 @@ export * from './decorators/collection-path.decorator';
 export * from './decorators/enumerable.decorator';
 export * from './decorators/form.decorator';
 export * from './decorators/get-by-ref.decorator';
-export * from './decorators/cacheable.decorator';
 export * from './mf-cache';
 export * from './mf-dao';
 export * from './mf-model';

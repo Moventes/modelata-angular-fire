@@ -1,5 +1,5 @@
-import { Observable, ReplaySubject, Subscription } from 'rxjs';
 import 'reflect-metadata';
+import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
 export class MFCache {
 
@@ -15,29 +15,30 @@ export class MFCache {
 
   protected mustachePath: string;
 
-  constructor() {
+  constructor(cacheable: boolean = true) {
+    Reflect.defineMetadata('cacheable', cacheable, this);
   }
 
 
-  static clearAllMFCache() {
+  static clearAllMFCache(): void {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
       if (sub.subscription) { sub.subscription.unsubscribe(); }
       delete MFCache.cache[cacheId];
     });
   }
 
-  static setClearAllCacheObservable(clearAllCacheAndSubscription$: Observable<any>) {
+  static setClearAllCacheObservable(clearAllCacheAndSubscription$: Observable<any>): void {
     if (MFCache.clearAllCacheSub) {
       MFCache.clearAllCacheSub.unsubscribe();
     }
     MFCache.clearAllCacheSub = clearAllCacheAndSubscription$.subscribe(() => MFCache.clearAllMFCache());
   }
 
-  public isCacheable() {
+  public isCacheable(): boolean {
     return Reflect.hasMetadata('cacheable', this) ? Reflect.getMetadata('cacheable', this) : true;
   }
 
-  private clearCache() {
+  private clearCache(): void {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
       if (cacheId.startsWith(`dao(${this.mustachePath})`)) {
         if (sub.subscription) { sub.subscription.unsubscribe(); }
@@ -46,7 +47,7 @@ export class MFCache {
     });
   }
 
-  protected setClearCacheObservable(clearCacheAndSubscription$: Observable<any>) {
+  protected setClearCacheObservable(clearCacheAndSubscription$: Observable<any>): void {
     if (this.clearCacheSub) {
       this.clearCacheSub.unsubscribe();
     }

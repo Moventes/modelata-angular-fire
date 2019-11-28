@@ -2,18 +2,12 @@ import * as Flatted from 'flatted';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
-import 'reflect-metadata';
 
 
 
 function getCacheId(targetClass: MFDao<any>, methodName: string, params: any[]): string {
   return `dao(${targetClass.mustachePath}).${methodName}(${Flatted.stringify({ params })})`;
 }
-
-export function NoCache(target: Object) {
-  Reflect.defineMetadata('cacheable', false, target);
-}
-
 
 export function Cacheable(
   targetClass: MFDao<any>,
