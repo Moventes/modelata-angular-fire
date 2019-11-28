@@ -118,6 +118,20 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     let setOrAddPromise: Promise<any>;
     if (realLocation && realLocation.id) {
       setOrAddPromise = getDataToSave
+        // .then(dataToSave => {
+        //   if (!options.overwrite) {
+        //     return reference.get().pipe(take(1)).toPromise().then(snap => {
+        //       if (snap.exists) {
+        //         return Promise.reject({
+        //           message: `conflict ! document ${snap.id} already exists`,
+        //           code: 409
+        //         });
+        //       }
+        //       return dataToSave;
+        //     });
+        //   }
+        //   return dataToSave;
+        // })
         .then(dataToSave => (reference as AngularFirestoreDocument<Partial<M>>).set(dataToSave, { merge: !options.overwrite }));
     } else {
       setOrAddPromise = getDataToSave
@@ -169,7 +183,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return null;
   }
 
-  public getSnapshot(location: string | IMFLocation, options: IMFGetOneOptions): Observable<DocumentSnapshot<M>> {
+  public getSnapshot(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<DocumentSnapshot<M>> {
     const ref = (this.getAFReference(location) as AngularFirestoreDocument<M>);
     return options && options.completeOnFirst ?
       ref.get().pipe(map(snap => snap as DocumentSnapshot<M>)) :
