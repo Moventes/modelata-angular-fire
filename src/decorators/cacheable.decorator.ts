@@ -1,4 +1,5 @@
 import * as Flatted from 'flatted';
+import 'reflect-metadata';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
@@ -22,7 +23,8 @@ export function Cacheable(
   const originalMethod: (...args: any[]) => Observable<any> = propertyDesciptor.value;
 
   propertyDesciptor.value = function (...args: any[]) {
-    if (targetClass.isCacheable()) {
+
+    if (typeof (this as any).cacheable === 'boolean' ? (this as any).cacheable : true) {
 
       const lastArgument = args.length ? args[args.length - 1] : null;
 

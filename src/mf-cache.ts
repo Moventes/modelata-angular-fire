@@ -1,7 +1,6 @@
-import 'reflect-metadata';
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
-export class MFCache {
+export abstract class MFCache {
 
   static readonly cache: {
     [methodId: string]: {
@@ -31,10 +30,6 @@ export class MFCache {
       MFCache.clearAllCacheSub.unsubscribe();
     }
     MFCache.clearAllCacheSub = clearAllCacheAndSubscription$.subscribe(() => MFCache.clearAllMFCache());
-  }
-
-  public isCacheable(): boolean {
-    return Reflect.hasMetadata('cacheable', this) ? Reflect.getMetadata('cacheable', this) : true;
   }
 
   private clearCache(): void {
