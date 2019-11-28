@@ -111,7 +111,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     (data as any).updateDate = firestore.FieldValue.serverTimestamp();
     (data as any).creationDate = firestore.FieldValue.serverTimestamp();
 
-    const getDataToSave = this.beforeSave(data).then(data2 => getSavableData(data2));
+    const getDataToSave = this.beforeSave(data, location).then(data2 => getSavableData(data2));
     const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
     const reference = this.getAFReference<Partial<M>>(realLocation);
 
@@ -176,11 +176,25 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       ref.snapshotChanges().pipe(map(action => action.payload));
   }
 
-  public beforeSave(model: M): Promise<M> {
+  public beforeSave(model: Partial<M>, location?: string | IMFLocation): Promise<Partial<M>> {
+    const fileKeys = Object.keys(model).filter((key) => {
+      const property = (model as any)[key]
+      return typeof property === 'object' && property._file;
+    });
+    if (fileKeys.length) {
+      return Promise.all(fileKeys.map((key) => {
+        return this.saveFile((model as any)[key], location)
+          .then((file) => {
+            (model as any)[key] = file;
+          });
+      })).then(() => {
+        return Promise.resolve(model);
+      });
+    }
     return Promise.resolve(model);
   }
 
-  public saveFile(fileObject: IMFFile, location: string | IMFLocation): IMFFile {
+  public saveFile(fileObject: IMFFile, location: string | IMFLocation): Promise<IMFFile> {
     throw new Error('Method saveFile not yet implemented in @modelata/angular-fire.');
   }
 

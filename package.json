@@ -24,7 +24,7 @@
     "tslint": "^5.20.1"
   },
   "dependencies": {
-    "@modelata/types-fire": "^3.0.0-alpha18",
+    "@modelata/types-fire": "^3.0.0-alpha20",
     "flatted": "^2.0.1",
     "reflect-metadata": "^0.1.13"
   },
