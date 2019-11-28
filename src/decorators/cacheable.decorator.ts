@@ -9,16 +9,20 @@ function getCacheId(targetClass: MFDao<any>, methodName: string, params: any[]):
   return `dao(${targetClass.mustachePath}).${methodName}(${Flatted.stringify({ params })})`;
 }
 
+export function DisableCache(target: Object) {
+  Reflect.defineMetadata('cacheable', false, target);
+}
+
 export function Cacheable(
   targetClass: MFDao<any>,
   methodName: string,
   propertyDesciptor: PropertyDescriptor
 ): PropertyDescriptor {
 
-  if (targetClass.isCacheable()) {
-    const originalMethod: (...args: any[]) => Observable<any> = propertyDesciptor.value;
+  const originalMethod: (...args: any[]) => Observable<any> = propertyDesciptor.value;
 
-    propertyDesciptor.value = function (...args: any[]) {
+  propertyDesciptor.value = function (...args: any[]) {
+    if (targetClass.isCacheable()) {
 
       const lastArgument = args.length ? args[args.length - 1] : null;
 
@@ -43,8 +47,8 @@ export function Cacheable(
         }
         return MFCache.cache[cacheId].subject;
       }
-      return originalMethod.apply(this, args);
-    };
-    return propertyDesciptor;
-  }
+    }
+    return originalMethod.apply(this, args);
+  };
+  return propertyDesciptor;
 }

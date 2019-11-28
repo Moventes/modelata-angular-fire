@@ -15,8 +15,7 @@ export class MFCache {
 
   protected mustachePath: string;
 
-  constructor(cacheable: boolean = true) {
-    Reflect.defineMetadata('cacheable', cacheable, this);
+  constructor() {
   }
 
 

@@ -4,6 +4,7 @@
 
 // export * from './lib/decorators/cacheable.decorator';
 export * from '@modelata/types-fire/lib/angular';
+export * from './decorators/cacheable.decorator';
 export * from './decorators/collection-path.decorator';
 export * from './decorators/enumerable.decorator';
 export * from './decorators/form.decorator';
