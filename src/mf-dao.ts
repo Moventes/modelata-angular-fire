@@ -28,7 +28,8 @@ import {
   getLocationFromPath,
   getPath,
   getSavableData,
-  isCompatiblePath
+  isCompatiblePath,
+  getSplittedPath
 } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
@@ -137,20 +138,26 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
     (data as any).updateDate = firestore.FieldValue.serverTimestamp();
     (data as any).creationDate = firestore.FieldValue.serverTimestamp();
+    let realLocation: Partial<IMFLocation> = location ?
+      getLocation(location) :
+      getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
 
     const getDataToSave = this.beforeSave(data, location)
-      .then(data2 => getSavableData(data2))
-      .then(newData => this.saveFiles(newData, location));
+      .then(newData => this.saveFiles(newData, location))
+      .then(({ newModel, newLocation }) => {
+        realLocation = newLocation;
+        return getSavableData(newModel);
+      });
 
 
     let setOrAddPromise: Promise<any>;
 
-    return getDataToSave.then(({ newModel, realLocation }) => {
+    return getDataToSave.then((savableData) => {
       const reference = this.getAFReference<Partial<M>>(realLocation);
       if (realLocation && realLocation.id) {
-        setOrAddPromise = (reference as AngularFirestoreDocument<Partial<M>>).set(newModel, { merge: !options.overwrite });
+        setOrAddPromise = (reference as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite });
       } else {
-        setOrAddPromise = (reference as AngularFirestoreCollection<Partial<M>>).add(newModel);
+        setOrAddPromise = (reference as AngularFirestoreCollection<Partial<M>>).add(savableData);
       }
       return setOrAddPromise.then(ref =>
         this.getNewModel(data, ref ? ({ ...realLocation, id: ref.id }) : realLocation)
@@ -210,7 +217,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   private async saveFiles(model: Partial<M>, location?: string | Partial<IMFLocation>): Promise<{
     newModel: Partial<M>,
-    realLocation: Partial<IMFLocation>,
+    newLocation: Partial<IMFLocation>,
   }> {
     const realLocation = location ? getLocation(location) : getLocationFromPath(model._collectionPath, this.mustachePath, model._id);
     const fileKeys = Object.keys(model).filter((key) => {
@@ -227,10 +234,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             (model as any)[key] = file;
           });
       })).then(() => {
-        return Promise.resolve({ realLocation, newModel: model });
+        return Promise.resolve({ newLocation: realLocation, newModel: model });
       });
     }
-    return Promise.resolve({ realLocation, newModel: model });
+    return Promise.resolve({ newLocation: realLocation, newModel: model });
   }
 
   public async saveFile(fileObject: IMFFile, location: string | IMFLocation): Promise<IMFFile> {
@@ -368,7 +375,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return of(null);
   }
 
-
-
-
+  getReferenceFromPath(path: string): DocumentReference | AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
+    if (isCompatiblePath(this.mustachePath, path)) {
+      const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, this.mustachePath);
+      if (pathSplitted.length === mustachePathSplitted.length + 1) {
+        return this.db.doc<M>(path);
+      }
+      if (pathSplitted.length === mustachePathSplitted.length) {
+        return this.db.collection<M>(path);
+      }
+      throw new Error('Unable to establish if path is for doc or collection');
+    }
+    throw new Error('This path is not compatible with this DAO');
+  }
 }
