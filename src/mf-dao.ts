@@ -106,6 +106,16 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   }
 
+  public getListByPath(path: string, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+    if (path && isCompatiblePath(this.mustachePath, path)) {
+      const location = getLocationFromPath(path, this.mustachePath);
+      return this.getList(location, options);
+    }
+    throw new Error('getByPath missing or incompatible parameter : path');
+
+
+  }
+
   public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
 
     if (!allDataExistInModel(data, this.getNewModel())) {
