@@ -219,7 +219,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     newModel: Partial<M>,
     newLocation: Partial<IMFLocation>,
   }> {
-    const realLocation = location ? getLocation(location) : getLocationFromPath(model._collectionPath, this.mustachePath, model._id);
+    const realLocation = (location ?
+      getLocation(location) :
+      getLocationFromPath(model._collectionPath, this.mustachePath, model._id))
+      || {};
     const fileKeys = Object.keys(model).filter((key) => {
       const property = (model as any)[key];
       return property && typeof property === 'object' && property._file;
