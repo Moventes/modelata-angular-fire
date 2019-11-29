@@ -247,7 +247,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     if (this.storage) {
       return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
         .then((uploadTask) => {
-          fileObject.storageReference = uploadTask.ref;
+          fileObject.storagePath = uploadTask.ref.fullPath;
           fileObject.name = fileObject._file.name;
           fileObject.type = fileObject._file.type;
           fileObject.contentLastModificationDate = new Date(fileObject._file.lastModified);
@@ -311,7 +311,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         return reference.valueChanges().pipe(
           map((data) => {
             if (data) {
-              return this.getNewModel({ ...data, _id: reference.ref.id }, getLocationFromPath(reference.ref.parent.path, this.mustachePath));
+              return this.getNewModel(
+                { ...data, _id: reference.ref.id },
+                getLocationFromPath(reference.ref.parent.path, this.mustachePath)
+              );
             }
             console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
             return null;
