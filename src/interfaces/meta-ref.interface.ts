@@ -1,11 +1,12 @@
-import { IMFLocation } from '@modelata/types-fire/lib/angular';
+import { IMFGetListOptions } from '@modelata/types-fire/lib/angular';
 
 export interface MetaRef {
-  attribute: string;
-  dao: string;
+  attributeName: string;
+  daoName: string;
 }
 
-export interface MetaSubCollection {
-  dao: string;
-  location: Partial<IMFLocation>;
+export interface MetaSubCollection<M = any> {
+  daoName: string;
+  collectionName: string;
+  options?: IMFGetListOptions<M>;
 }
