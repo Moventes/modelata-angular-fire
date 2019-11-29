@@ -6,13 +6,30 @@ import {
   DocumentReference,
   DocumentSnapshot
 } from '@angular/fire/firestore';
-import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
+import { AngularFireStorage } from '@angular/fire/storage';
+import {
+  IMFDao,
+  IMFFile,
+  IMFGetListOptions,
+  IMFGetOneOptions,
+  IMFLocation,
+  IMFOffset,
+  IMFSaveOptions,
+  MFOmit
+} from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, isCompatiblePath } from './helpers/model.helper';
+import {
+  allDataExistInModel,
+  getLocation,
+  getLocationFromPath,
+  getPath,
+  getSavableData,
+  isCompatiblePath
+} from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -24,7 +41,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
 
-  constructor(private db: AngularFirestore) {
+  constructor(
+    private db: AngularFirestore,
+    private storage: AngularFireStorage,
+  ) {
     super();
   }
 
@@ -183,7 +203,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       ref.snapshotChanges().pipe(map(action => action.payload));
   }
 
-  public beforeSave(model: Partial<M>, location?: string | IMFLocation): Promise<Partial<M>> {
+  public async beforeSave(model: Partial<M>, location?: string | IMFLocation): Promise<Partial<M>> {
     const fileKeys = Object.keys(model).filter((key) => {
       const property = (model as any)[key];
       return typeof property === 'object' && property._file;
@@ -201,8 +221,20 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.resolve(model);
   }
 
-  public saveFile(fileObject: IMFFile, location: string | IMFLocation): Promise<IMFFile> {
-    throw new Error('Method saveFile not yet implemented in @modelata/angular-fire.');
+  public async saveFile(fileObject: IMFFile, location: string | IMFLocation): Promise<IMFFile> {
+    return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
+      .then((uploadTask) => {
+        fileObject.storageReference = uploadTask.ref;
+        fileObject.name = fileObject._file.name;
+        fileObject.type = fileObject._file.type;
+        fileObject.contentLastModificationDate = new Date(fileObject._file.lastModified);
+        delete fileObject._file;
+        return uploadTask.ref.getDownloadURL();
+      })
+      .then((url) => {
+        fileObject.url = url;
+        return Promise.resolve(fileObject);
+      });
   }
 
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
