@@ -7,8 +7,8 @@ export function SubCollectionGetList<M = any>(collectionName: string, daoName: s
             'observableFromSubCollection',
             {
                 collectionName,
-                options,
                 daoName,
+                options,
             },
             target,
             propertyKey
