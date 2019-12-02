@@ -4,7 +4,7 @@ import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFO
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
@@ -141,33 +141,26 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
 
     let setOrAddPromise: Promise<any>;
-    // TODO : 409
-    // if (realLocation && realLocation.id) {
-    //   setOrAddPromise = getDataToSave
-    //     // .then(dataToSave => {
-    //     //   if (!options.overwrite) {
-    //     //     return reference.get().pipe(take(1)).toPromise().then(snap => {
-    //     //       if (snap.exists) {
-    //     //         return Promise.reject({
-    //     //           message: `conflict ! document ${snap.id} already exists`,
-    //     //           code: 409
-    //     //         });
-    //     //       }
-    //     //       return dataToSave;
-    //     //     });
-    //     //   }
-    //     //   return dataToSave;
-    //     // })
-    //     .then(dataToSave => (reference as AngularFirestoreDocument<Partial<M>>).set(dataToSave, { merge: !options.overwrite }));
-    // } else {
-    //   setOrAddPromise = getDataToSave
-    //     .then(dataToSave => (reference as AngularFirestoreCollection<Partial<M>>).add(dataToSave));
-    // }
+
 
     return getDataToSave.then((savableData) => {
       const reference = this.getAFReference<Partial<M>>(realLocation);
       if (realLocation && realLocation.id) {
-        setOrAddPromise = (reference as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite });
+        if (!options.overwrite) {
+          setOrAddPromise = (reference.get() as Observable<firestore.DocumentSnapshot>).pipe(take(1)).toPromise()
+            .then((snap: firestore.DocumentSnapshot) => {
+              if (snap.exists) {
+                return Promise.reject({
+                  message: `conflict ! document ${snap.id} already exists`,
+                  code: 409
+                });
+              }
+              return (reference as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite });
+            });
+
+        } else {
+          setOrAddPromise = (reference as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite });
+        }
       } else {
         setOrAddPromise = (reference as AngularFirestoreCollection<Partial<M>>).add(savableData);
       }
