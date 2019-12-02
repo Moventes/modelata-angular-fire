@@ -59,6 +59,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return this.getAFReference(location).ref;
   }
 
+  public getLocation(model: M): IMFLocation {
+    return getLocationFromPath(model._collectionPath, this.mustachePath, model._id) as IMFLocation;
+  }
+
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     const realLocation = getLocation(location);
 
@@ -177,7 +181,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     });
   }
 
-  public async update(data: Partial<M>, location?: string | IMFLocation, options?: IMFSaveOptions): Promise<Partial<M>> {
+  public async update(data: Partial<M>, location?: string | IMFLocation): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
