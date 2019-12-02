@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
+import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath, getFileProperties } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -191,7 +191,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   public async delete(location: string | IMFLocation): Promise<void> {
-    return (this.getAFReference(location) as AngularFirestoreDocument<M>).delete();
+    this.deleteByRef(this.getAFReference(location) as AngularFirestoreDocument<M>);
+  }
+
+  public async deleteModel(model: M): Promise<void> {
+    return this.deleteByRef()
+  }
+
+  private deleteByRef(reference: AngularFirestoreDocument<M>) {
+    return reference.delete();
   }
 
   public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
@@ -231,10 +239,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       getLocation(location) :
       getLocationFromPath(model._collectionPath, this.mustachePath, model._id))
       || {};
-    const fileKeys = Object.keys(model).filter((key) => {
-      const property = (model as any)[key];
-      return property && typeof property === 'object' && property._file;
-    });
+    const fileKeys = getFileProperties(model as Object);
     if (fileKeys.length) {
       if (!realLocation.id) {
         realLocation.id = model._id || this.db.createId();
@@ -268,6 +273,14 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         });
     }
     return Promise.reject(new Error('AngularFireStorage was not injected'));
+  }
+
+  private async deleteFiles(location: string | IMFLocation) {
+
+  }
+
+  public deleteFile(fileObject: IMFFile) {
+    return this.storage.ref(fileObject.storagePath).delete();
   }
 
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {

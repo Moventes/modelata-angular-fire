@@ -149,4 +149,14 @@ export function getSavableData<M>(modelObj: M): Partial<M> {
 
 }
 
+/**
+ * returns list of file(s) properties
+ * @param model The model object
+ */
+export function getFileProperties(model: Object): string[] {
+  return Object.keys(model).filter((key) => {
+    const property = (model as any)[key];
+    return Reflect.hasMetadata('storageProperty', model as Object, key) && property && property._file;
+  });
+}
 
