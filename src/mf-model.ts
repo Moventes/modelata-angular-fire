@@ -78,19 +78,24 @@ export abstract class MFModel<M> implements IMFModel<M> {
           } else {
             if (Reflect.hasMetadata('observableFromRef', this, key)) {
               const meta: MetaRef = Reflect.getMetadata('observableFromRef', this, key);
-              if (meta.attribute && meta.dao && (data as any)[meta.attribute] && (this as any)[meta.dao]) {
-                const dao: MFDao<any> = (this as any)[meta.dao];
-                const ref: DocumentReference = (data as any)[meta.attribute];
+              if (meta.attributeName && meta.daoName && (data as any)[meta.attributeName] && (this as any)[meta.daoName]) {
+                const dao: MFDao<any> = (this as any)[meta.daoName];
+                const ref: DocumentReference = (data as any)[meta.attributeName];
                 (this as any)[key] = dao.getByReference(ref);
-              }
-            } else if (Reflect.hasMetadata('observableFromSubCollection', this, key)) {
-              const meta: MetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
-              if (meta.location && meta.dao && this._id && (this as any)[meta.dao]) {
-                const dao: MFDao<any> = (this as any)[meta.dao];
-                (this as any)[key] = dao.getList(location);
               }
             }
           }
+        }
+      }
+    }
+
+    for (const key in this) {
+      if (key.startsWith('_') && key.endsWith('$') && Reflect.hasMetadata('observableFromSubCollection', this, key)) {
+        const meta: MetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
+        if (meta.collectionName && meta.daoName && this._id && (this as any)[meta.daoName]) {
+          const dao: MFDao<any> = (this as any)[meta.daoName];
+          const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
+          (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
         }
       }
     }

@@ -1,13 +1,14 @@
-import { IMFLocation } from '@modelata/types-fire';
+import { IMFGetListOptions } from '@modelata/types-fire/lib/angular';
 import 'reflect-metadata';
 
-export function SubCollectionGetList(daoName: string, location: Partial<IMFLocation>): any {
+export function SubCollectionGetList<M = any>(collectionName: string, daoName: string, options?: IMFGetListOptions<M>): any {
     return (target: any, propertyKey: string) => {
         Reflect.defineMetadata(
             'observableFromSubCollection',
             {
-                location,
-                dao: daoName,
+                collectionName,
+                daoName,
+                options,
             },
             target,
             propertyKey
