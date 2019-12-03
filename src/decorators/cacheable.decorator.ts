@@ -6,8 +6,32 @@ import { MFDao } from './../mf-dao';
 
 
 
-function getCacheId(targetClass: MFDao<any>, methodName: string, params: any[]): string {
-  return `dao(${targetClass.mustachePath}).${methodName}(${Flatted.stringify({ params })})`;
+function jsonify(obj: Object) {
+  const seen: any[] = [];
+  try {
+    return JSON.stringify(obj, (key, val) => {
+      if (val !== null && typeof val === 'object') {
+        if (val.ref && val.ref.path && val.ref.id) {
+          return `firestore reference on /${val.ref.path}`;
+        }
+
+        if (seen.indexOf(val) >= 0) {
+          if (val.path && val.id) {
+            return `${val.path}/${val.id}`;
+          }
+          return 'cycle';
+        }
+        seen.push(val);
+      }
+      return val;
+    });
+  } catch (e) {
+    return Flatted.stringify(obj);
+  }
+}
+
+function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
+  return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
 export function DisableCache(target: Object) {
@@ -39,7 +63,7 @@ export function Cacheable(
         );
 
       if (!cachableIsDisabled) {
-        const cacheId = getCacheId(targetClass, methodName, args);
+        const cacheId = getCacheId(this as any, methodName, args);
         if (!MFCache.cache[cacheId]) {
           const subject = new ReplaySubject(1);
           MFCache.cache[cacheId] = {
