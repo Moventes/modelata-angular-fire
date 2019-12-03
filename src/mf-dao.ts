@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath, getFileProperties } from './helpers/model.helper';
+import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -48,23 +48,19 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByReference missing parameter : reference');
   }
 
-  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-    if (path) {
-      return this.getByAFReference(this.db.doc(path), options);
-    }
-    throw new Error('getByPath missing parameter : path');
-  }
+  // public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
+  //   if (path) {
+  //     return this.getByAFReference(this.db.doc(path), options);
+  //   }
+  //   throw new Error('getByPath missing parameter : path');
+  // }
 
   public getReference(location: string | Partial<IMFLocation>): DocumentReference | CollectionReference {
     return this.getAFReference(location).ref;
   }
 
-  public getLocation(model: M): IMFLocation {
-    return getLocationFromPath(model._collectionPath, this.mustachePath, model._id) as IMFLocation;
-  }
-
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
-    const realLocation = getLocation(location);
+    const realLocation = getLocation(location, this.mustachePath);
 
     return this.getOffsetSnapshots(options.offset).pipe(
       switchMap((offset) => {
@@ -129,7 +125,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     (data as any).updateDate = firestore.FieldValue.serverTimestamp();
     (data as any).creationDate = firestore.FieldValue.serverTimestamp();
     let realLocation: Partial<IMFLocation> = location ?
-      getLocation(location) :
+      getLocation(location, this.mustachePath) :
       getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
 
     const getDataToSave = this.beforeSave(data, location)
@@ -179,7 +175,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
 
-    const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
+    const realLocation = location ? getLocation(location, this.mustachePath) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
 
     (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
 
@@ -187,25 +183,26 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       .then(() => data);
   }
 
-  public async delete(location: string | IMFLocation): Promise<void> {
+  public async delete(location: string | IMFLocation | M): Promise<void> {
+    const realLocation = getLocation(location, this.mustachePath) as IMFLocation;
     if (getFileProperties(this.getNewModel()).length) {
-      return this.get(location, { completeOnFirst: true }).toPromise()
+      return this.get(realLocation, { completeOnFirst: true }).toPromise()
         .then(model => this.deleteModel(model));
     }
-    return this.privateDelete(this.getAFReference(location) as AngularFirestoreDocument<M>);
+    return this.privateDelete(this.getAFReference(realLocation) as AngularFirestoreDocument<M>);
   }
 
   public async deleteModel(model: M): Promise<void> {
     const fileProperties = getFileProperties(this.getNewModel());
     if (fileProperties.length) {
-      fileProperties.map()
+      fileProperties.map();
     }
-    return this.privateDelete(this.getAFReference(get))
+    return this.privateDelete(this.getAFReference(get));
   }
 
   public async deleteByReference(reference: AngularFirestoreDocument<M>) {
     if (getFileProperties(this.getNewModel()).length) {
-      this.get()
+      this.get();
     }
 
   }
@@ -248,7 +245,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     newLocation: Partial<IMFLocation>,
   }> {
     const realLocation = (location ?
-      getLocation(location) :
+      getLocation(location, this.mustachePath) :
       getLocationFromPath(model._collectionPath, this.mustachePath, model._id))
       || {};
     const fileKeys = getFileProperties(model as Object);

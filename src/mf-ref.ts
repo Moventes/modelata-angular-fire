@@ -1,5 +1,5 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentReference, CollectionReference } from '@angular/fire/firestore';
-import { IMFGetOneOptions, IMFLocation, IMFGetListOptions } from '@modelata/types-fire/lib/angular';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference } from '@angular/fire/firestore';
+import { IMFGetListOptions, IMFGetOneOptions, IMFLocation } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import { getLocation, getPath } from 'helpers/model.helper';
 import { Observable } from 'rxjs';
@@ -18,7 +18,7 @@ export abstract class MFRef<M extends MFModel<M>>{
 
 
   protected getAFReference<M>(location: string | Partial<IMFLocation>): AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
-    const realLocation = getLocation(location);
+    const realLocation = getLocation(location, this.mustachePath);
 
     return realLocation.id
       ? this.db.doc<M>(getPath(this.mustachePath, realLocation))

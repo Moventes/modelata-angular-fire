@@ -1,4 +1,5 @@
 import { IMFLocation } from '@modelata/types-fire/lib/angular';
+import { MFModel } from 'mf-model';
 import { mustache } from './string.helper';
 
 /**
@@ -6,13 +7,13 @@ import { mustache } from './string.helper';
  * @param collectionPath Collection mustache path
  * @param location Location object containin path ids and document id or not.
  */
-export function getPath(collectionPath: string, location?: string | Partial<IMFLocation>): string {
-  const realLocation = getLocation(location);
+export function getPath(mustachePath: string, location?: string | Partial<IMFLocation>): string {
+  const realLocation = getLocation(location, mustachePath);
 
-  if (!(collectionPath && collectionPath.length)) {
+  if (!(mustachePath && mustachePath.length)) {
     throw new Error('collectionPath must be defined');
   }
-  let path = mustache(collectionPath, realLocation);
+  let path = mustache(mustachePath, realLocation);
   if (path.includes('{')) {
     const missingIdRegex = /{(.*?)}/g;
     const missingIds: string[] = [];
@@ -54,11 +55,16 @@ export function isCompatiblePath(mustachePath: string, refPath: string): boolean
  * Return a location object from either unvalued, string id or location object
  * @param location string id or location object
  */
-export function getLocation(location?: string | Partial<IMFLocation>): Partial<IMFLocation> {
+export function getLocation(location: string | Partial<IMFLocation> | MFModel<any>, mustachePath: string): Partial<IMFLocation> {
   if (location) {
-    return typeof location === 'string' ?
-      { id: location } :
-      location;
+    if (typeof location === 'string') {
+      return { id: location };
+    }
+    if ((location as MFModel<any>)._collectionPath) {
+      return getLocationFromPath(location._collectionPath, mustachePath, location._id) as IMFLocation;
+    }
+
+    return location as Partial<IMFLocation>;
   }
   return {};
 }
