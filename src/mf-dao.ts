@@ -191,14 +191,29 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   public async delete(location: string | IMFLocation): Promise<void> {
-    this.deleteByRef(this.getAFReference(location) as AngularFirestoreDocument<M>);
+    if (getFileProperties(this.getNewModel()).length) {
+      return this.get(location, { completeOnFirst: true }).toPromise()
+        .then(model => this.deleteModel(model));
+    }
+    return this.privateDelete(this.getAFReference(location) as AngularFirestoreDocument<M>);
   }
 
   public async deleteModel(model: M): Promise<void> {
-    return this.deleteByRef(this.getAFReference(get))
+    const fileProperties = getFileProperties(this.getNewModel());
+    if (fileProperties.length) {
+      fileProperties.map()
+    }
+    return this.privateDelete(this.getAFReference(get))
   }
 
-  private deleteByRef(reference: AngularFirestoreDocument<M>) {
+  public async deleteByReference(reference: AngularFirestoreDocument<M>) {
+    if (getFileProperties(this.getNewModel()).length) {
+      this.get()
+    }
+
+  }
+
+  private privateDelete(reference: AngularFirestoreDocument<M>): Promise<void> {
     return reference.delete();
   }
 
