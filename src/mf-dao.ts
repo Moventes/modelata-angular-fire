@@ -195,7 +195,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   public async deleteModel(model: M): Promise<void> {
-    return this.deleteByRef()
+    return this.deleteByRef(this.getAFReference(get))
   }
 
   private deleteByRef(reference: AngularFirestoreDocument<M>) {
