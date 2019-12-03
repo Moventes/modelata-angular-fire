@@ -1,4 +1,12 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import { IMFStorageOptions } from './interfaces/storage-options.interface';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot
+} from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
@@ -6,7 +14,16 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath, getFileProperties } from './helpers/model.helper';
+import {
+  allDataExistInModel,
+  getLocation,
+  getLocationFromPath,
+  getPath,
+  getSavableData,
+  getSplittedPath,
+  isCompatiblePath,
+  getFileProperties
+} from './helpers/model.helper';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -187,27 +204,35 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       .then(() => data);
   }
 
-  public async delete(location: string | IMFLocation): Promise<void> {
-    if (getFileProperties(this.getNewModel()).length) {
-      return this.get(location, { completeOnFirst: true }).toPromise()
-        .then(model => this.deleteModel(model));
+  public async delete(idLocationOrModel: string | IMFLocation | M): Promise<void> {
+    const isModel = typeof idLocationOrModel === 'object' && idLocationOrModel._id && idLocationOrModel._collectionPath;
+    const model: M = isModel ? idLocationOrModel as M : this.getNewModel();
+    const realLocation = isModel ?
+      this.getLocation(model) :
+      getLocation(idLocationOrModel as string | IMFLocation);
+
+    if (this.getFileProperties(model).length) {
+
+      return (isModel ?
+        Promise.resolve(idLocationOrModel as M) :
+        this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
+      ).then(model => this.deleteModel(model));
+
     }
-    return this.privateDelete(this.getAFReference(location) as AngularFirestoreDocument<M>);
+    return this.privateDelete(this.getAFReference(realLocation) as AngularFirestoreDocument<M>);
   }
 
-  public async deleteModel(model: M): Promise<void> {
-    const fileProperties = getFileProperties(this.getNewModel());
-    if (fileProperties.length) {
-      fileProperties.map()
-    }
-    return this.privateDelete(this.getAFReference(get))
+  private async deleteModel(model: M): Promise<void> {
+    return this.deleteFiles(model)
+      .then(() => this.privateDelete(this.getAFReference(this.getLocation(model)) as AngularFirestoreDocument<M>));
   }
 
   public async deleteByReference(reference: AngularFirestoreDocument<M>) {
     if (getFileProperties(this.getNewModel()).length) {
-      this.get()
+      return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
+        .then(model => this.deleteModel(model));
     }
-
+    this.privateDelete(reference);
   }
 
   private privateDelete(reference: AngularFirestoreDocument<M>): Promise<void> {
@@ -287,8 +312,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
-  private async deleteFiles(location: string | IMFLocation) {
+  private async deleteFiles(model: M): Promise<void> {
+    const fileProperties = getFileProperties(this.getNewModel());
 
+    return fileProperties.length ?
+      Promise.all(fileProperties.map((key) => {
+        const property = (model as any)[key] as IMFFile;
+        if (property && property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete) {
+          return this.storage.ref(property.storagePath).delete().toPromise();
+        }
+      })).then(() => Promise.resolve()) :
+      Promise.resolve();
   }
 
   public deleteFile(fileObject: IMFFile) {
@@ -426,5 +460,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       throw new Error('Unable to establish if path is for doc or collection');
     }
     throw new Error('This path is not compatible with this DAO');
+  }
+
+  private getFileProperties(model?: Partial<M>): string[] {
+    return getFileProperties((model || this.getNewModel()) as Object);
   }
 }
