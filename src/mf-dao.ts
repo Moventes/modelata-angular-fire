@@ -170,6 +170,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
       });
   }
+
   update(data: Partial<M>, location?: string | IMFLocation | M): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
@@ -184,31 +185,29 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       .then(({ newModel, newLocation }) => (this.getAFReference(newLocation) as AngularFirestoreDocument<M>).update(newModel))
       .then(() => data);
   }
+
   delete(idLocationOrModel: string | IMFLocation | M): Promise<void> {
 
     const realLocation = getLocation(idLocationOrModel, this.mustachePath);
+    let deleteFilesPromise: Promise<M>;
 
     if (this.getFileProperties(this.getNewModel()).length) {
-
-      return ((idLocationOrModel as M)._collectionPath ?
+      deleteFilesPromise = ((idLocationOrModel as M)._collectionPath ? // is model ? ok : get model
         Promise.resolve(idLocationOrModel as M) :
         this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
-      )
-        .then(model => this.deleteFiles(model))
-        .then(() => this.privateDelete(this.getAFReference(realLocation) as AngularFirestoreDocument<M>));
-
+      ).then(model => this.deleteFiles(model));
+    } else {
+      deleteFilesPromise = Promise.resolve(null);
     }
-    return this.privateDelete(this.getAFReference(realLocation) as AngularFirestoreDocument<M>);
+
+    return deleteFilesPromise.then(() => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete());
   }
+
   deleteByReference(reference: AngularFirestoreDocument<M>) {
     if (getFileProperties(this.getNewModel()).length) {
       return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
         .then(model => this.delete(model));
     }
-    this.privateDelete(reference);
-  }
-
-  private privateDelete(reference: AngularFirestoreDocument<M>): Promise<void> {
     return reference.delete();
   }
 
