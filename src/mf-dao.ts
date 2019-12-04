@@ -180,8 +180,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
 
     return this.beforeSave(data, realLocation)
-      .then(model => this.saveFiles(model, realLocation as IMFLocation))
-      .then(({ newModel }) => getSavableData(newModel))
+      .then(model => this.updateFiles(model, realLocation as IMFLocation))
+      .then(newModel => getSavableData(newModel))
       .then(savable => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(savable))
       .then(() => data);
   }
@@ -249,7 +249,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       if (!newLocation.id) {
         newLocation.id = newModel._id || this.db.createId();
       }
-      return Promise.all(fileKeys.map((key) => {
+      return Promise.all(fileKeys.filter(key => (newModel as any)[key] && (newModel as any)[key]._file).map((key) => {
         return this.saveFile((newModel as any)[key], newLocation as IMFLocation)
           .then((file) => {
             (newModel as any)[key] = file;
@@ -283,10 +283,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   private async deleteFiles(model: M): Promise<M> {
-    const fileProperties = getFileProperties(this.getNewModel());
+    const fileProperties = getFileProperties(model);
 
     return fileProperties.length ?
-      Promise.all(fileProperties.map((key) => {
+      Promise.all(fileProperties.filter(key => (model as any)[key]).map((key) => {
         const property = (model as any)[key] as IMFFile;
         if (property && property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete) {
           return this.deleteFile(property);
@@ -308,7 +308,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     const fileProperties = getFileProperties(emptyModel);
 
     return fileProperties.length ?
-      Promise.all(fileProperties.filter(key => (data as any)[key]).map((key) => {
+      Promise.all(fileProperties.filter(key => (data as any)[key] && (data as any)[key]._file).map((key) => {
         const property = (data as any)[key] as IMFFile;
         if (
           property &&
