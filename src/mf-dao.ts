@@ -192,7 +192,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     let deleteFilesPromise: Promise<M>;
 
     if (this.getFileProperties(this.getNewModel()).length) {
-      deleteFilesPromise = ((idLocationOrModel as M)._collectionPath ? // is model ? ok : get model
+      deleteFilesPromise = (idLocationOrModel.hasOwnProperty('_collectionPath') ? // is model ? ok : get model
         Promise.resolve(idLocationOrModel as M) :
         this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
       ).then(model => this.deleteFiles(model));

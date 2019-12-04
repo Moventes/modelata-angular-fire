@@ -60,7 +60,7 @@ export function getLocation(idOrLocationOrModel: string | Partial<IMFLocation> |
     if (typeof idOrLocationOrModel === 'string') {
       return { id: idOrLocationOrModel };
     }
-    if ((idOrLocationOrModel as MFModel<any>)._collectionPath) {
+    if (idOrLocationOrModel.hasOwnProperty('_collectionPath')) {
       return getLocationFromPath(idOrLocationOrModel._collectionPath, mustachePath, idOrLocationOrModel._id) as IMFLocation;
     }
 
@@ -88,7 +88,7 @@ export function getLocationFromPath(path: string, mustachePath: string, id?: str
         id
       });
   }
-  return null;
+  return {};
 }
 
 export function getSplittedPath(path: String, mustachePath: string): {
