@@ -312,7 +312,6 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         const property = (data as any)[key] as IMFFile;
         if (
           property &&
-          property.storagePath &&
           (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
         ) {
           return this.updateFile(property, location)
@@ -327,7 +326,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public async updateFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
     if (this.storage) {
-      return this.deleteFile(fileObject)
+      return (fileObject.storagePath ? this.deleteFile(fileObject) : Promise.resolve())
         .then(() => this.saveFile(fileObject, location));
 
     }
