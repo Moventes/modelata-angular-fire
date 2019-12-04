@@ -180,7 +180,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
 
     return this.beforeSave(data, realLocation)
-      .then(model => this.updateFiles(model, realLocation as IMFLocation))
+      .then(model => {
+        const fileProperties = this.getFileProperties(this.getNewModel());
+        if (fileProperties.filter(key => (data as any)[key] && (data as any)[key]._file).length) {
+          return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
+            .then(model => this.updateFiles(model, realLocation as IMFLocation));
+        }
+        return Promise.resolve(model);
+
+      })
       .then(newModel => getSavableData(newModel))
       .then(savable => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(savable))
       .then(() => data);
