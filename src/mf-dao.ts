@@ -49,12 +49,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByReference missing parameter : reference');
   }
 
-  // public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-  //   if (path) {
-  //     return this.getByAFReference(this.db.doc(path), options);
-  //   }
-  //   throw new Error('getByPath missing parameter : path');
-  // }
+  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
+    if (path) {
+      return this.getByAFReference(this.db.doc(path), options);
+    }
+    throw new Error('getByPath missing parameter : path');
+  }
 
   public getReference(location: string | Partial<IMFLocation>): DocumentReference | CollectionReference {
     return this.getAFReference(location).ref;
@@ -261,7 +261,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.resolve({ newModel, newLocation });
   }
 
-  public async saveFile(fileObject: IMFFile, location: string | IMFLocation): Promise<IMFFile> {
+  public async saveFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
     if (this.storage) {
       return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
         .then((uploadTask) => {
@@ -289,15 +289,49 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.all(fileProperties.map((key) => {
         const property = (model as any)[key] as IMFFile;
         if (property && property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete) {
-          return this.storage.ref(property.storagePath).delete().toPromise();
+          return this.deleteFile(property);
         }
         return Promise.resolve();
       })).then(() => model) :
       Promise.resolve(model);
   }
 
-  public deleteFile(fileObject: IMFFile) {
-    return this.storage.ref(fileObject.storagePath).delete();
+  public deleteFile(fileObject: IMFFile): Promise<void> {
+    if (this.storage) {
+      return this.storage.ref(fileObject.storagePath).delete().toPromise();
+    }
+    return Promise.reject(new Error('AngularFireStorage was not injected'));
+  }
+
+  private async updateFiles(data: Partial<M>, location: IMFLocation): Promise<Partial<M>> {
+    const emptyModel = this.getNewModel();
+    const fileProperties = getFileProperties(emptyModel);
+
+    return fileProperties.length ?
+      Promise.all(fileProperties.filter(key => (data as any)[key]).map((key) => {
+        const property = (data as any)[key] as IMFFile;
+        if (
+          property &&
+          property.storagePath &&
+          (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
+        ) {
+          return this.updateFile(property, location)
+            .then((newFileObject) => {
+              (data as any)[key] = newFileObject;
+            });
+        }
+        return Promise.resolve(null);
+      })).then(() => data) :
+      Promise.resolve(data);
+  }
+
+  public async updateFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
+    if (this.storage) {
+      return this.deleteFile(fileObject)
+        .then(() => this.saveFile(fileObject, location));
+
+    }
+    return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
