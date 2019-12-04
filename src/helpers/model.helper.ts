@@ -4,7 +4,7 @@ import { mustache } from './string.helper';
 
 /**
  * Returns the path from a collection mustache path ad a location object.
- * @param collectionPath Collection mustache path
+ * @param mustachePath Collection mustache path
  * @param location Location object containin path ids and document id or not.
  */
 export function getPath(mustachePath: string, location?: string | Partial<IMFLocation>): string {
