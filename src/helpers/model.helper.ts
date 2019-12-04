@@ -53,18 +53,18 @@ export function isCompatiblePath(mustachePath: string, refPath: string): boolean
 
 /**
  * Return a location object from either unvalued, string id or location object
- * @param location string id or location object
+ * @param idOrLocationOrModel string id or location object
  */
-export function getLocation(location: string | Partial<IMFLocation> | MFModel<any>, mustachePath: string): Partial<IMFLocation> {
-  if (location) {
-    if (typeof location === 'string') {
-      return { id: location };
+export function getLocation(idOrLocationOrModel: string | Partial<IMFLocation> | MFModel<any>, mustachePath: string): Partial<IMFLocation> {
+  if (idOrLocationOrModel) {
+    if (typeof idOrLocationOrModel === 'string') {
+      return { id: idOrLocationOrModel };
     }
-    if ((location as MFModel<any>)._collectionPath) {
-      return getLocationFromPath(location._collectionPath, mustachePath, location._id) as IMFLocation;
+    if ((idOrLocationOrModel as MFModel<any>)._collectionPath) {
+      return getLocationFromPath(idOrLocationOrModel._collectionPath, mustachePath, idOrLocationOrModel._id) as IMFLocation;
     }
 
-    return location as Partial<IMFLocation>;
+    return idOrLocationOrModel as Partial<IMFLocation>;
   }
   return {};
 }

@@ -129,13 +129,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
 
     return this.beforeSave(data, realLocation)
-      .then(newData => getSavableData(newData))
-      .then((savableData) => {
+      .then((model) => {
 
-        let docAlreadyExist: Promise<void>;
+        let testIfdocAlreadyExist: Promise<void>;
 
         if (realLocation && realLocation.id && !options.overwrite) {
-          docAlreadyExist = (this.getAFReference<Partial<M>>(realLocation).get() as Observable<firestore.DocumentSnapshot>).pipe(take(1)).toPromise()
+          testIfdocAlreadyExist = (this.getAFReference<Partial<M>>(realLocation).get() as Observable<firestore.DocumentSnapshot>)
+            .pipe(take(1)).toPromise()
             .then((snap: firestore.DocumentSnapshot) => {
               if (snap.exists) {
                 return Promise.reject({
@@ -146,20 +146,21 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
               return Promise.resolve();
             });
         } else {
-          docAlreadyExist = Promise.resolve();
+          testIfdocAlreadyExist = Promise.resolve();
         }
 
-        return docAlreadyExist
-          .then(() => this.saveFiles(savableData, realLocation as IMFLocation))
-          .then(({ newModel, newLocation }) => {
+        return testIfdocAlreadyExist
+          .then(() => this.saveFiles(model, realLocation as IMFLocation))
+          .then(({ newModel: dataToSave, newLocation }) => {
             const ref = this.getAFReference<Partial<M>>(newLocation);
+            const savableData = getSavableData(dataToSave);
             if (newLocation && newLocation.id) {
-              return (ref as AngularFirestoreDocument<Partial<M>>).set(newModel, { merge: !options.overwrite }).then(() => ref.ref);
+              return (ref as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite }).then(() => ref.ref);
             }
-            return (ref as AngularFirestoreCollection<Partial<M>>).add(newModel);
+            return (ref as AngularFirestoreCollection<Partial<M>>).add(savableData);
           })
           .then(ref =>
-            this.getNewModel(data, ref ? ({ ...realLocation, id: ref.id }) : realLocation)
+            this.getNewModel(data, { ...realLocation, id: ref.id })
           )
           .catch((error) => {
             console.error(error);
