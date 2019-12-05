@@ -53,7 +53,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
     }
 
     if (mustachePath && location) {
-      createHiddenProperty(this, 'collectionPath', getPath(mustachePath, location));
+      createHiddenProperty(this, 'collectionPath', getPath(mustachePath, { ...location, id: null }));
     } else if (data && (data as any)._collectionPath) {
       createHiddenProperty(this, 'collectionPath', (data as any)._collectionPath);
     }
