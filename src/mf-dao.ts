@@ -316,7 +316,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public deleteFile(fileObject: IMFFile): Promise<void> {
     if (this.storage) {
-      return this.storage.ref(fileObject.storagePath).delete().toPromise().catch(err => {
+      return this.storage.ref(fileObject.storagePath).delete().toPromise().catch((err) => {
         if (err.code === 'storage/object-not-found') {
           return Promise.resolve();
         }
