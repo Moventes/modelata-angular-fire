@@ -44,7 +44,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "doc": "typedoc --out docs src"
+    "doc": "typedoc --out docs src && touch docs/.nojekyll"
   },
   "repository": {
     "type": "git",
