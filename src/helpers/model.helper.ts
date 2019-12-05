@@ -155,6 +155,8 @@ export function getSavableData<M>(modelObj: M): Partial<M> {
 
 }
 
+
+
 /**
  * returns list of file(s) properties
  * @param model The model object

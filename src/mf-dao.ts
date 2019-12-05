@@ -293,7 +293,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
-  private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M>): Promise<M> {
+  private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M> = {}): Promise<M> {
     const fileProperties = getFileProperties(model);
 
     return fileProperties.length ?
@@ -338,14 +338,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.all(fileProperties.filter((key: string) => (data as any)[key] && (data as any)[key]._file).map((key) => {
         const property = (data as any)[key] as IMFFile;
         if (
-          property &&
-          (
-            typeof (options as any)[key] === 'boolean' ?
-              (options as any)[key] :
-              (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
-          )
+          property
         ) {
-          return this.updateFile(property, location)
+          return this.updateFile(
+            property,
+            location,
+            (
+              typeof (options as any)[key] === 'boolean' ?
+                (options as any)[key] :
+                (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
+            )
+          )
             .then((newFileObject) => {
               (data as any)[key] = newFileObject;
             });
@@ -355,9 +358,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.resolve(data);
   }
 
-  public async updateFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
+  public async updateFile(fileObject: IMFFile, location: IMFLocation, deletePrevious = true): Promise<IMFFile> {
     if (this.storage) {
-      return (fileObject.storagePath ? this.deleteFile(fileObject) : Promise.resolve())
+      return ((fileObject.storagePath && deletePrevious) ? this.deleteFile(fileObject) : Promise.resolve())
         .then(() => this.saveFile(fileObject, location));
 
     }
