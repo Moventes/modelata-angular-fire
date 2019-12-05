@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.0.0-alpha21",
+  "version": "3.0.1-dev20",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -21,10 +21,11 @@
     "zone.js": "~0.9.1",
     "codelyzer": "^5.0.0",
     "tslint-config-airbnb": "^5.11.2",
-    "tslint": "^5.20.1"
+    "tslint": "^5.20.1",
+    "typedoc": "^0.15.3"
   },
   "dependencies": {
-    "@modelata/types-fire": "^3.0.0-alpha18",
+    "@modelata/types-fire": "3.0.1-dev7",
     "flatted": "^2.0.1",
     "reflect-metadata": "^0.1.13"
   },
@@ -41,7 +42,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "doc": "typedoc --out docs src"
   },
   "repository": {
     "type": "git",

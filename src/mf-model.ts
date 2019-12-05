@@ -8,7 +8,7 @@ import { MissingFieldNotifier } from './helpers/missing-field-notifier';
 import { getPath } from './helpers/model.helper';
 import { createHiddenProperty } from './helpers/object.helper';
 import { MFControlConfig } from './interfaces/control-config.interface';
-import { MetaRef } from './interfaces/meta-ref.interface';
+import { MetaRef, MetaSubCollection } from './interfaces/meta-ref.interface';
 
 /**
  * Abstract Model class
@@ -46,6 +46,22 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * @param location the identifier to set in the path
    */
   initialize(data: Partial<M>, mustachePath: string, location: Partial<IMFLocation>): void {
+    if (location && location.id) {
+      createHiddenProperty(this, 'id', location.id);
+    } else if (data && (data as any)._id) {
+      createHiddenProperty(this, 'id', (data as any)._id);
+    }
+
+    if (mustachePath && location) {
+      createHiddenProperty(this, 'collectionPath', getPath(mustachePath, { ...location, id: null }));
+    } else if (data && (data as any)._collectionPath) {
+      createHiddenProperty(this, 'collectionPath', (data as any)._collectionPath);
+    }
+
+    if (data && typeof (data as any)._fromCache === 'boolean') {
+      createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
+    }
+
     if (data) {
       for (const key in data) {
         if (typeof data[key] !== 'function') {
@@ -60,33 +76,32 @@ export abstract class MFModel<M> implements IMFModel<M> {
               MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
             }
           } else {
-            if (Reflect.hasMetadata('observableFromRef', this, key)) {
-              const meta: MetaRef = Reflect.getMetadata('observableFromRef', this, key);
-              if (meta.attribute && meta.dao && (data as any)[meta.attribute] && (this as any)[meta.dao]) {
-                const dao: MFDao<any> = (this as any)[meta.dao];
-                const ref: DocumentReference = (data as any)[meta.attribute];
-                (this as any)[key] = dao.getByReference(ref);
-              }
+
+          }
+        }
+      }
+      for (const key in this) {
+        if (key.startsWith('_') && key.endsWith('$')) {
+          if (Reflect.hasMetadata('observableFromSubCollection', this, key)) {
+            const meta: MetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
+            if (meta.collectionName && meta.daoName && this._id && (this as any)[meta.daoName]) {
+              const dao: MFDao<any> = (this as any)[meta.daoName];
+              const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
+              (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
+            }
+          } else if (Reflect.hasMetadata('observableFromRef', this, key)) {
+            const meta: MetaRef = Reflect.getMetadata('observableFromRef', this, key);
+            if (meta.attributeName && meta.daoName && (data as any)[meta.attributeName] && (this as any)[meta.daoName]) {
+              const dao: MFDao<any> = (this as any)[meta.daoName];
+              const ref: DocumentReference = (data as any)[meta.attributeName];
+              (this as any)[key] = dao.getByReference(ref);
             }
           }
         }
       }
     }
-    if (location && location.id) {
-      createHiddenProperty(this, 'id', location.id);
-    } else if (data && (data as any)._id) {
-      createHiddenProperty(this, 'id', (data as any)._id);
-    }
 
-    if (mustachePath && location) {
-      createHiddenProperty(this, 'collectionPath', getPath(mustachePath, location));
-    } else if (data && (data as any)._collectionPath) {
-      createHiddenProperty(this, 'collectionPath', (data as any)._collectionPath);
-    }
 
-    if (data && typeof (data as any)._fromCache === 'boolean') {
-      createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
-    }
 
   }
 

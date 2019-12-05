@@ -1,11 +1,13 @@
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
-import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit } from '@modelata/types-fire/lib/angular';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit, IMFUpdateOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getLocation, getLocationFromPath, getPath, getSavableData, isCompatiblePath } from './helpers/model.helper';
+import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
+import { IMFStorageOptions } from './interfaces/storage-options.interface';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
@@ -14,12 +16,15 @@ import { MFModel } from './mf-model';
  */
 export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMFDao<M>{
 
-  public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
-  public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
-
-  constructor(private db: AngularFirestore) {
+  constructor(
+    private db: AngularFirestore,
+    private storage?: AngularFireStorage,
+  ) {
     super();
   }
+
+  public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
+  public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
 
   //       ///////////////////////////////////   \\
   //      ///////////////////////////////////    \\
@@ -51,12 +56,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByPath missing parameter : path');
   }
 
-  public getReference(location: string | Partial<IMFLocation>): DocumentReference | CollectionReference {
-    return this.getAFReference(location).ref;
+  public getReference(idOrLocationOrModel: string | Partial<IMFLocation> | M): DocumentReference | CollectionReference {
+    return this.getAFReference(getLocation(idOrLocationOrModel, this.mustachePath)).ref;
   }
 
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
-    const realLocation = getLocation(location);
+    const realLocation = getLocation(location, this.mustachePath);
 
     return this.getOffsetSnapshots(options.offset).pipe(
       switchMap((offset) => {
@@ -102,7 +107,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   }
 
-  public async create(data: M, location?: string | IMFLocation, options: IMFSaveOptions = {}): Promise<M> {
+  public getListByPath(path: string, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+    if (path && isCompatiblePath(this.mustachePath, path)) {
+      const location = getLocationFromPath(path, this.mustachePath);
+      return this.getList(location, options);
+    }
+    throw new Error('getByPath missing or incompatible parameter : path');
+  }
+
+  public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
 
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
@@ -110,59 +123,103 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
     (data as any).updateDate = firestore.FieldValue.serverTimestamp();
     (data as any).creationDate = firestore.FieldValue.serverTimestamp();
+    const realLocation: Partial<IMFLocation> = getLocation(location || data, this.mustachePath);
 
-    const getDataToSave = this.beforeSave(data).then(data2 => getSavableData(data2));
-    const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
-    const reference = this.getAFReference<Partial<M>>(realLocation);
 
-    let setOrAddPromise: Promise<any>;
-    if (realLocation && realLocation.id) {
-      setOrAddPromise = getDataToSave
-        // .then(dataToSave => {
-        //   if (!options.overwrite) {
-        //     return reference.get().pipe(take(1)).toPromise().then(snap => {
-        //       if (snap.exists) {
-        //         return Promise.reject({
-        //           message: `conflict ! document ${snap.id} already exists`,
-        //           code: 409
-        //         });
-        //       }
-        //       return dataToSave;
-        //     });
-        //   }
-        //   return dataToSave;
-        // })
-        .then(dataToSave => (reference as AngularFirestoreDocument<Partial<M>>).set(dataToSave, { merge: !options.overwrite }));
-    } else {
-      setOrAddPromise = getDataToSave
-        .then(dataToSave => (reference as AngularFirestoreCollection<Partial<M>>).add(dataToSave));
-    }
+    return this.beforeSave(data, realLocation)
+      .then((model) => {
 
-    return setOrAddPromise
-      .then(ref =>
-        this.getNewModel(data, ref ? ({ ...realLocation, id: ref.id }) : realLocation)
-      ).catch((error) => {
-        console.error(error);
-        console.log('error for ', data);
-        return Promise.reject(error);
+        let testIfdocAlreadyExist: Promise<void>;
+
+        if (realLocation && realLocation.id && !options.overwrite) {
+          testIfdocAlreadyExist = (this.getAFReference<Partial<M>>(realLocation).get() as Observable<firestore.DocumentSnapshot>)
+            .pipe(take(1)).toPromise()
+            .then((snap: firestore.DocumentSnapshot) => {
+              if (snap.exists) {
+                return Promise.reject({
+                  message: `conflict ! document ${snap.id} already exists`,
+                  code: 409
+                });
+              }
+              return Promise.resolve();
+            });
+        } else {
+          testIfdocAlreadyExist = Promise.resolve();
+        }
+
+        return testIfdocAlreadyExist
+          .then(() => this.saveFiles(model, realLocation as IMFLocation))
+          .then(({ newModel: dataToSave, newLocation }) => {
+            const ref = this.getAFReference<Partial<M>>(newLocation);
+            const savableData = getSavableData(dataToSave);
+            if (newLocation && newLocation.id) {
+              return (ref as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite }).then(() => ref.ref);
+            }
+            return (ref as AngularFirestoreCollection<Partial<M>>).add(savableData);
+          })
+          .then(ref =>
+            this.getNewModel(data, { ...realLocation, id: ref.id })
+          )
+          .catch((error) => {
+            console.error(error);
+            console.log('error for ', data);
+            return Promise.reject(error);
+          });
+
       });
   }
 
-  public async update(data: Partial<M>, location?: string | IMFLocation, options?: IMFSaveOptions): Promise<Partial<M>> {
+  update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
-
-    const realLocation = location ? getLocation(location) : getLocationFromPath(data._collectionPath, this.mustachePath, data._id);
+    const realLocation = getLocation(location || (data as M), this.mustachePath);
 
     (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
 
-    return (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(data)
+    return this.beforeSave(data, realLocation)
+      .then((model) => {
+        const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (data as any)[key] && (data as any)[key]._file);
+        if (fileProperties.length) {
+          return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
+            .then((dbModel) => {
+              fileProperties.forEach((key) => {
+                (model as any)[key] = { ...(dbModel as any)[key], ...(model as any)[key] };
+              });
+              return this.updateFiles(model, realLocation as IMFLocation, options ? options.deletePreviousOnUpdateFiles : undefined);
+            });
+        }
+        return Promise.resolve(model);
+
+      })
+      .then(newModel => getSavableData(newModel))
+      .then(savable => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(savable))
       .then(() => data);
   }
 
-  public async delete(location: string | IMFLocation): Promise<void> {
-    return (this.getAFReference(location) as AngularFirestoreDocument<M>).delete();
+  delete(idLocationOrModel: string | IMFLocation | M, options: IMFDeleteOptions<M> = {}): Promise<void> {
+
+    const realLocation = getLocation(idLocationOrModel, this.mustachePath);
+    let deleteFilesPromise: Promise<M>;
+
+    if (this.getFileProperties(this.getNewModel()).length) {
+      deleteFilesPromise = (idLocationOrModel.hasOwnProperty('_collectionPath') ? // is model ? ok : get model
+        Promise.resolve(idLocationOrModel as M) :
+        this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
+      ).then(model => this.deleteFiles(model, options ? options.deleteOnDeleteFiles : undefined));
+    } else {
+      deleteFilesPromise = Promise.resolve(null);
+    }
+
+    return deleteFilesPromise.then(() => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete());
+  }
+
+  deleteByReference(reference: AngularFirestoreDocument<M>) {
+    if (getFileProperties(this.getNewModel()).length) {
+      return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
+        .then(model => this.delete(model));
+    }
+    return reference.delete();
   }
 
   public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
@@ -171,7 +228,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         {
           ...snapshot.data() as Partial<M>,
           _id: snapshot.id,
-          _collectionPath: snapshot.ref.path,
+          _collectionPath: snapshot.ref.parent.path,
           _snapshot: snapshot,
         }
       );
@@ -190,12 +247,121 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       ref.snapshotChanges().pipe(map(action => action.payload));
   }
 
-  public beforeSave(model: M): Promise<M> {
+  public async beforeSave(model: Partial<M>, location?: string | Partial<IMFLocation>): Promise<Partial<M>> {
     return Promise.resolve(model);
   }
 
-  public saveFile(fileObject: IMFFile, location: string | IMFLocation): IMFFile {
-    throw new Error('Method saveFile not yet implemented in @modelata/angular-fire.');
+  private async saveFiles(newModel: Partial<M>, newLocation: IMFLocation): Promise<{
+    newModel: Partial<M>,
+    newLocation: IMFLocation
+  }> {
+    const fileKeys = getFileProperties(newModel as Object);
+    if (fileKeys.length) {
+      if (!newLocation.id) {
+        newLocation.id = newModel._id || this.db.createId();
+      }
+      return Promise.all(fileKeys.filter(key => (newModel as any)[key] && (newModel as any)[key]._file).map((key) => {
+        return this.saveFile((newModel as any)[key], newLocation as IMFLocation)
+          .then((file) => {
+            (newModel as any)[key] = file;
+          });
+      })).then(() => {
+        return { newModel, newLocation };
+      });
+    }
+    return Promise.resolve({ newModel, newLocation });
+  }
+
+  public async saveFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
+    if (this.storage) {
+      return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
+        .then((uploadTask) => {
+          const newFile = {
+            ...fileObject,
+            storagePath: uploadTask.ref.fullPath,
+            name: fileObject._file.name,
+            type: fileObject._file.type,
+            contentLastModificationDate: new Date(fileObject._file.lastModified)
+          };
+          delete newFile._file;
+          return uploadTask.ref.getDownloadURL().then((url) => {
+            newFile.url = url;
+            return newFile;
+          });
+        });
+    }
+    return Promise.reject(new Error('AngularFireStorage was not injected'));
+  }
+
+  private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M>): Promise<M> {
+    const fileProperties = getFileProperties(model);
+
+    return fileProperties.length ?
+      Promise.all(fileProperties.filter(key => (model as any)[key]).map((key) => {
+        const property = (model as any)[key] as IMFFile;
+        if (
+          property &&
+          (
+            typeof (options as any)[key] === 'boolean' ?
+              (options as any)[key] :
+              property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete
+          )
+        ) {
+          return this.deleteFile(property);
+        }
+        return Promise.resolve();
+      })).then(() => model) :
+      Promise.resolve(model);
+  }
+
+  public deleteFile(fileObject: IMFFile): Promise<void> {
+    if (this.storage) {
+      return this.storage.ref(fileObject.storagePath).delete().toPromise().catch(err => {
+        if (err.code === 'storage/object-not-found') {
+          return Promise.resolve();
+        }
+        return Promise.reject(err);
+      });
+    }
+    return Promise.reject(new Error('AngularFireStorage was not injected'));
+  }
+
+  private async updateFiles(
+    data: Partial<M>,
+    location: IMFLocation,
+    options: IMFDeletePreviousOnUpdateFilesOptions<M> = {}
+  ): Promise<Partial<M>> {
+    const emptyModel = this.getNewModel();
+    const fileProperties = getFileProperties(emptyModel);
+
+    return fileProperties.length ?
+      Promise.all(fileProperties.filter((key: string) => (data as any)[key] && (data as any)[key]._file).map((key) => {
+        const property = (data as any)[key] as IMFFile;
+        if (
+          property &&
+          (
+            typeof (options as any)[key] === 'boolean' ?
+              (options as any)[key] :
+              (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
+          )
+        ) {
+          return this.updateFile(property, location)
+            .then((newFileObject) => {
+              (data as any)[key] = newFileObject;
+            });
+        }
+        return Promise.resolve(null);
+      })).then(() => data) :
+      Promise.resolve(data);
+  }
+
+  public async updateFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
+    if (this.storage) {
+      return (fileObject.storagePath ? this.deleteFile(fileObject) : Promise.resolve())
+        .then(() => this.saveFile(fileObject, location));
+
+    }
+    return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
@@ -214,13 +380,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   //    ///////////////////////////////////
   //   ///////////////////////////////////
-  //  ///////PRIVATE/////////////////////
+  //  ////////////PRIVATE////////////////
   // ///////////////////////////////////
   /////////////////////////////////////
 
 
   private getAFReference<M>(location: string | Partial<IMFLocation>): AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
-    const realLocation = getLocation(location);
+    const realLocation = getLocation(location, this.mustachePath);
 
     return realLocation.id
       ? this.db.doc<M>(getPath(this.mustachePath, realLocation))
@@ -247,7 +413,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         return reference.valueChanges().pipe(
           map((data) => {
             if (data) {
-              return this.getNewModel(data);
+              return this.getNewModel(
+                { ...data, _id: reference.ref.id },
+                getLocationFromPath(reference.ref.parent.path, this.mustachePath)
+              );
             }
             console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
             return null;
@@ -273,9 +442,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
           );
         }
-        return reference.valueChanges().pipe(
+        return reference.valueChanges({ idField: '_id' }).pipe(
           map(dataList =>
-            dataList.map(data => this.getNewModel(data))
+            dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
           )
         );
       }
@@ -314,7 +483,21 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return of(null);
   }
 
+  getReferenceFromPath(path: string): DocumentReference | AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
+    if (isCompatiblePath(this.mustachePath, path)) {
+      const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, this.mustachePath);
+      if (pathSplitted.length === mustachePathSplitted.length + 1) {
+        return this.db.doc<M>(path);
+      }
+      if (pathSplitted.length === mustachePathSplitted.length) {
+        return this.db.collection<M>(path);
+      }
+      throw new Error('Unable to establish if path is for doc or collection');
+    }
+    throw new Error('This path is not compatible with this DAO');
+  }
 
-
-
+  private getFileProperties(model?: Partial<M>): string[] {
+    return getFileProperties((model || this.getNewModel()) as Object);
+  }
 }
