@@ -4,8 +4,8 @@ import { IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUp
 import { getLocation, getLocationFromPath, getSubPaths, mergeModels } from 'helpers/model.helper';
 import { concatMustachePaths } from 'helpers/string.helper';
 import 'reflect-metadata';
-import { combineLatest, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { MFDao } from './mf-dao';
 import { MFModel } from './mf-model';
 import { SubMFDao } from './mf-sub-dao';
@@ -83,7 +83,15 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
               },
               options
             )
-              .pipe(map(model => ({ model, subDocPath: `${subDaoPath}/${docId}` })))
+              .pipe(
+                catchError((err) => {
+                  if (err.code === 'permission-denied') {
+                    return of(null);
+                  }
+                  return throwError(err);
+                }),
+                map(model => ({ model, subDocPath: `${subDaoPath}/${docId}` }))
+              )
           )
         )
         .reduce(
@@ -95,7 +103,9 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
         map((subDocWithPath: { subDocPath: string, model: object }[]) =>
           subDocWithPath.reduce(
             (subDocsByPath, docWithPath) => {
-              (subDocsByPath as any)[docWithPath.subDocPath] = docWithPath.model;
+              if (docWithPath && docWithPath.model) {
+                (subDocsByPath as any)[docWithPath.subDocPath] = docWithPath.model;
+              }
               return subDocsByPath;
             }
             ,
