@@ -1,11 +1,11 @@
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUpdateOptions, MFOmit } from '@modelata/types-fire';
-import { getLocation, getLocationFromPath, getSubPaths, mergeModels } from 'helpers/model.helper';
-import { concatMustachePaths } from 'helpers/string.helper';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { getLocation, getLocationFromPath, getSubPaths, mergeModels } from './helpers/model.helper';
+import { concatMustachePaths } from './helpers/string.helper';
 import { MFDao } from './mf-dao';
 import { MFModel } from './mf-model';
 import { SubMFDao } from './mf-sub-dao';
