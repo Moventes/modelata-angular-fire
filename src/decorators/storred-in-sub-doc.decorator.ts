@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-export function StorredInSubDoc(subDocPath: string): any {
+export function InSubDoc(subDocPath: string): any {
   return (target: any, propertyKey: string) => {
     let subDocPathTrimmed = subDocPath.trim();
     if (subDocPathTrimmed.endsWith('/')) {
