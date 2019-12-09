@@ -1,32 +1,14 @@
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFLocation } from '@modelata/types-fire';
+import { IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFUpdateOptions, MFOmit } from '@modelata/types-fire';
+import { getLocation, getLocationFromPath, getSubPaths, mergeModels } from 'helpers/model.helper';
+import { concatMustachePaths } from 'helpers/string.helper';
 import 'reflect-metadata';
+import { combineLatest, Observable } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { MFDao } from './mf-dao';
 import { MFModel } from './mf-model';
 
-// declare type stringObject = { [key: string]: any };
-
-// class SubMFModel extends MFModel<SubMFModel> {
-//   constructor(
-//     data: Partial<SubMFModel>,
-//     referentEmptyModel: MFModel<stringObject>,
-//     mustachePath: string,
-//     location: Partial<IMFLocation>
-//   ) {
-//     super();
-//     if (data) {
-//       for (const key in data) {
-//         if (typeof (data as any)[key] !== 'function') {
-//           (this as any)[key] = null;
-//           const metaKeys = Reflect.getMetadataKeys(referentEmptyModel, key);
-
-//         }
-//       }
-//     }
-//     super.initialize(data, mustachePath, location);
-//   }
-// }
 
 class SubMFDao extends MFDao<any>{
 
@@ -36,10 +18,37 @@ class SubMFDao extends MFDao<any>{
     mustachePath: string,
     db: AngularFirestore,
     private referentGetNewModel: (data?: Partial<any>, location?: Partial<IMFLocation>) => any,
+    public beforeSave: (model: Partial<any>, location?: string | Partial<IMFLocation>) => Promise<Partial<any>>,
     storage?: AngularFireStorage,
   ) {
     super(db, storage);
     this.mustachePath = mustachePath;
+  }
+
+  containsSomeValuesForMe(data: Object): boolean {
+    const refModel = this.referentGetNewModel(data);
+    return !!Object.keys(refModel).find(key =>
+      Reflect.hasMetadata('subDocPath', refModel, key) &&
+      this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key)) &&
+      data.hasOwnProperty(key)
+    );
+  }
+
+  extractMyData(data: Object): Object {
+    const refModel = this.referentGetNewModel(data);
+    return Object.keys(refModel).reduce(
+      (myData, key) => {
+        if (
+          Reflect.hasMetadata('subDocPath', refModel, key) &&
+          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key)) &&
+          data.hasOwnProperty(key)
+        ) {
+          (myData as any)[key] = (data as any)[key];
+        }
+        return myData;
+      },
+      {}
+    );
   }
 
   getNewModel(data?: Partial<any>, location?: Partial<IMFLocation>): any {
@@ -55,133 +64,162 @@ class SubMFDao extends MFDao<any>{
     return refModel;
   }
 
-  // getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<any> = {}): Observable<any[]> {
-  //   return super.getList(location, options);
-  // }
-
 }
 
 /**
- * Abstract DAO class
+ * Abstract Flattable DAO class
  */
 export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
 
 
-  private DAOs: {
-    [daoPath: string]: SubMFDao
-  } =
-    {
-
-    };
+  private subDAOs: {
+    [daoPath: string]: {
+      dao: SubMFDao;
+      ids: string[];
+    }
+  } = {};
 
   constructor(
     db: AngularFirestore,
     storage?: AngularFireStorage,
   ) {
     super(db, storage);
+    this.initAllSubDao(db, storage);
+    if (!this.subDAOs || Object.keys(this.subDAOs).length < 1) {
+      console.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
+      console.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
+    }
+  }
+
+  private initAllSubDao(
+    db: AngularFirestore,
+    storage?: AngularFireStorage
+  ) {
+    const refModel = this.getNewModel();
+    const subPaths = getSubPaths(refModel);
+    this.subDAOs = subPaths.reduce(
+      (daos, subPath: string) => {
+        const [daoPath, docId] = subPath.split('/');
+        if (!(daos as any)[daoPath]) {
+          (daos as any)[daoPath] = {
+            dao: this.instantiateSubDao(daoPath, db, storage),
+            ids: [docId]
+          };
+        } else if (!((daos as any)[daoPath].ids as string[]).includes(docId)) {
+          ((daos as any)[daoPath].ids as string[]).push(docId);
+        }
+        return daos;
+      },
+      {}
+    );
   }
 
 
   private instantiateSubDao(
-    mustachePath: string,
+    subDaoPath: string,
     db: AngularFirestore,
     storage?: AngularFireStorage,
   ): SubMFDao {
-    const dao = new SubMFDao(mustachePath, db, this.getNewModel, storage);
-    return dao;
+    const subMustachePath = concatMustachePaths(this.mustachePath, subDaoPath);
+    return new SubMFDao(subMustachePath, db, this.getNewModel, this.beforeSave, storage);
   }
 
-  // public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
-  // public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
 
-  //       ///////////////////////////////////   \\
-  //      ///////////////////////////////////    \\
-  //     ///////////PUBLIC API//////////////     \\
-  //    ///////////////////////////////////      \\
-  //   ///////////////////////////////////       \\
 
-  // abstract getNewModel(data?: Partial<M>, location?: Partial<IMFLocation>): M;
+  private get_subDocs(parentLocation: IMFLocation, options: IMFGetOneOptions = {}) {
+    return combineLatest(
+      Object.keys(this.subDAOs)
+        .map(subDaoPath =>
+          this.subDAOs[subDaoPath].ids.map(docId =>
+            this.subDAOs[subDaoPath].dao.get(
+              {
+                ...parentLocation,
+                parentId: parentLocation.id,
+                id: docId
+              },
+              options
+            )
+              .pipe(map(model => ({ model, subDocPath: `${subDaoPath}/${docId}` })))
+          )
+        )
+        .reduce(
+          (obsArray, subObsArray) => obsArray.concat(subObsArray),
+          []
+        )
+    )
+      .pipe(
+        map((subDocWithPath: { subDocPath: string, model: object }[]) =>
+          subDocWithPath.reduce(
+            (subDocsByPath, docWithPath) => {
+              (subDocsByPath as any)[docWithPath.subDocPath] = docWithPath.model;
+              return subDocsByPath;
+            }
+            ,
+            {}
+          )
+        )
+      );
+  }
 
-  // public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
-  //   if (location && (typeof location === 'string' || location.id)) {
-  //     const reference = this.getAFReference(location) as AngularFirestoreDocument<M>;
-  //     return this.getByAFReference(reference, options);
-  //   }
-  //   throw new Error('getById missing parameter : location and/or id');
-  // }
+  public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
+    const realLocation = getLocation(location, this.mustachePath) as IMFLocation;
 
-  // public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
-  //   if (reference) {
-  //     return this.getByAFReference(this.db.doc(reference), options);
-  //   }
-  //   throw new Error('getByReference missing parameter : reference');
-  // }
+    return combineLatest([
+      super.get(location, options),
+      this.get_subDocs(realLocation, options)
+    ])
+      .pipe(
+        map(([mainModel, subDocsByPath]) =>
+          mergeModels(mainModel, subDocsByPath)
+        )
+      );
 
-  // public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-  //   if (path) {
-  //     return this.getByAFReference(this.db.doc(path), options);
-  //   }
-  //   throw new Error('getByPath missing parameter : path');
-  // }
+  }
 
-  // public getReference(idOrLocationOrModel: string | Partial<IMFLocation> | M): DocumentReference | CollectionReference {
-  //   return this.getAFReference(getLocation(idOrLocationOrModel, this.mustachePath)).ref;
-  // }
+  public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
+    const realLocation = getLocationFromPath(reference.parent.path, this.mustachePath, reference.id) as IMFLocation;
+    return this.get(realLocation, options);
+  }
 
-  // public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
-  //   const realLocation = getLocation(location, this.mustachePath);
+  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
+    return this.getByReference(this.db.doc(path).ref, options);
+  }
 
-  //   return this.getOffsetSnapshots(options.offset).pipe(
-  //     switchMap((offset) => {
-  //       const collection = this.db.collection<M>(getPath(this.mustachePath, realLocation), (ref) => {
+  private getModelWithSubDocsFromMainModel(mainModel: M, options: IMFGetOneOptions = {}): Observable<M> {
+    const location = getLocation(mainModel, this.mustachePath) as IMFLocation;
+    return this.get_subDocs(location, options)
+      .pipe(
+        map(subDocsByPath =>
+          mergeModels(mainModel, subDocsByPath)
+        )
+      );
+  }
+  public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+    return super.getList(location, options)
+      .pipe(switchMap(models =>
+        combineLatest(
+          models.map(mainModel => this.getModelWithSubDocsFromMainModel(mainModel, options))
+        )
+      ));
+  }
 
-  //         let query: firebase.firestore.CollectionReference | firebase.firestore.Query = ref;
+  extractMyData(data: Partial<M>): Partial<M> {
+    const refModel = this.getNewModel(data);
+    return Object.keys(refModel).reduce(
+      (myData, key) => {
+        if (
+          !Reflect.hasMetadata('subDocPath', refModel, key) &&
+          data.hasOwnProperty(key)
+        ) {
+          (myData as any)[key] = (data as any)[key];
+        }
+        return myData;
+      },
+      {}
+    );
+  }
 
-  //         if (options.where && options.where.length > 0) {
-  //           options.where.forEach((where) => {
-  //             if (where) {
-  //               query = query.where(where.field, where.operator, where.value);
-  //             }
-  //           });
-  //         }
 
-  //         if (options.orderBy) {
-  //           query = query.orderBy(options.orderBy.field, options.orderBy.operator);
-  //         }
-
-  //         if (offset) {
-  //           if (offset.startAt) {
-  //             query = query.startAt(offset.startAt);
-  //           } else if (offset.startAfter) {
-  //             query = query.startAfter(offset.startAfter);
-  //           } else if (offset.endAt) {
-  //             query = query.endAt(offset.endAt);
-  //           } else if (offset.endBefore) {
-  //             query = query.endBefore(offset.endBefore);
-  //           }
-  //         }
-
-  //         if (options.limit !== null && options.limit !== undefined && options.limit > -1) {
-  //           query = query.limit(options.limit);
-  //         }
-
-  //         return query;
-
-  //       });
-
-  //       return this.getListByAFReference(collection, options);
-  //     })
-  //   );
-
-  // }
-
-  // public getListByPath(path: string, options: IMFGetListOptions<M> = {}): Observable<M[]> {
-  //   if (path && isCompatiblePath(this.mustachePath, path)) {
-  //     const location = getLocationFromPath(path, this.mustachePath);
-  //     return this.getList(location, options);
-  //   }
-  //   throw new Error('getByPath missing or incompatible parameter : path');
-  // }
 
   // public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
 
@@ -237,58 +275,17 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
   //     });
   // }
 
-  // update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
-  //   if (!allDataExistInModel(data, this.getNewModel())) {
-  //     return Promise.reject('try to update/add an attribute that is not defined in the model');
-  //   }
-  //   const realLocation = getLocation(location || (data as M), this.mustachePath);
+  private update_subDocs(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    return Promise.resolve(data); // TODO
+  }
 
-  //   (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
+  update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    return Promise.all([
+      super.update(this.extractMyData(data), location, options),
+      this.update_subDocs(data, location, options)
+    ]).then(() => data);
+  }
 
-  //   return this.beforeSave(data, realLocation)
-  //     .then((model) => {
-  //       const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (data as any)[key] && (data as any)[key]._file);
-  //       if (fileProperties.length) {
-  //         return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
-  //           .then((dbModel) => {
-  //             fileProperties.forEach((key) => {
-  //               (model as any)[key] = { ...(dbModel as any)[key], ...(model as any)[key] };
-  //             });
-  //             return this.updateFiles(model, realLocation as IMFLocation, options ? options.deletePreviousOnUpdateFiles : undefined);
-  //           });
-  //       }
-  //       return Promise.resolve(model);
-
-  //     })
-  //     .then(newModel => getSavableData(newModel))
-  //     .then(savable => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(savable))
-  //     .then(() => data);
-  // }
-
-  // delete(idLocationOrModel: string | IMFLocation | M, options: IMFDeleteOptions<M> = {}): Promise<void> {
-
-  //   const realLocation = getLocation(idLocationOrModel, this.mustachePath);
-  //   let deleteFilesPromise: Promise<M>;
-
-  //   if (this.getFileProperties(this.getNewModel()).length) {
-  //     deleteFilesPromise = (idLocationOrModel.hasOwnProperty('_collectionPath') ? // is model ? ok : get model
-  //       Promise.resolve(idLocationOrModel as M) :
-  //       this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
-  //     ).then(model => this.deleteFiles(model, options ? options.deleteOnDeleteFiles : undefined));
-  //   } else {
-  //     deleteFilesPromise = Promise.resolve(null);
-  //   }
-
-  //   return deleteFilesPromise.then(() => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete());
-  // }
-
-  // deleteByReference(reference: AngularFirestoreDocument<M>) {
-  //   if (getFileProperties(this.getNewModel()).length) {
-  //     return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
-  //       .then(model => this.delete(model));
-  //   }
-  //   return reference.delete();
-  // }
 
   // public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
   //   if (snapshot.exists) {
@@ -315,260 +312,9 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
   //     ref.snapshotChanges().pipe(map(action => action.payload));
   // }
 
+
+  // appelé une fois par model
   // public async beforeSave(model: Partial<M>, location?: string | Partial<IMFLocation>): Promise<Partial<M>> {
   //   return Promise.resolve(model);
-  // }
-
-  // private async saveFiles(newModel: Partial<M>, newLocation: IMFLocation): Promise<{
-  //   newModel: Partial<M>,
-  //   newLocation: IMFLocation
-  // }> {
-  //   const fileKeys = getFileProperties(newModel as Object);
-  //   if (fileKeys.length) {
-  //     if (!newLocation.id) {
-  //       newLocation.id = newModel._id || this.db.createId();
-  //     }
-  //     return Promise.all(fileKeys.filter(key => (newModel as any)[key] && (newModel as any)[key]._file).map((key) => {
-  //       return this.saveFile((newModel as any)[key], newLocation as IMFLocation)
-  //         .then((file) => {
-  //           (newModel as any)[key] = file;
-  //         });
-  //     })).then(() => {
-  //       return { newModel, newLocation };
-  //     });
-  //   }
-  //   return Promise.resolve({ newModel, newLocation });
-  // }
-
-  // public async saveFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
-  //   if (this.storage) {
-  //     return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
-  //       .then((uploadTask) => {
-  //         const newFile = {
-  //           ...fileObject,
-  //           storagePath: uploadTask.ref.fullPath,
-  //           name: fileObject._file.name,
-  //           type: fileObject._file.type,
-  //           contentLastModificationDate: new Date(fileObject._file.lastModified)
-  //         };
-  //         delete newFile._file;
-  //         return uploadTask.ref.getDownloadURL().then((url) => {
-  //           newFile.url = url;
-  //           return newFile;
-  //         });
-  //       });
-  //   }
-  //   return Promise.reject(new Error('AngularFireStorage was not injected'));
-  // }
-
-  // private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M> = {}): Promise<M> {
-  //   const fileProperties = getFileProperties(model);
-
-  //   return fileProperties.length ?
-  //     Promise.all(fileProperties.filter(key => (model as any)[key]).map((key) => {
-  //       const property = (model as any)[key] as IMFFile;
-  //       if (
-  //         property &&
-  //         (
-  //           typeof (options as any)[key] === 'boolean' ?
-  //             (options as any)[key] :
-  //             property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete
-  //         )
-  //       ) {
-  //         return this.deleteFile(property);
-  //       }
-  //       return Promise.resolve();
-  //     })).then(() => model) :
-  //     Promise.resolve(model);
-  // }
-
-  // public deleteFile(fileObject: IMFFile): Promise<void> {
-  //   if (this.storage) {
-  //     return this.storage.ref(fileObject.storagePath).delete().toPromise().catch((err) => {
-  //       if (err.code === 'storage/object-not-found') {
-  //         return Promise.resolve();
-  //       }
-  //       return Promise.reject(err);
-  //     });
-  //   }
-  //   return Promise.reject(new Error('AngularFireStorage was not injected'));
-  // }
-
-  // private async updateFiles(
-  //   data: Partial<M>,
-  //   location: IMFLocation,
-  //   options: IMFDeletePreviousOnUpdateFilesOptions<M> = {}
-  // ): Promise<Partial<M>> {
-  //   const emptyModel = this.getNewModel();
-  //   const fileProperties = getFileProperties(emptyModel);
-
-  //   return fileProperties.length ?
-  //     Promise.all(fileProperties.filter((key: string) => (data as any)[key] && (data as any)[key]._file).map((key) => {
-  //       const property = (data as any)[key] as IMFFile;
-  //       if (
-  //         property
-  //       ) {
-  //         return this.updateFile(
-  //           property,
-  //           location,
-  //           (
-  //             typeof (options as any)[key] === 'boolean' ?
-  //               (options as any)[key] :
-  //               (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
-  //           )
-  //         )
-  //           .then((newFileObject) => {
-  //             (data as any)[key] = newFileObject;
-  //           });
-  //       }
-  //       return Promise.resolve(null);
-  //     })).then(() => data) :
-  //     Promise.resolve(data);
-  // }
-
-  // public async updateFile(fileObject: IMFFile, location: IMFLocation, deletePrevious = true): Promise<IMFFile> {
-  //   if (this.storage) {
-  //     return ((fileObject.storagePath && deletePrevious) ? this.deleteFile(fileObject) : Promise.resolve())
-  //       .then(() => this.saveFile(fileObject, location));
-
-  //   }
-  //   return Promise.reject(new Error('AngularFireStorage was not injected'));
-  // }
-
-  // public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
-  //   return isCompatiblePath(
-  //     this.mustachePath,
-  //     (doc as M)._collectionPath ||
-  //     (doc as DocumentReference).path ||
-  //     (doc as CollectionReference).path
-  //   );
-  // }
-
-
-
-
-
-
-  // //    ///////////////////////////////////
-  // //   ///////////////////////////////////
-  // //  ////////////PRIVATE////////////////
-  // // ///////////////////////////////////
-  // /////////////////////////////////////
-
-
-  // private getAFReference<M>(location: string | Partial<IMFLocation>): AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
-  //   const realLocation = getLocation(location, this.mustachePath);
-
-  //   return realLocation.id
-  //     ? this.db.doc<M>(getPath(this.mustachePath, realLocation))
-  //     : this.db.collection<M>(getPath(this.mustachePath, realLocation));
-  // }
-
-
-
-
-  // @Cacheable
-  // private getByAFReference(reference: AngularFirestoreDocument<M>, options: IMFGetOneOptions = {}): Observable<M> {
-  //   if (reference) {
-  //     if (this.isCompatible(reference.ref)) {
-  //       if (options.completeOnFirst) {
-  //         return reference.get().pipe(
-  //           map(snapshot => this.getModelFromSnapshot(snapshot))
-  //         );
-  //       }
-  //       if (options.withSnapshot) {
-  //         return reference.snapshotChanges().pipe(
-  //           map(action => this.getModelFromSnapshot(action.payload))
-  //         );
-  //       }
-  //       return reference.valueChanges().pipe(
-  //         map((data) => {
-  //           if (data) {
-  //             return this.getNewModel(
-  //               { ...data, _id: reference.ref.id },
-  //               getLocationFromPath(reference.ref.parent.path, this.mustachePath)
-  //             );
-  //           }
-  //           console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
-  //           return null;
-  //         })
-  //       );
-  //     }
-  //     throw new Error('location is not compatible with this dao!');
-  //   }
-  //   throw new Error('getByReference missing parameter : reference');
-  // }
-
-  // @Cacheable
-  // private getListByAFReference(reference: AngularFirestoreCollection<M>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
-  //   if (reference) {
-  //     if (this.isCompatible(reference.ref)) {
-  //       if (options.completeOnFirst) {
-  //         return reference.get().pipe(
-  //           map(querySnapshot => querySnapshot.docs.map(snapshot => this.getModelFromSnapshot(snapshot)))
-  //         );
-  //       }
-  //       if (options.withSnapshot) {
-  //         return reference.snapshotChanges().pipe(
-  //           map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
-  //         );
-  //       }
-  //       return reference.valueChanges({ idField: '_id' }).pipe(
-  //         map(dataList =>
-  //           dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
-  //         )
-  //       );
-  //     }
-  //     throw new Error('location is not compatible with this dao!');
-  //   }
-  //   throw new Error('getListByReference missing parameter : reference');
-  // }
-
-  // private getSnapshotFromIMFOffsetPart(elem: string | DocumentSnapshot<M>): Observable<DocumentSnapshot<M>> {
-  //   if (elem) {
-  //     if (typeof elem === 'string') {
-  //       return this.getSnapshot(elem, {});
-  //     }
-  //     return of(elem);
-  //   }
-  //   return of(null);
-  // }
-
-  // private getOffsetSnapshots(iMFOffset: IMFOffset<M>): Observable<IMFOffset<M>> {
-  //   if (iMFOffset) {
-  //     if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
-  //       throw new Error('Two many offset options');
-  //     } else if (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt) {
-  //       return combineLatest(
-  //         this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
-  //         this.getSnapshotFromIMFOffsetPart(iMFOffset.startAfter),
-  //         this.getSnapshotFromIMFOffsetPart(iMFOffset.endAt),
-  //         this.getSnapshotFromIMFOffsetPart(iMFOffset.startAt)
-  //       ).pipe(
-  //         map(([endBefore, startAfter, endAt, startAt]) => ({
-  //           endBefore, startAfter, endAt, startAt
-  //         }))
-  //       );
-  //     }
-  //   }
-  //   return of(null);
-  // }
-
-  // getReferenceFromPath(path: string): DocumentReference | AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
-  //   if (isCompatiblePath(this.mustachePath, path)) {
-  //     const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, this.mustachePath);
-  //     if (pathSplitted.length === mustachePathSplitted.length + 1) {
-  //       return this.db.doc<M>(path);
-  //     }
-  //     if (pathSplitted.length === mustachePathSplitted.length) {
-  //       return this.db.collection<M>(path);
-  //     }
-  //     throw new Error('Unable to establish if path is for doc or collection');
-  //   }
-  //   throw new Error('This path is not compatible with this DAO');
-  // }
-
-  // private getFileProperties(model?: Partial<M>): string[] {
-  //   return getFileProperties((model || this.getNewModel()) as Object);
   // }
 }

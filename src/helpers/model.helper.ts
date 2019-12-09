@@ -167,3 +167,34 @@ export function getFileProperties(model: Object): string[] {
   });
 }
 
+/**
+ * returns list of subPath in model
+ * @param model The model object
+ */
+export function getSubPaths(model: MFModel<any>): string[] {
+  return Array.from(new Set(Object.keys(model).map((key) => {
+    if (Reflect.hasMetadata('subDocPath', model, key)) {
+      return Reflect.getMetadata('subDocPath', model, key);
+    }
+    return null;
+  }).filter(a => !!a)));
+}
+
+
+export function mergeModels<M>(mainModel: M, subModels: { [subPath: string]: MFModel<any> }): M {
+  Object.keys(mainModel).forEach((key) => {
+    if (
+      Reflect.hasMetadata('subDocPath', mainModel, key)
+    ) {
+      const subPath = Reflect.getMetadata('subDocPath', mainModel, key);
+      if (
+        subModels.hasOwnProperty(subPath) &&
+        (subModels[subPath] as Object).hasOwnProperty(key)
+      ) {
+        (mainModel as any)[key] = (subModels[subPath] as any)[key];
+      }
+    }
+  });
+  return mainModel;
+}
+

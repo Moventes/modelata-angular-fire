@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
+import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, getSubPaths, isCompatiblePath } from './helpers/model.helper';
 import { IMFStorageOptions } from './interfaces/storage-options.interface';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
@@ -17,10 +17,14 @@ import { MFModel } from './mf-model';
 export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMFDao<M>{
 
   constructor(
-    private db: AngularFirestore,
-    private storage?: AngularFireStorage,
+    protected db: AngularFirestore,
+    protected storage?: AngularFireStorage,
   ) {
     super();
+    if (getSubPaths(this.getNewModel()).length > 0) {
+      console.error(`${this.mustachePath} DAO EXTENDS MFDao But the model use data stored in other document !! `);
+      console.error(`${this.mustachePath} DAO MUST EXTENDS MFFlattableDao instead`);
+    }
   }
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
@@ -169,7 +173,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       });
   }
 
-  update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
