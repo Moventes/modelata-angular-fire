@@ -8,84 +8,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { MFDao } from './mf-dao';
 import { MFModel } from './mf-model';
-
-
-class SubMFDao extends MFDao<any>{
-
-  public mustachePath: string;
-
-  constructor(
-    mustachePath: string,
-    db: AngularFirestore,
-    private referentGetNewModel: (data?: Partial<any>, location?: Partial<IMFLocation>) => any,
-    public beforeSave: (model: Partial<any>, location?: string | Partial<IMFLocation>) => Promise<Partial<any>>,
-    storage?: AngularFireStorage,
-  ) {
-    super(db, storage);
-    this.mustachePath = mustachePath;
-  }
-
-  containsSomeValuesForMe(data: Object): boolean {
-    const refModel = this.referentGetNewModel(data);
-    return !!Object.keys(refModel).find(key =>
-      Reflect.hasMetadata('subDocPath', refModel, key) &&
-      this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
-      data.hasOwnProperty(key)
-    );
-  }
-
-  extractMyData(data: Object): Object {
-    const refModel = this.referentGetNewModel(data);
-    return Object.keys(refModel).reduce(
-      (myData, key) => {
-        if (
-          Reflect.hasMetadata('subDocPath', refModel, key) &&
-          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
-          data.hasOwnProperty(key)
-        ) {
-          (myData as any)[key] = (data as any)[key];
-        }
-        return myData;
-      },
-      {}
-    );
-  }
-
-  splitDataByDocId(data: Partial<any>): { [docId: string]: object } {
-    const refModel = this.referentGetNewModel(data);
-    return Object.keys(refModel).reduce(
-      (dataById, key) => {
-        if (
-          Reflect.hasMetadata('subDocPath', refModel, key) &&
-          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
-          (data as Object).hasOwnProperty(key)
-        ) {
-          const docId = Reflect.getMetadata('subDocPath', refModel, key).split('/')[1];
-          if (!(dataById as any)[docId]) {
-            (dataById as any)[docId] = {};
-          }
-          (dataById as any)[docId][key] = data[key];
-        }
-        return dataById;
-      },
-      {}
-    );
-  }
-
-  getNewModel(data?: Partial<any>, location?: Partial<IMFLocation>): any {
-    const refModel = this.referentGetNewModel(data, location);
-    Object.keys(refModel).forEach((key) => {
-      if (
-        !Reflect.hasMetadata('subDocPath', refModel, key) ||
-        !this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0])
-      ) {
-        delete refModel[key];
-      }
-    });
-    return refModel;
-  }
-
-}
+import { SubMFDao } from './mf-sub-dao';
 
 /**
  * Abstract Flattable DAO class
@@ -320,30 +243,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
 
 
   // public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
-  //   if (snapshot.exists) {
-  //     return this.getNewModel(
-  //       {
-  //         ...snapshot.data() as Partial<M>,
-  //         _id: snapshot.id,
-  //         _collectionPath: snapshot.ref.parent.path,
-  //         _snapshot: snapshot,
-  //       }
-  //     );
-  //   }
-  //   console.error(
-  //     '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
-  //     snapshot
-  //   );
-  //   return null;
+  // impossible à implementer
   // }
-
-  // public getSnapshot(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<DocumentSnapshot<M>> {
-  //   const ref = (this.getAFReference(location) as AngularFirestoreDocument<M>);
-  //   return options && options.completeOnFirst ?
-  //     ref.get().pipe(map(snap => snap as DocumentSnapshot<M>)) :
-  //     ref.snapshotChanges().pipe(map(action => action.payload));
-  // }
-
 
   // appelé une fois par model
   // public async beforeSave(model: Partial<M>, location?: string | Partial<IMFLocation>): Promise<Partial<M>> {
