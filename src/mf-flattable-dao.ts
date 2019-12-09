@@ -1,6 +1,6 @@
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFUpdateOptions, MFOmit } from '@modelata/types-fire';
+import { IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUpdateOptions, MFOmit } from '@modelata/types-fire';
 import { getLocation, getLocationFromPath, getSubPaths, mergeModels } from 'helpers/model.helper';
 import { concatMustachePaths } from 'helpers/string.helper';
 import 'reflect-metadata';
@@ -29,7 +29,7 @@ class SubMFDao extends MFDao<any>{
     const refModel = this.referentGetNewModel(data);
     return !!Object.keys(refModel).find(key =>
       Reflect.hasMetadata('subDocPath', refModel, key) &&
-      this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key)) &&
+      this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
       data.hasOwnProperty(key)
     );
   }
@@ -40,7 +40,7 @@ class SubMFDao extends MFDao<any>{
       (myData, key) => {
         if (
           Reflect.hasMetadata('subDocPath', refModel, key) &&
-          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key)) &&
+          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
           data.hasOwnProperty(key)
         ) {
           (myData as any)[key] = (data as any)[key];
@@ -51,12 +51,33 @@ class SubMFDao extends MFDao<any>{
     );
   }
 
+  splitDataByDocId(data: Partial<any>): { [docId: string]: object } {
+    const refModel = this.referentGetNewModel(data);
+    return Object.keys(refModel).reduce(
+      (dataById, key) => {
+        if (
+          Reflect.hasMetadata('subDocPath', refModel, key) &&
+          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
+          (data as Object).hasOwnProperty(key)
+        ) {
+          const docId = Reflect.getMetadata('subDocPath', refModel, key).split('/')[1];
+          if (!(dataById as any)[docId]) {
+            (dataById as any)[docId] = {};
+          }
+          (dataById as any)[docId][key] = data[key];
+        }
+        return dataById;
+      },
+      {}
+    );
+  }
+
   getNewModel(data?: Partial<any>, location?: Partial<IMFLocation>): any {
     const refModel = this.referentGetNewModel(data, location);
     Object.keys(refModel).forEach((key) => {
       if (
         !Reflect.hasMetadata('subDocPath', refModel, key) ||
-        !this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key))
+        !this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0])
       ) {
         delete refModel[key];
       }
@@ -219,70 +240,81 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     );
   }
 
+  private create_subDocs(
+    data: Partial<M>,
+    parentLocation: IMFLocation,
+    options: IMFSaveOptions = {}
+  ): Promise<{ model: Partial<M>, subDocPath: string }[]> {
+    return Promise.all(
+      Object.keys(this.subDAOs).reduce(
+        (creates: Promise<{ model: Partial<M>, subDocPath: string }>[], pathDao) => {
+          if (this.subDAOs[pathDao].dao.containsSomeValuesForMe(data as object)) {
+            const docsById = this.subDAOs[pathDao].dao.splitDataByDocId(data);
+            return creates.concat(Object.keys(docsById).map(docId => this.subDAOs[pathDao].dao.create(
+              docsById[docId],
+              {
+                ...parentLocation,
+                parentId: parentLocation.id,
+                id: docId
+              },
+              options
+            ).then(model => ({ model, subDocPath: `${pathDao}/${docId}` }))));
+          }
+          return creates;
+        },
+        []
+      )
+    );
+  }
 
+  public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
+    const realLocation = getLocation(location, this.mustachePath);
+    return super.create(this.extractMyData(data) as M, realLocation, options).then((modelSaved) => {
+      return this.create_subDocs(
+        data,
+        (realLocation && realLocation.id) ? (realLocation as IMFLocation) : ({ ...realLocation, id: modelSaved._id }),
+        options
+      ).then(subDocs => mergeModels(
+        modelSaved,
+        subDocs.reduce(
+          (subDocsByPath, docWithPath) => {
+            (subDocsByPath as any)[docWithPath.subDocPath] = docWithPath.model;
+            return subDocsByPath;
+          }
+          ,
+          {}
+        )
+      ));
+    });
+  }
 
-  // public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
-
-  //   if (!allDataExistInModel(data, this.getNewModel())) {
-  //     return Promise.reject('try to update/add an attribute that is not defined in the model');
-  //   }
-
-  //   (data as any).updateDate = firestore.FieldValue.serverTimestamp();
-  //   (data as any).creationDate = firestore.FieldValue.serverTimestamp();
-  //   const realLocation: Partial<IMFLocation> = getLocation(location || data, this.mustachePath);
-
-
-  //   return this.beforeSave(data, realLocation)
-  //     .then((model) => {
-
-  //       let testIfdocAlreadyExist: Promise<void>;
-
-  //       if (realLocation && realLocation.id && !options.overwrite) {
-  //         testIfdocAlreadyExist = (this.getAFReference<Partial<M>>(realLocation).get() as Observable<firestore.DocumentSnapshot>)
-  //           .pipe(take(1)).toPromise()
-  //           .then((snap: firestore.DocumentSnapshot) => {
-  //             if (snap.exists) {
-  //               return Promise.reject({
-  //                 message: `conflict ! document ${snap.id} already exists`,
-  //                 code: 409
-  //               });
-  //             }
-  //             return Promise.resolve();
-  //           });
-  //       } else {
-  //         testIfdocAlreadyExist = Promise.resolve();
-  //       }
-
-  //       return testIfdocAlreadyExist
-  //         .then(() => this.saveFiles(model, realLocation as IMFLocation))
-  //         .then(({ newModel: dataToSave, newLocation }) => {
-  //           const ref = this.getAFReference<Partial<M>>(newLocation);
-  //           const savableData = getSavableData(dataToSave);
-  //           if (newLocation && newLocation.id) {
-  //             return (ref as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite }).then(() => ref.ref);
-  //           }
-  //           return (ref as AngularFirestoreCollection<Partial<M>>).add(savableData);
-  //         })
-  //         .then(ref =>
-  //           this.getNewModel(data, { ...realLocation, id: ref.id })
-  //         )
-  //         .catch((error) => {
-  //           console.error(error);
-  //           console.log('error for ', data);
-  //           return Promise.reject(error);
-  //         });
-
-  //     });
-  // }
-
-  private update_subDocs(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
-    return Promise.resolve(data); // TODO
+  private update_subDocs(data: Partial<M>, parentLocation?: IMFLocation, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>[]> {
+    return Promise.all(
+      Object.keys(this.subDAOs).reduce(
+        (updates: Promise<Partial<M>>[], pathDao) => {
+          if (this.subDAOs[pathDao].dao.containsSomeValuesForMe(data as object)) {
+            const docsById = this.subDAOs[pathDao].dao.splitDataByDocId(data);
+            return updates.concat(Object.keys(docsById).map(docId => this.subDAOs[pathDao].dao.update(
+              docsById[docId],
+              {
+                ...parentLocation,
+                parentId: parentLocation.id,
+                id: docId
+              },
+              options
+            )));
+          }
+          return updates;
+        },
+        []
+      )
+    );
   }
 
   update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
     return Promise.all([
       super.update(this.extractMyData(data), location, options),
-      this.update_subDocs(data, location, options)
+      this.update_subDocs(data, getLocation(location || (data as M), this.mustachePath) as IMFLocation, options)
     ]).then(() => data);
   }
 
