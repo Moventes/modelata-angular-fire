@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>MFDao | @modelata/angular-fire</title>
+	<title>MFFlattableDao | @modelata/angular-fire</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,13 +56,13 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_mf_dao_.html">&quot;mf-dao&quot;</a>
+					<a href="../modules/_mf_flattable_dao_.html">&quot;mf-flattable-dao&quot;</a>
 				</li>
 				<li>
-					<a href="_mf_dao_.mfdao.html">MFDao</a>
+					<a href="_mf_flattable_dao_.mfflattabledao.html">MFFlattableDao</a>
 				</li>
 			</ul>
-			<h1>Class MFDao&lt;M&gt;</h1>
+			<h1>Class MFFlattableDao&lt;M&gt;</h1>
 		</div>
 	</div>
 </header>
@@ -72,7 +72,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Abstract DAO class</p>
+						<p>Abstract Flattable DAO class</p>
 					</div>
 				</div>
 			</section>
@@ -88,18 +88,10 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="_mf_cache_.mfcache.html" class="tsd-signature-type">MFCache</a>
+						<a href="_mf_dao_.mfdao.html" class="tsd-signature-type">MFDao</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">MFDao</span>
-								<ul class="tsd-hierarchy">
-									<li>
-										<a href="_mf_sub_dao_.submfdao.html" class="tsd-signature-type">SubMFDao</a>
-									</li>
-									<li>
-										<a href="_mf_flattable_dao_.mfflattabledao.html" class="tsd-signature-type">MFFlattableDao</a>
-									</li>
-								</ul>
+								<span class="target">MFFlattableDao</span>
 							</li>
 						</ul>
 					</li>
@@ -118,54 +110,53 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_dao_.mfdao.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#cacheable" class="tsd-kind-icon">cacheable</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="_mf_dao_.mfdao.html#db" class="tsd-kind-icon">db</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_dao_.mfdao.html#mustachepath" class="tsd-kind-icon">mustache<wbr>Path</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="_mf_dao_.mfdao.html#storage" class="tsd-kind-icon">storage</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_dao_.mfdao.html#cache" class="tsd-kind-icon">cache</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_dao_.mfdao.html#clearallcachesub" class="tsd-kind-icon">clear<wbr>All<wbr>Cache<wbr>Sub</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#cacheable" class="tsd-kind-icon">cacheable</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_mf_flattable_dao_.mfflattabledao.html#db" class="tsd-kind-icon">db</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#mustachepath" class="tsd-kind-icon">mustache<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_mf_flattable_dao_.mfflattabledao.html#storage" class="tsd-kind-icon">storage</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#subdaos" class="tsd-kind-icon">subDAOs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_flattable_dao_.mfflattabledao.html#cache" class="tsd-kind-icon">cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_flattable_dao_.mfflattabledao.html#clearallcachesub" class="tsd-kind-icon">clear<wbr>All<wbr>Cache<wbr>Sub</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#beforesave" class="tsd-kind-icon">before<wbr>Save</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#create" class="tsd-kind-icon">create</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#delete" class="tsd-kind-icon">delete</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#deletebyreference" class="tsd-kind-icon">delete<wbr>ByReference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#deletefiles" class="tsd-kind-icon">delete<wbr>Files</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#get" class="tsd-kind-icon">get</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private"><a href="_mf_dao_.mfdao.html#getafreference" class="tsd-kind-icon">getAFReference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#getbyafreference" class="tsd-kind-icon">get<wbr>ByAFReference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getbypath" class="tsd-kind-icon">get<wbr>ByPath</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getbyreference" class="tsd-kind-icon">get<wbr>ByReference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#getfileproperties" class="tsd-kind-icon">get<wbr>File<wbr>Properties</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getlist" class="tsd-kind-icon">get<wbr>List</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#getlistbyafreference" class="tsd-kind-icon">get<wbr>List<wbr>ByAFReference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getlistbypath" class="tsd-kind-icon">get<wbr>List<wbr>ByPath</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getmodelfromsnapshot" class="tsd-kind-icon">get<wbr>Model<wbr>From<wbr>Snapshot</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getnewmodel" class="tsd-kind-icon">get<wbr>New<wbr>Model</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#getoffsetsnapshots" class="tsd-kind-icon">get<wbr>Offset<wbr>Snapshots</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getreference" class="tsd-kind-icon">get<wbr>Reference</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getreferencefrompath" class="tsd-kind-icon">get<wbr>Reference<wbr>From<wbr>Path</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#getsnapshot" class="tsd-kind-icon">get<wbr>Snapshot</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#getsnapshotfromimfoffsetpart" class="tsd-kind-icon">get<wbr>Snapshot<wbr>FromIMFOffset<wbr>Part</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#iscompatible" class="tsd-kind-icon">is<wbr>Compatible</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#savefile" class="tsd-kind-icon">save<wbr>File</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#savefiles" class="tsd-kind-icon">save<wbr>Files</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_mf_dao_.mfdao.html#setclearcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>Cache<wbr>Observable</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#update" class="tsd-kind-icon">update</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_dao_.mfdao.html#updatefile" class="tsd-kind-icon">update<wbr>File</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_dao_.mfdao.html#updatefiles" class="tsd-kind-icon">update<wbr>Files</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_dao_.mfdao.html#clearallmfcache" class="tsd-kind-icon">clear<wbr>AllMFCache</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_dao_.mfdao.html#setclearallcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>All<wbr>Cache<wbr>Observable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#beforesave" class="tsd-kind-icon">before<wbr>Save</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#create" class="tsd-kind-icon">create</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#create_subdocs" class="tsd-kind-icon">create_<wbr>sub<wbr>Docs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#delete" class="tsd-kind-icon">delete</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#deletebyreference" class="tsd-kind-icon">delete<wbr>ByReference</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_mf_flattable_dao_.mfflattabledao.html#extractmydata" class="tsd-kind-icon">extract<wbr>MyData</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#get" class="tsd-kind-icon">get</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#getbypath" class="tsd-kind-icon">get<wbr>ByPath</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#getbyreference" class="tsd-kind-icon">get<wbr>ByReference</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#getlist" class="tsd-kind-icon">get<wbr>List</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getlistbypath" class="tsd-kind-icon">get<wbr>List<wbr>ByPath</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getmodelfromsnapshot" class="tsd-kind-icon">get<wbr>Model<wbr>From<wbr>Snapshot</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#getmodelwithsubdocsfrommainmodel" class="tsd-kind-icon">get<wbr>Model<wbr>With<wbr>Sub<wbr>Docs<wbr>From<wbr>Main<wbr>Model</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getnewmodel" class="tsd-kind-icon">get<wbr>New<wbr>Model</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getreference" class="tsd-kind-icon">get<wbr>Reference</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getreferencefrompath" class="tsd-kind-icon">get<wbr>Reference<wbr>From<wbr>Path</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#getsnapshot" class="tsd-kind-icon">get<wbr>Snapshot</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#get_subdocs" class="tsd-kind-icon">get_<wbr>sub<wbr>Docs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#initallsubdao" class="tsd-kind-icon">init<wbr>All<wbr>Sub<wbr>Dao</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#instantiatesubdao" class="tsd-kind-icon">instantiate<wbr>Sub<wbr>Dao</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#iscompatible" class="tsd-kind-icon">is<wbr>Compatible</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#savefile" class="tsd-kind-icon">save<wbr>File</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="_mf_flattable_dao_.mfflattabledao.html#setclearcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>Cache<wbr>Observable</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_mf_flattable_dao_.mfflattabledao.html#update" class="tsd-kind-icon">update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_mf_flattable_dao_.mfflattabledao.html#updatefile" class="tsd-kind-icon">update<wbr>File</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_mf_flattable_dao_.mfflattabledao.html#update_subdocs" class="tsd-kind-icon">update_<wbr>sub<wbr>Docs</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_flattable_dao_.mfflattabledao.html#clearallmfcache" class="tsd-kind-icon">clear<wbr>AllMFCache</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_mf_flattable_dao_.mfflattabledao.html#setclearallcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>All<wbr>Cache<wbr>Observable</a></li>
 							</ul>
 						</section>
 					</div>
@@ -177,14 +168,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new MFDao<span class="tsd-signature-symbol">(</span>db<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestore</span>, storage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AngularFireStorage</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_mf_dao_.mfdao.html" class="tsd-signature-type">MFDao</a></li>
+						<li class="tsd-signature tsd-kind-icon">new MFFlattable<wbr>Dao<span class="tsd-signature-symbol">(</span>db<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestore</span>, storage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AngularFireStorage</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_mf_flattable_dao_.mfflattabledao.html" class="tsd-signature-type">MFFlattableDao</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="_mf_cache_.mfcache.html">MFCache</a>.<a href="_mf_cache_.mfcache.html#constructor">constructor</a></p>
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L17">mf-dao.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L24">mf-flattable-dao.ts:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -196,53 +187,83 @@
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> storage: <span class="tsd-signature-type">AngularFireStorage</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="_mf_dao_.mfdao.html" class="tsd-signature-type">MFDao</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="_mf_flattable_dao_.mfflattabledao.html" class="tsd-signature-type">MFFlattableDao</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="cacheable" class="tsd-anchor"></a>
 					<h3>cacheable</h3>
 					<div class="tsd-signature tsd-kind-icon">cacheable<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;Reflect.getMetadata(&#x27;cacheable&#x27;, this.constructor)</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#cacheable">cacheable</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L31">mf-dao.ts:31</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="db" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> db</h3>
 					<div class="tsd-signature tsd-kind-icon">db<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AngularFirestore</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#db">db</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L20">mf-dao.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
 					<a name="mustachepath" class="tsd-anchor"></a>
 					<h3>mustache<wbr>Path</h3>
 					<div class="tsd-signature tsd-kind-icon">mustache<wbr>Path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;Reflect.getMetadata(&#x27;mustachePath&#x27;, this.constructor)</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#mustachepath">mustachePath</a></p>
 						<p>Overrides <a href="_mf_cache_.mfcache.html">MFCache</a>.<a href="_mf_cache_.mfcache.html#mustachepath">mustachePath</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L30">mf-dao.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
 					<a name="storage" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> <span class="tsd-flag ts-flagOptional">Optional</span> storage</h3>
 					<div class="tsd-signature tsd-kind-icon">storage<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">AngularFireStorage</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#storage">storage</a></p>
 						<ul>
 							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L21">mf-dao.ts:21</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="subdaos" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> subDAOs</h3>
+					<div class="tsd-signature tsd-kind-icon">subDAOs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L19">mf-flattable-dao.ts:19</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>daoPath: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">object</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>dao<span class="tsd-signature-symbol">: </span><a href="_mf_sub_dao_.submfdao.html" class="tsd-signature-type">SubMFDao</a></h5>
+									</li>
+									<li class="tsd-parameter">
+										<h5>ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
 					<a name="cache" class="tsd-anchor"></a>
@@ -285,15 +306,16 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="beforesave" class="tsd-anchor"></a>
 					<h3>before<wbr>Save</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">before<wbr>Save<span class="tsd-signature-symbol">(</span>model<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#beforesave">beforeSave</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L256">mf-dao.ts:256</a></li>
 								</ul>
@@ -311,17 +333,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="create" class="tsd-anchor"></a>
 					<h3>create</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">create<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span>, location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFSaveOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#create">create</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L122">mf-dao.ts:122</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L206">mf-flattable-dao.ts:206</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -340,15 +363,45 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="create_subdocs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> create_<wbr>sub<wbr>Docs</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">create_<wbr>sub<wbr>Docs<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, parentLocation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFSaveOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L179">mf-flattable-dao.ts:179</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>data: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5>parentLocation: <span class="tsd-signature-type">IMFLocation</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFSaveOptions</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="delete" class="tsd-anchor"></a>
 					<h3>delete</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">delete<span class="tsd-signature-symbol">(</span>idLocationOrModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">M</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFDeleteOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#delete">delete</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L204">mf-dao.ts:204</a></li>
 								</ul>
@@ -366,15 +419,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="deletebyreference" class="tsd-anchor"></a>
 					<h3>delete<wbr>ByReference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">delete<wbr>ByReference<span class="tsd-signature-symbol">(</span>reference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#deletebyreference">deleteByReference</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L221">mf-dao.ts:221</a></li>
 								</ul>
@@ -389,15 +443,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="deletefile" class="tsd-anchor"></a>
 					<h3>delete<wbr>File</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">delete<wbr>File<span class="tsd-signature-symbol">(</span>fileObject<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFFile</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#deletefile">deleteFile</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L323">mf-dao.ts:323</a></li>
 								</ul>
@@ -412,43 +467,41 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="deletefiles" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> delete<wbr>Files</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">delete<wbr>Files<span class="tsd-signature-symbol">(</span>model<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFDeleteOnDeleteFilesOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="extractmydata" class="tsd-anchor"></a>
+					<h3>extract<wbr>MyData</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">extract<wbr>MyData<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L302">mf-dao.ts:302</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L163">mf-flattable-dao.ts:163</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>model: <span class="tsd-signature-type">M</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFDeleteOnDeleteFilesOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5>data: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="get" class="tsd-anchor"></a>
 					<h3>get</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">get<span class="tsd-signature-symbol">(</span>location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#get">get</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L41">mf-dao.ts:41</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L121">mf-flattable-dao.ts:121</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -464,75 +517,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
-					<a name="getafreference" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> getAFReference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">getAFReference&lt;M&gt;<span class="tsd-signature-symbol">(</span>location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AngularFirestoreCollection</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L397">mf-dao.ts:397</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-type-parameters-title">Type parameters</h4>
-							<ul class="tsd-type-parameters">
-								<li>
-									<h4>M</h4>
-								</li>
-							</ul>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>location: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">AngularFirestoreCollection</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>
-							</h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="getbyafreference" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>ByAFReference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>ByAFReference<span class="tsd-signature-symbol">(</span>reference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L409">mf-dao.ts:409</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>reference: <span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getbypath" class="tsd-anchor"></a>
 					<h3>get<wbr>ByPath</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>ByPath<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getbypath">getByPath</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L56">mf-dao.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L141">mf-flattable-dao.ts:141</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -548,17 +544,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getbyreference" class="tsd-anchor"></a>
 					<h3>get<wbr>ByReference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>ByReference<span class="tsd-signature-symbol">(</span>reference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DocumentReference</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getbyreference">getByReference</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L49">mf-dao.ts:49</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L136">mf-flattable-dao.ts:136</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -574,40 +571,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="getfileproperties" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>File<wbr>Properties</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>File<wbr>Properties<span class="tsd-signature-symbol">(</span>model<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L511">mf-dao.ts:511</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> model: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getlist" class="tsd-anchor"></a>
 					<h3>get<wbr>List</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>List<span class="tsd-signature-symbol">(</span>location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">MFOmit</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">"id"</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetListOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getlist">getList</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L67">mf-dao.ts:67</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L154">mf-flattable-dao.ts:154</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -623,41 +598,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="getlistbyafreference" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>List<wbr>ByAFReference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>List<wbr>ByAFReference<span class="tsd-signature-symbol">(</span>reference<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestoreCollection</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetListOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L443">mf-dao.ts:443</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>reference: <span class="tsd-signature-type">AngularFirestoreCollection</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFGetListOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getlistbypath" class="tsd-anchor"></a>
 					<h3>get<wbr>List<wbr>ByPath</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>List<wbr>ByPath<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetListOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getlistbypath">getListByPath</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L114">mf-dao.ts:114</a></li>
 								</ul>
@@ -675,15 +625,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getmodelfromsnapshot" class="tsd-anchor"></a>
 					<h3>get<wbr>Model<wbr>From<wbr>Snapshot</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Model<wbr>From<wbr>Snapshot<span class="tsd-signature-symbol">(</span>snapshot<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DocumentSnapshot</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getmodelfromsnapshot">getModelFromSnapshot</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L229">mf-dao.ts:229</a></li>
 								</ul>
@@ -701,15 +652,42 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="getmodelwithsubdocsfrommainmodel" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>Model<wbr>With<wbr>Sub<wbr>Docs<wbr>From<wbr>Main<wbr>Model</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Model<wbr>With<wbr>Sub<wbr>Docs<wbr>From<wbr>Main<wbr>Model<span class="tsd-signature-symbol">(</span>mainModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L145">mf-flattable-dao.ts:145</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>mainModel: <span class="tsd-signature-type">M</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getnewmodel" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagAbstract">Abstract</span> get<wbr>New<wbr>Model</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>New<wbr>Model<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getnewmodel">getNewModel</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L39">mf-dao.ts:39</a></li>
 								</ul>
@@ -727,38 +705,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="getoffsetsnapshots" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>Offset<wbr>Snapshots</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Offset<wbr>Snapshots<span class="tsd-signature-symbol">(</span>iMFOffset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFOffset</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFOffset</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L477">mf-dao.ts:477</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>iMFOffset: <span class="tsd-signature-type">IMFOffset</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFOffset</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getreference" class="tsd-anchor"></a>
 					<h3>get<wbr>Reference</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Reference<span class="tsd-signature-symbol">(</span>idOrLocationOrModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DocumentReference</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">CollectionReference</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getreference">getReference</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L63">mf-dao.ts:63</a></li>
 								</ul>
@@ -776,15 +732,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getreferencefrompath" class="tsd-anchor"></a>
 					<h3>get<wbr>Reference<wbr>From<wbr>Path</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Reference<wbr>From<wbr>Path<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DocumentReference</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AngularFirestoreDocument</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">AngularFirestoreCollection</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getreferencefrompath">getReferenceFromPath</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L497">mf-dao.ts:497</a></li>
 								</ul>
@@ -804,15 +761,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="getsnapshot" class="tsd-anchor"></a>
 					<h3>get<wbr>Snapshot</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Snapshot<span class="tsd-signature-symbol">(</span>location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DocumentSnapshot</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#getsnapshot">getSnapshot</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L249">mf-dao.ts:249</a></li>
 								</ul>
@@ -831,37 +789,96 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="getsnapshotfromimfoffsetpart" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get<wbr>Snapshot<wbr>FromIMFOffset<wbr>Part</h3>
+					<a name="get_subdocs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> get_<wbr>sub<wbr>Docs</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Snapshot<wbr>FromIMFOffset<wbr>Part<span class="tsd-signature-symbol">(</span>elem<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DocumentSnapshot</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DocumentSnapshot</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get_<wbr>sub<wbr>Docs<span class="tsd-signature-symbol">(</span>parentLocation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L467">mf-dao.ts:467</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L73">mf-flattable-dao.ts:73</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>elem: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DocumentSnapshot</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<h5>parentLocation: <span class="tsd-signature-type">IMFLocation</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFGetOneOptions</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DocumentSnapshot</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="initallsubdao" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> init<wbr>All<wbr>Sub<wbr>Dao</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">init<wbr>All<wbr>Sub<wbr>Dao<span class="tsd-signature-symbol">(</span>db<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestore</span>, storage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AngularFireStorage</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L38">mf-flattable-dao.ts:38</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>db: <span class="tsd-signature-type">AngularFirestore</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> storage: <span class="tsd-signature-type">AngularFireStorage</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="instantiatesubdao" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> instantiate<wbr>Sub<wbr>Dao</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">instantiate<wbr>Sub<wbr>Dao<span class="tsd-signature-symbol">(</span>subDaoPath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, db<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">AngularFirestore</span>, storage<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">AngularFireStorage</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_mf_sub_dao_.submfdao.html" class="tsd-signature-type">SubMFDao</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L62">mf-flattable-dao.ts:62</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>subDaoPath: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>db: <span class="tsd-signature-type">AngularFirestore</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> storage: <span class="tsd-signature-type">AngularFireStorage</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_mf_sub_dao_.submfdao.html" class="tsd-signature-type">SubMFDao</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="iscompatible" class="tsd-anchor"></a>
 					<h3>is<wbr>Compatible</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">is<wbr>Compatible<span class="tsd-signature-symbol">(</span>doc<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DocumentReference</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">CollectionReference</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#iscompatible">isCompatible</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L376">mf-dao.ts:376</a></li>
 								</ul>
@@ -876,15 +893,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="savefile" class="tsd-anchor"></a>
 					<h3>save<wbr>File</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">save<wbr>File<span class="tsd-signature-symbol">(</span>fileObject<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFFile</span>, location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFFile</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#savefile">saveFile</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L281">mf-dao.ts:281</a></li>
 								</ul>
@@ -899,32 +917,6 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFFile</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="savefiles" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> save<wbr>Files</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">save<wbr>Files<span class="tsd-signature-symbol">(</span>newModel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, newLocation<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L260">mf-dao.ts:260</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>newModel: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
-								</li>
-								<li>
-									<h5>newLocation: <span class="tsd-signature-type">IMFLocation</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -952,17 +944,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="update" class="tsd-anchor"></a>
 					<h3>update</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, location<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">IMFLocation</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">M</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFUpdateOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overrides <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#update">update</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L176">mf-dao.ts:176</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L250">mf-flattable-dao.ts:250</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -981,15 +974,16 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="updatefile" class="tsd-anchor"></a>
 					<h3>update<wbr>File</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 						<li class="tsd-signature tsd-kind-icon">update<wbr>File<span class="tsd-signature-symbol">(</span>fileObject<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFFile</span>, location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span>, deletePrevious<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">IMFFile</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Inherited from <a href="_mf_dao_.mfdao.html">MFDao</a>.<a href="_mf_dao_.mfdao.html#updatefile">updateFile</a></p>
 								<ul>
 									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L367">mf-dao.ts:367</a></li>
 								</ul>
@@ -1011,16 +1005,16 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="updatefiles" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> update<wbr>Files</h3>
+					<a name="update_subdocs" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> update_<wbr>sub<wbr>Docs</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">update<wbr>Files<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, location<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFDeletePreviousOnUpdateFilesOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">update_<wbr>sub<wbr>Docs<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span>, parentLocation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFLocation</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">IMFUpdateOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-dao.ts#L335">mf-dao.ts:335</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/58eeeaf/src/mf-flattable-dao.ts#L227">mf-flattable-dao.ts:227</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1029,13 +1023,13 @@
 									<h5>data: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span></h5>
 								</li>
 								<li>
-									<h5>location: <span class="tsd-signature-type">IMFLocation</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> parentLocation: <span class="tsd-signature-type">IMFLocation</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFDeletePreviousOnUpdateFilesOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">IMFUpdateOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1140,10 +1134,10 @@
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_mf_cache_.html">&quot;mf-<wbr>cache&quot;</a>
 					</li>
-					<li class="current tsd-kind-external-module">
+					<li class=" tsd-kind-external-module">
 						<a href="../modules/_mf_dao_.html">&quot;mf-<wbr>dao&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
+					<li class="current tsd-kind-external-module">
 						<a href="../modules/_mf_flattable_dao_.html">&quot;mf-<wbr>flattable-<wbr>dao&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -1159,121 +1153,118 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-external-module tsd-has-type-parameter">
-						<a href="_mf_dao_.mfdao.html" class="tsd-kind-icon">MFDao</a>
+						<a href="_mf_flattable_dao_.mfflattabledao.html" class="tsd-kind-icon">MFFlattable<wbr>Dao</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-								<a href="_mf_dao_.mfdao.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#cacheable" class="tsd-kind-icon">cacheable</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#cacheable" class="tsd-kind-icon">cacheable</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
-								<a href="_mf_dao_.mfdao.html#db" class="tsd-kind-icon">db</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#db" class="tsd-kind-icon">db</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
-								<a href="_mf_dao_.mfdao.html#mustachepath" class="tsd-kind-icon">mustache<wbr>Path</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#mustachepath" class="tsd-kind-icon">mustache<wbr>Path</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
-								<a href="_mf_dao_.mfdao.html#storage" class="tsd-kind-icon">storage</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#storage" class="tsd-kind-icon">storage</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#subdaos" class="tsd-kind-icon">subDAOs</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="_mf_dao_.mfdao.html#cache" class="tsd-kind-icon">cache</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#cache" class="tsd-kind-icon">cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="_mf_dao_.mfdao.html#clearallcachesub" class="tsd-kind-icon">clear<wbr>All<wbr>Cache<wbr>Sub</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#clearallcachesub" class="tsd-kind-icon">clear<wbr>All<wbr>Cache<wbr>Sub</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#beforesave" class="tsd-kind-icon">before<wbr>Save</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#beforesave" class="tsd-kind-icon">before<wbr>Save</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#create" class="tsd-kind-icon">create</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#delete" class="tsd-kind-icon">delete</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#deletebyreference" class="tsd-kind-icon">delete<wbr>ByReference</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#create" class="tsd-kind-icon">create</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#deletefiles" class="tsd-kind-icon">delete<wbr>Files</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#create_subdocs" class="tsd-kind-icon">create_<wbr>sub<wbr>Docs</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#delete" class="tsd-kind-icon">delete</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#deletebyreference" class="tsd-kind-icon">delete<wbr>ByReference</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#get" class="tsd-kind-icon">get</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#extractmydata" class="tsd-kind-icon">extract<wbr>MyData</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getafreference" class="tsd-kind-icon">getAFReference</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#get" class="tsd-kind-icon">get</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getbypath" class="tsd-kind-icon">get<wbr>ByPath</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getbyreference" class="tsd-kind-icon">get<wbr>ByReference</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getlist" class="tsd-kind-icon">get<wbr>List</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getlistbypath" class="tsd-kind-icon">get<wbr>List<wbr>ByPath</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getmodelfromsnapshot" class="tsd-kind-icon">get<wbr>Model<wbr>From<wbr>Snapshot</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getbyafreference" class="tsd-kind-icon">get<wbr>ByAFReference</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getmodelwithsubdocsfrommainmodel" class="tsd-kind-icon">get<wbr>Model<wbr>With<wbr>Sub<wbr>Docs<wbr>From<wbr>Main<wbr>Model</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getbypath" class="tsd-kind-icon">get<wbr>ByPath</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getnewmodel" class="tsd-kind-icon">get<wbr>New<wbr>Model</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getbyreference" class="tsd-kind-icon">get<wbr>ByReference</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getreference" class="tsd-kind-icon">get<wbr>Reference</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getfileproperties" class="tsd-kind-icon">get<wbr>File<wbr>Properties</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getreferencefrompath" class="tsd-kind-icon">get<wbr>Reference<wbr>From<wbr>Path</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getlist" class="tsd-kind-icon">get<wbr>List</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getlistbyafreference" class="tsd-kind-icon">get<wbr>List<wbr>ByAFReference</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getlistbypath" class="tsd-kind-icon">get<wbr>List<wbr>ByPath</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getmodelfromsnapshot" class="tsd-kind-icon">get<wbr>Model<wbr>From<wbr>Snapshot</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getnewmodel" class="tsd-kind-icon">get<wbr>New<wbr>Model</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#getsnapshot" class="tsd-kind-icon">get<wbr>Snapshot</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getoffsetsnapshots" class="tsd-kind-icon">get<wbr>Offset<wbr>Snapshots</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getreference" class="tsd-kind-icon">get<wbr>Reference</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getreferencefrompath" class="tsd-kind-icon">get<wbr>Reference<wbr>From<wbr>Path</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#getsnapshot" class="tsd-kind-icon">get<wbr>Snapshot</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#get_subdocs" class="tsd-kind-icon">get_<wbr>sub<wbr>Docs</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#getsnapshotfromimfoffsetpart" class="tsd-kind-icon">get<wbr>Snapshot<wbr>FromIMFOffset<wbr>Part</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#iscompatible" class="tsd-kind-icon">is<wbr>Compatible</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#savefile" class="tsd-kind-icon">save<wbr>File</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#initallsubdao" class="tsd-kind-icon">init<wbr>All<wbr>Sub<wbr>Dao</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#savefiles" class="tsd-kind-icon">save<wbr>Files</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#instantiatesubdao" class="tsd-kind-icon">instantiate<wbr>Sub<wbr>Dao</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#iscompatible" class="tsd-kind-icon">is<wbr>Compatible</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#savefile" class="tsd-kind-icon">save<wbr>File</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="_mf_dao_.mfdao.html#setclearcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>Cache<wbr>Observable</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#setclearcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>Cache<wbr>Observable</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#update" class="tsd-kind-icon">update</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#update" class="tsd-kind-icon">update</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_mf_dao_.mfdao.html#updatefile" class="tsd-kind-icon">update<wbr>File</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_mf_flattable_dao_.mfflattabledao.html#updatefile" class="tsd-kind-icon">update<wbr>File</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_mf_dao_.mfdao.html#updatefiles" class="tsd-kind-icon">update<wbr>Files</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#update_subdocs" class="tsd-kind-icon">update_<wbr>sub<wbr>Docs</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="_mf_dao_.mfdao.html#clearallmfcache" class="tsd-kind-icon">clear<wbr>AllMFCache</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#clearallmfcache" class="tsd-kind-icon">clear<wbr>AllMFCache</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="_mf_dao_.mfdao.html#setclearallcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>All<wbr>Cache<wbr>Observable</a>
+								<a href="_mf_flattable_dao_.mfflattabledao.html#setclearallcacheobservable" class="tsd-kind-icon">set<wbr>Clear<wbr>All<wbr>Cache<wbr>Observable</a>
 							</li>
 						</ul>
 					</li>
