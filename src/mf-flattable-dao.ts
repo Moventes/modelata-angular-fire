@@ -81,7 +81,10 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
                 parentId: parentLocation.id,
                 id: docId
               },
-              options
+              {
+                ...options,
+                warnOnMissing: false
+              }
             )
               .pipe(
                 catchError((err) => {

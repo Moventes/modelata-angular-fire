@@ -226,7 +226,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return reference.delete();
   }
 
-  public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
+  public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot, options: Partial<IMFGetOneOptions> = {}): M {
     if (snapshot.exists) {
       return this.getNewModel(
         {
@@ -237,10 +237,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         }
       );
     }
-    console.error(
-      '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
-      snapshot
-    );
+    if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
+      console.error(
+        '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
+        snapshot
+      );
+    }
     return null;
   }
 
@@ -409,12 +411,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       if (this.isCompatible(reference.ref)) {
         if (options.completeOnFirst) {
           return reference.get().pipe(
-            map(snapshot => this.getModelFromSnapshot(snapshot))
+            map(snapshot => this.getModelFromSnapshot(snapshot, options))
           );
         }
         if (options.withSnapshot) {
           return reference.snapshotChanges().pipe(
-            map(action => this.getModelFromSnapshot(action.payload))
+            map(action => this.getModelFromSnapshot(action.payload, options))
           );
         }
         return reference.valueChanges().pipe(
