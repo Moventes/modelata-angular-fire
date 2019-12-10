@@ -1,6 +1,6 @@
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFDao, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, MFOmit, IMFUpdateOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions } from '@modelata/types-fire/lib/angular';
+import { IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFUpdateOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
@@ -17,10 +17,14 @@ import { MFModel } from './mf-model';
 export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMFDao<M>{
 
   constructor(
-    private db: AngularFirestore,
-    private storage?: AngularFireStorage,
+    protected db: AngularFirestore,
+    protected storage?: AngularFireStorage,
   ) {
     super();
+    // if (!(this as any)['initAllSubDao'] && getSubPaths(this.getNewModel()).length > 0) {
+    //   console.error(`${this.mustachePath} DAO EXTENDS MFDao But the model use data stored in other document !! `);
+    //   console.error(`${this.mustachePath} DAO MUST EXTENDS MFFlattableDao instead`);
+    // }
   }
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
@@ -169,7 +173,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       });
   }
 
-  update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
@@ -222,7 +226,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return reference.delete();
   }
 
-  public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot): M {
+  public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot, options: Partial<IMFGetOneOptions> = {}): M {
     if (snapshot.exists) {
       return this.getNewModel(
         {
@@ -233,10 +237,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         }
       );
     }
-    console.error(
-      '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
-      snapshot
-    );
+    if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
+      console.error(
+        '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
+        snapshot
+      );
+    }
     return null;
   }
 
@@ -293,7 +299,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
-  private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M>): Promise<M> {
+  private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M> = {}): Promise<M> {
     const fileProperties = getFileProperties(model);
 
     return fileProperties.length ?
@@ -316,7 +322,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public deleteFile(fileObject: IMFFile): Promise<void> {
     if (this.storage) {
-      return this.storage.ref(fileObject.storagePath).delete().toPromise().catch(err => {
+      return this.storage.ref(fileObject.storagePath).delete().toPromise().catch((err) => {
         if (err.code === 'storage/object-not-found') {
           return Promise.resolve();
         }
@@ -338,14 +344,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.all(fileProperties.filter((key: string) => (data as any)[key] && (data as any)[key]._file).map((key) => {
         const property = (data as any)[key] as IMFFile;
         if (
-          property &&
-          (
-            typeof (options as any)[key] === 'boolean' ?
-              (options as any)[key] :
-              (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
-          )
+          property
         ) {
-          return this.updateFile(property, location)
+          return this.updateFile(
+            property,
+            location,
+            (
+              typeof (options as any)[key] === 'boolean' ?
+                (options as any)[key] :
+                (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
+            )
+          )
             .then((newFileObject) => {
               (data as any)[key] = newFileObject;
             });
@@ -355,9 +364,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.resolve(data);
   }
 
-  public async updateFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
+  public async updateFile(fileObject: IMFFile, location: IMFLocation, deletePrevious = true): Promise<IMFFile> {
     if (this.storage) {
-      return (fileObject.storagePath ? this.deleteFile(fileObject) : Promise.resolve())
+      return ((fileObject.storagePath && deletePrevious) ? this.deleteFile(fileObject) : Promise.resolve())
         .then(() => this.saveFile(fileObject, location));
 
     }
@@ -402,12 +411,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       if (this.isCompatible(reference.ref)) {
         if (options.completeOnFirst) {
           return reference.get().pipe(
-            map(snapshot => this.getModelFromSnapshot(snapshot))
+            map(snapshot => this.getModelFromSnapshot(snapshot, options))
           );
         }
         if (options.withSnapshot) {
           return reference.snapshotChanges().pipe(
-            map(action => this.getModelFromSnapshot(action.payload))
+            map(action => this.getModelFromSnapshot(action.payload, options))
           );
         }
         return reference.valueChanges().pipe(
@@ -418,7 +427,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
                 getLocationFromPath(reference.ref.parent.path, this.mustachePath)
               );
             }
-            console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
+            if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
+              console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
+            }
             return null;
           })
         );

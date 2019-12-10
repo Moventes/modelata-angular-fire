@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.0.1-dev20",
+  "version": "3.1.0",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -25,7 +25,7 @@
     "typedoc": "^0.15.3"
   },
   "dependencies": {
-    "@modelata/types-fire": "3.0.1-dev7",
+    "@modelata/types-fire": "3.0.1-dev11",
     "flatted": "^2.0.1",
     "reflect-metadata": "^0.1.13"
   },
@@ -44,7 +44,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "doc": "typedoc --out docs src"
+    "doc": "typedoc --out docs src && touch docs/.nojekyll"
   },
   "repository": {
     "type": "git",
