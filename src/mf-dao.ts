@@ -434,9 +434,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           //     map(action => this.getModelFromSnapshot(action.payload, options))
           //   );
         } else {
-          //reference.ref.onSnapshot()
+          // reference.ref.onSnapshot()
           getObs = new Observable((observer: Subscriber<firestore.DocumentSnapshot>) => {
-            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer)
+            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
             filter((querySnap) => {
               return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
@@ -484,7 +484,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           // );
         } else {
           modelObs = new Observable((observer: Subscriber<firestore.QuerySnapshot>) => {
-            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer)
+            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
             filter((querySnap) => {
               return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
