@@ -176,11 +176,15 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     );
   }
 
+
+
   private create_subDocs(
     data: Partial<M>,
     parentLocation: IMFLocation,
     options: IMFSaveOptions = {}
   ): Promise<{ model: Partial<M>, subDocPath: string }[]> {
+
+
     return Promise.all(
       Object.keys(this.subDAOs).reduce(
         (creates: Promise<{ model: Partial<M>, subDocPath: string }>[], pathDao) => {
@@ -203,14 +207,19 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     );
   }
 
+
+
   public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
-    const realLocation = getLocation(location, this.mustachePath);
-    return super.create(this.extractMyData(data) as M, realLocation, options).then((modelSaved) => {
-      return this.create_subDocs(
-        data,
-        (realLocation && realLocation.id) ? (realLocation as IMFLocation) : ({ ...realLocation, id: modelSaved._id }),
-        options
-      ).then(subDocs => mergeModels(
+    const realLocation = getLocation(location, this.mustachePath) as IMFLocation;
+    if (!realLocation.id) {
+      realLocation.id = this.db.createId();
+    }
+    return this.create_subDocs(
+      data,
+      realLocation,
+      options
+    ).then((subDocs) => {
+      return super.create(this.extractMyData(data) as M, realLocation, options).then(modelSaved => mergeModels(
         modelSaved,
         subDocs.reduce(
           (subDocsByPath, docWithPath) => {
@@ -221,6 +230,7 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
           {}
         )
       ));
+
     });
   }
 
@@ -248,8 +258,9 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
   }
 
   update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    const mainData = this.extractMyData(data);
     return Promise.all([
-      super.update(this.extractMyData(data), location, options),
+      Object.keys(mainData).length > 0 ? super.update(mainData, location, options) : Promise.resolve(data),
       this.update_subDocs(data, getLocation(location || (data as M), this.mustachePath) as IMFLocation, options)
     ]).then(() => data);
   }

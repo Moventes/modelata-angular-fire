@@ -3,8 +3,8 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFUpdateOptions, MFOmit } from '@modelata/types-fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
-import { combineLatest, Observable, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { combineLatest, Observable, of, Subscriber } from 'rxjs';
+import { map, switchMap, take, filter } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
 import { IMFStorageOptions } from './interfaces/storage-options.interface';
@@ -119,8 +119,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByPath missing or incompatible parameter : path');
   }
 
-  public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
-
+  public async prepareToCreate(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {})
+    : Promise<{ savableData: Partial<M>; savableLocation: Partial<IMFLocation> }> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
@@ -153,17 +153,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
         return testIfdocAlreadyExist
           .then(() => this.saveFiles(model, realLocation as IMFLocation))
-          .then(({ newModel: dataToSave, newLocation }) => {
-            const ref = this.getAFReference<Partial<M>>(newLocation);
-            const savableData = getSavableData(dataToSave);
-            if (newLocation && newLocation.id) {
-              return (ref as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite }).then(() => ref.ref);
-            }
-            return (ref as AngularFirestoreCollection<Partial<M>>).add(savableData);
-          })
-          .then(ref =>
-            this.getNewModel(data, { ...realLocation, id: ref.id })
-          )
+          .then(({ newModel: dataToSave, newLocation }) => ({
+            savableLocation: newLocation,
+            savableData: getSavableData(dataToSave)
+          }))
           .catch((error) => {
             console.error(error);
             console.log('error for ', data);
@@ -171,6 +164,28 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           });
 
       });
+  }
+
+  public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
+
+    return this.prepareToCreate(data, location, options).then(({ savableLocation, savableData }) => {
+      const ref = this.getAFReference<Partial<M>>(savableLocation);
+      let save;
+      if (savableLocation && savableLocation.id) {
+        save = (ref as AngularFirestoreDocument<Partial<M>>).set(savableData, { merge: !options.overwrite }).then(() => ref.ref);
+      } else {
+        save = (ref as AngularFirestoreCollection<Partial<M>>).add(savableData);
+      }
+      return save.then(ref =>
+        this.getNewModel(data, { ...savableLocation, id: ref.id })
+      );
+    })
+      .catch((error) => {
+        console.error(error);
+        console.log('error for ', data);
+        return Promise.reject(error);
+      });
+
   }
 
   public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
@@ -306,11 +321,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.all(fileProperties.filter(key => (model as any)[key]).map((key) => {
         const property = (model as any)[key] as IMFFile;
         if (
-          property &&
+          property && property.storagePath &&
           (
             typeof (options as any)[key] === 'boolean' ?
               (options as any)[key] :
-              property.storagePath && (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete
+              (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete
           )
         ) {
           return this.deleteFile(property);
@@ -409,30 +424,45 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   private getByAFReference(reference: AngularFirestoreDocument<M>, options: IMFGetOneOptions = {}): Observable<M> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
+        let getObs;
         if (options.completeOnFirst) {
-          return reference.get().pipe(
+          getObs = reference.get().pipe(
             map(snapshot => this.getModelFromSnapshot(snapshot, options))
           );
-        }
-        if (options.withSnapshot) {
-          return reference.snapshotChanges().pipe(
-            map(action => this.getModelFromSnapshot(action.payload, options))
+          // } else if (options.withSnapshot) {
+          //   getObs = reference.snapshotChanges().pipe(
+          //     map(action => this.getModelFromSnapshot(action.payload, options))
+          //   );
+        } else {
+          //reference.ref.onSnapshot()
+          getObs = new Observable((observer: Subscriber<firestore.DocumentSnapshot>) => {
+            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer)
+          }).pipe(
+            filter((querySnap) => {
+              return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
+            }),
+            map((snapshot: firestore.DocumentSnapshot) => this.getModelFromSnapshot(snapshot, options))
           );
+          // getObs = reference.valueChanges().pipe(
+          //   map((data) => {
+          //     if (data) {
+          //       return this.getNewModel(
+          //         { ...data, _id: reference.ref.id },
+          //         getLocationFromPath(reference.ref.parent.path, this.mustachePath)
+          //       );
+          //     }
+          //     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
+          //       console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
+          //     }
+          //     return null;
+          //   })
+          // );
         }
-        return reference.valueChanges().pipe(
-          map((data) => {
-            if (data) {
-              return this.getNewModel(
-                { ...data, _id: reference.ref.id },
-                getLocationFromPath(reference.ref.parent.path, this.mustachePath)
-              );
-            }
-            if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-              console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
-            }
-            return null;
-          })
-        );
+        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
+        return getObs;
+        // .pipe(filter((model: M) =>
+        //   !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
+        // ));
       }
       throw new Error('location is not compatible with this dao!');
     }
@@ -443,21 +473,37 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   private getListByAFReference(reference: AngularFirestoreCollection<M>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
+        let modelObs;
         if (options.completeOnFirst) {
-          return reference.get().pipe(
+          modelObs = reference.get().pipe(
             map(querySnapshot => querySnapshot.docs.map(snapshot => this.getModelFromSnapshot(snapshot)))
           );
-        }
-        if (options.withSnapshot) {
-          return reference.snapshotChanges().pipe(
-            map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
+          // } else if (options.withSnapshot) {
+          // modelObs = reference.snapshotChanges().pipe(
+          //   map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
+          // );
+        } else {
+          modelObs = new Observable((observer: Subscriber<firestore.QuerySnapshot>) => {
+            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer)
+          }).pipe(
+            filter((querySnap) => {
+              return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
+            }),
+            map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap)))
           );
+          // modelObs = reference.valueChanges({ idField: '_id' }).pipe(
+          //   map(dataList =>
+          //     dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
+          //   )
+          // );
         }
-        return reference.valueChanges({ idField: '_id' }).pipe(
-          map(dataList =>
-            dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
-          )
-        );
+        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
+        return modelObs;
+        // .pipe(filter((models: M[]) =>
+        //   models.every(model =>
+        //     !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
+        //   )
+        // ));
       }
       throw new Error('location is not compatible with this dao!');
     }

@@ -62,6 +62,10 @@ export abstract class MFModel<M> implements IMFModel<M> {
       createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
     }
 
+    if (data && !!(data as any)._snapshot) {
+      createHiddenProperty(this, 'snapshot', (data as any)._snapshot);
+    }
+
     if (data) {
       for (const key in data) {
         if (typeof data[key] !== 'function') {
