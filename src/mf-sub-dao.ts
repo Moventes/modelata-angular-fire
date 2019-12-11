@@ -52,14 +52,17 @@ export class SubMFDao extends MFDao<any>{
       (dataById, key) => {
         if (
           Reflect.hasMetadata('subDocPath', refModel, key) &&
-          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
-          (data as Object).hasOwnProperty(key)
+          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0])
+          //  &&
+          // (data as Object).hasOwnProperty(key) // comment for create empty subDoc
         ) {
           const docId = Reflect.getMetadata('subDocPath', refModel, key).split('/')[1];
           if (!(dataById as any)[docId]) {
             (dataById as any)[docId] = {};
           }
-          (dataById as any)[docId][key] = data[key];
+          if ((data as Object).hasOwnProperty(key)) {
+            (dataById as any)[docId][key] = data[key];
+          }
         }
         return dataById;
       },

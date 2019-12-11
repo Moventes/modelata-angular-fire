@@ -184,19 +184,19 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     return Promise.all(
       Object.keys(this.subDAOs).reduce(
         (creates: Promise<{ model: Partial<M>, subDocPath: string }>[], pathDao) => {
-          if (this.subDAOs[pathDao].dao.containsSomeValuesForMe(data as object)) {
-            const docsById = this.subDAOs[pathDao].dao.splitDataByDocId(data);
-            return creates.concat(Object.keys(docsById).map(docId => this.subDAOs[pathDao].dao.create(
-              docsById[docId],
-              {
-                ...parentLocation,
-                parentId: parentLocation.id,
-                id: docId
-              },
-              options
-            ).then(model => ({ model, subDocPath: `${pathDao}/${docId}` }))));
-          }
-          return creates;
+          // if (this.subDAOs[pathDao].dao.containsSomeValuesForMe(data as object)) { // commented for create empty subDoc
+          const docsById = this.subDAOs[pathDao].dao.splitDataByDocId(data);
+          return creates.concat(Object.keys(docsById).map(docId => this.subDAOs[pathDao].dao.create(
+            docsById[docId],
+            {
+              ...parentLocation,
+              parentId: parentLocation.id,
+              id: docId
+            },
+            options
+          ).then(model => ({ model, subDocPath: `${pathDao}/${docId}` }))));
+          // }
+          // return creates;
         },
         []
       )
