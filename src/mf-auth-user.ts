@@ -1,6 +1,6 @@
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { IMFLocation } from '@modelata/fire';
+import { IMFLocation, IMFUpdateOptions } from '@modelata/fire';
 import { User as FirebaseUser } from 'firebase/app';
 import { MFDao } from 'mf-dao';
 import { MFFlattableDao } from 'mf-flattable-dao';
@@ -87,7 +87,8 @@ export abstract class MFAuthUser<M extends MFModel<M>> extends MFCache {
       .then(credential => Promise.all([
         this.userDao.create(user, credential.user.uid),
         this.sendVerificationEmail(credential)
-      ]).then(([user]) => user));
+      ])
+        .then(([user]) => user));
   }
 
   public setSessionPersistence(persistence: 'local' | 'session' | 'none'): Promise<void> {
@@ -104,5 +105,10 @@ export abstract class MFAuthUser<M extends MFModel<M>> extends MFCache {
   public logout(): Promise<void> {
     return this.auth.auth.signOut();
   }
+
+  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    return this.userDao.update(data, location, options);
+  }
+
 
 }
