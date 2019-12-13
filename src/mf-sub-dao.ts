@@ -1,7 +1,7 @@
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFLocation } from '@modelata/types-fire';
+import { IMFLocation } from '@modelata/fire';
 import { MFDao } from './mf-dao';
 
 

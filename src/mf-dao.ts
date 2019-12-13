@@ -1,15 +1,14 @@
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFUpdateOptions, MFOmit } from '@modelata/types-fire/lib/angular';
+import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFStorageOptions, IMFUpdateOptions, isCompatiblePath, MFOmit } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
-import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, isCompatiblePath } from './helpers/model.helper';
-import { IMFStorageOptions } from './interfaces/storage-options.interface';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
+
 
 /**
  * Abstract DAO class

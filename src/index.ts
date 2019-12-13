@@ -3,15 +3,9 @@
  */
 
 // export * from './lib/decorators/cacheable.decorator';
-export * from '@modelata/types-fire/lib/angular';
+export * from '@modelata/fire/lib/angular';
 export * from './decorators/cacheable.decorator';
-export * from './decorators/collection-path.decorator';
-export * from './decorators/enumerable.decorator';
 export * from './decorators/form.decorator';
-export * from './decorators/get-by-ref.decorator';
-export * from './decorators/storage-property.decorator';
-export * from './decorators/storred-in-sub-doc.decorator';
-export * from './decorators/sub-collection-get-list.decorator';
 export * from './mf-cache';
 export * from './mf-dao';
 export * from './mf-flattable-dao';
