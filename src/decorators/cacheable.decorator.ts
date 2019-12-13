@@ -39,7 +39,7 @@ export function DisableCache(target: Object) {
 }
 
 export function Cacheable(
-  targetClass: MFDao<any>,
+  targetClass: any,
   methodName: string,
   propertyDesciptor: PropertyDescriptor
 ): PropertyDescriptor {
