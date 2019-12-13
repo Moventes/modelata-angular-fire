@@ -1,9 +1,13 @@
+import { MFModel } from './mf-model';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { IMFLocation } from '@modelata/fire';
 import { MFDao } from './mf-dao';
 
+class BasiqueModel extends MFModel<any>{
+
+}
 
 export class SubMFDao extends MFDao<any>{
 
@@ -52,14 +56,17 @@ export class SubMFDao extends MFDao<any>{
       (dataById, key) => {
         if (
           Reflect.hasMetadata('subDocPath', refModel, key) &&
-          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0]) &&
-          (data as Object).hasOwnProperty(key)
+          this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0])
+          //  &&
+          // (data as Object).hasOwnProperty(key) // comment for create empty subDoc
         ) {
           const docId = Reflect.getMetadata('subDocPath', refModel, key).split('/')[1];
           if (!(dataById as any)[docId]) {
             (dataById as any)[docId] = {};
           }
-          (dataById as any)[docId][key] = data[key];
+          if ((data as Object).hasOwnProperty(key)) {
+            (dataById as any)[docId][key] = data[key];
+          }
         }
         return dataById;
       },
@@ -68,16 +75,20 @@ export class SubMFDao extends MFDao<any>{
   }
 
   getNewModel(data?: Partial<any>, location?: Partial<IMFLocation>): any {
-    const refModel = this.referentGetNewModel(data, location);
-    Object.keys(refModel).forEach((key) => {
+    const parentRefModel = this.referentGetNewModel(data, location);
+    const basiqueModel = new BasiqueModel();
+    Object.keys(parentRefModel).forEach((key) => {
       if (
-        !Reflect.hasMetadata('subDocPath', refModel, key) ||
-        !this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', refModel, key).split('/')[0])
+        !(basiqueModel as Object).hasOwnProperty(key) &&
+        (
+          !Reflect.hasMetadata('subDocPath', parentRefModel, key) ||
+          !this.mustachePath.endsWith(Reflect.getMetadata('subDocPath', parentRefModel, key).split('/')[0])
+        )
       ) {
-        delete refModel[key];
+        delete parentRefModel[key];
       }
     });
-    return refModel;
+    return parentRefModel;
   }
 
 }
