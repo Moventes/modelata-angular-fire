@@ -26,12 +26,10 @@ export interface IMFAuthUser {
 
 export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFCache {
 
-  private firebaseUser$: Observable<FirebaseUser> = this.auth.authState;
 
   public readonly mustachePath: string = this.userDao.mustachePath;
   public readonly cacheable: boolean = true;
   public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
-
 
   constructor(
     protected db: AngularFirestore,
@@ -41,7 +39,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
     super();
 
     // clear all cache when auth user change
-    MFCache.setClearAllCacheObservable(this.firebaseUser$.pipe(
+    MFCache.setClearAllCacheObservable(this.getAuthUser().pipe(
       distinctUntilChanged((previousUser, newUser) => {
         const connect = !previousUser && !!newUser;
         const disconnect = !!previousUser && !newUser;
@@ -54,13 +52,13 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
 
   @Cacheable
   protected getAuthUser(): Observable<FirebaseUser> {
-    return this.firebaseUser$;
+    return this.auth.authState;
   }
 
 
   @Cacheable
   public get(subLocation?: Partial<IMFLocation>): Observable<M> {
-    return this.firebaseUser$
+    return this.getAuthUser()
       .pipe(
         switchMap((firebaseUser) => {
           if (firebaseUser) {
@@ -89,7 +87,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
     return Promise.resolve();
   }
 
-  public register(user: M, password: string, options: MFRegisterOptions): Promise<M> {
+  public register(user: M, password: string, options?: MFRegisterOptions): Promise<M> {
     return this.auth.auth.createUserWithEmailAndPassword(user.email, password)
       .then(credential => Promise.all([
         this.userDao.create(user, credential.user.uid),
@@ -105,7 +103,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
   }
 
   public isConnected(): Observable<boolean> {
-    return this.firebaseUser$
+    return this.auth.authState
       .pipe(
         map(user => !!user)
       );

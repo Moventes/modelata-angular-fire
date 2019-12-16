@@ -4,7 +4,7 @@ import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPat
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
-import { map, switchMap, take, filter } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
@@ -28,6 +28,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
+  public readonly cacheId: string = null;
 
   //       ///////////////////////////////////   \\
   //      ///////////////////////////////////    \\
@@ -428,12 +429,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           getObs = reference.get().pipe(
             map(snapshot => this.getModelFromSnapshot(snapshot, options))
           );
-          // } else if (options.withSnapshot) {
-          //   getObs = reference.snapshotChanges().pipe(
-          //     map(action => this.getModelFromSnapshot(action.payload, options))
-          //   );
+
         } else {
-          // reference.ref.onSnapshot()
           getObs = new Observable((observer: Subscriber<firestore.DocumentSnapshot>) => {
             reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
@@ -442,26 +439,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             }),
             map((snapshot: firestore.DocumentSnapshot) => this.getModelFromSnapshot(snapshot, options))
           );
-          // getObs = reference.valueChanges().pipe(
-          //   map((data) => {
-          //     if (data) {
-          //       return this.getNewModel(
-          //         { ...data, _id: reference.ref.id },
-          //         getLocationFromPath(reference.ref.parent.path, this.mustachePath)
-          //       );
-          //     }
-          //     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-          //       console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
-          //     }
-          //     return null;
-          //   })
-          // );
+
         }
-        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
         return getObs;
-        // .pipe(filter((model: M) =>
-        //   !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
-        // ));
       }
       throw new Error('location is not compatible with this dao!');
     }
@@ -477,10 +457,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           modelObs = reference.get().pipe(
             map(querySnapshot => querySnapshot.docs.map(snapshot => this.getModelFromSnapshot(snapshot)))
           );
-          // } else if (options.withSnapshot) {
-          // modelObs = reference.snapshotChanges().pipe(
-          //   map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
-          // );
+
         } else {
           modelObs = new Observable((observer: Subscriber<firestore.QuerySnapshot>) => {
             reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
@@ -490,19 +467,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             }),
             map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap)))
           );
-          // modelObs = reference.valueChanges({ idField: '_id' }).pipe(
-          //   map(dataList =>
-          //     dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
-          //   )
-          // );
+
         }
-        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
         return modelObs;
-        // .pipe(filter((models: M[]) =>
-        //   models.every(model =>
-        //     !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
-        //   )
-        // ));
+
       }
       throw new Error('location is not compatible with this dao!');
     }

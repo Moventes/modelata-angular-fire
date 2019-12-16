@@ -1,4 +1,4 @@
 export interface MFRegisterOptions {
-    sendVerificationEmail: boolean;
-    verificationEmailLink: string;
+    sendVerificationEmail?: boolean;
+    verificationEmailLink?: string;
 }

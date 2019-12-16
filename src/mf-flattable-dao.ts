@@ -117,10 +117,19 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
   }
 
   public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
-    const realLocation = getLocation(location, this.mustachePath) as IMFLocation;
+    if (location && (typeof location === 'string' || location.id)) {
+      const reference = this.getReference(location) as DocumentReference;
+      return this.getByReference(reference, options);
+    }
+    throw new Error('getById missing parameter : location and/or id');
+  }
 
+
+
+  public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
+    const realLocation = getLocationFromPath(reference.parent.path, this.mustachePath, reference.id) as IMFLocation;
     return combineLatest([
-      super.get(location, options),
+      super.getByReference(reference, options),
       this.get_subDocs(realLocation, options)
     ])
       .pipe(
@@ -128,17 +137,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
           mergeModels(mainModel, subDocsByPath)
         )
       );
-
   }
 
-  public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
-    const realLocation = getLocationFromPath(reference.parent.path, this.mustachePath, reference.id) as IMFLocation;
-    return this.get(realLocation, options);
-  }
-
-  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-    return this.getByReference(this.db.doc(path).ref, options);
-  }
 
   private getModelWithSubDocsFromMainModel(mainModel: M, options: IMFGetOneOptions = {}): Observable<M> {
     const location = getLocation(mainModel, this.mustachePath) as IMFLocation;
@@ -149,6 +149,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
         )
       );
   }
+
+
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     return super.getList(location, options)
       .pipe(switchMap(models =>

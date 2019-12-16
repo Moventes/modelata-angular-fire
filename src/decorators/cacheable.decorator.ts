@@ -31,7 +31,7 @@ function jsonify(obj: Object) {
 }
 
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
-  return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
+  return `dao(${service.cacheId || service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
 export function DisableCache(target: Object) {
@@ -68,7 +68,10 @@ export function Cacheable(
           const subject = new ReplaySubject(1);
           MFCache.cache[cacheId] = {
             subject,
-            subscription: originalMethod.apply(this, args).subscribe(doc => subject.next(doc))
+            subscription: originalMethod.apply(this, args).subscribe(doc => {
+              console.log('emit!', cacheId);
+              subject.next(doc);
+            })
           };
         }
         return MFCache.cache[cacheId].subject;

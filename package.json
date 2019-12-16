@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.2.0-auth1",
+  "version": "3.2.0-auth6",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -22,7 +22,8 @@
     "codelyzer": "^5.0.0",
     "tslint-config-airbnb": "^5.11.2",
     "tslint": "^5.20.1",
-    "typedoc": "^0.15.3"
+    "typedoc": "^0.15.3",
+    "create-ts-index": "^1.12.0"
   },
   "dependencies": {
     "@modelata/fire": "3.1.0-7",
@@ -40,6 +41,7 @@
     "firebase": "^7.4.0"
   },
   "scripts": {
+    "prebuild": "cti create ./src && echo \"export * from '@modelata/fire/lib/angular';\" >> ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
