@@ -2,14 +2,15 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { IMFLocation, IMFUpdateOptions } from '@modelata/fire';
 import { User as FirebaseUser } from 'firebase/app';
-import { MFDao } from 'mf-dao';
-import { MFFlattableDao } from 'mf-flattable-dao';
-import { MFModel } from 'mf-model';
 import 'reflect-metadata';
 import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
+import { MFRegisterOptions } from './interfaces/register-options.interface';
 import { MFCache } from './mf-cache';
+import { MFDao } from './mf-dao';
+import { MFFlattableDao } from './mf-flattable-dao';
+import { MFModel } from './mf-model';
 
 export enum loggin_error {
   INVALID_EMAIL = 'auth/invalid-email',
@@ -18,7 +19,12 @@ export enum loggin_error {
   USER_NOT_FOUND = 'auth/user-not-found'
 }
 
-export abstract class MFAuthUser<M extends MFModel<M>> extends MFCache {
+export interface IMFAuthUser {
+  email: string;
+}
+
+
+export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFCache {
 
   private firebaseUser$: Observable<FirebaseUser> = this.auth.authState;
 
@@ -74,19 +80,22 @@ export abstract class MFAuthUser<M extends MFModel<M>> extends MFCache {
       .catch(error => Promise.reject(error.code as loggin_error));
   }
 
-  private sendVerificationEmail(cred: firebase.auth.UserCredential): Promise<void> {
-    if (this.verificationMustacheLink && this.verificationMustacheLink.length) {
-      const url = this.verificationMustacheLink.replace('{userId}', cred.user.uid);
+  private sendVerificationEmail(cred: firebase.auth.UserCredential, continueUrl?: string): Promise<void> {
+    const mustacheUrl = continueUrl || this.verificationMustacheLink;
+    if (mustacheUrl && mustacheUrl.length) {
+      const url = mustacheUrl.replace('{userId}', cred.user.uid);
       return cred.user.sendEmailVerification({ url });
     }
     return Promise.resolve();
   }
 
-  public register(user: M, password: string): Promise<M> {
+  public register(user: M, password: string, options: MFRegisterOptions): Promise<M> {
     return this.auth.auth.createUserWithEmailAndPassword(user.email, password)
       .then(credential => Promise.all([
         this.userDao.create(user, credential.user.uid),
-        this.sendVerificationEmail(credential)
+        options && typeof options.sendVerificationEmail === 'boolean' && !options.sendVerificationEmail ?
+          Promise.resolve() :
+          this.sendVerificationEmail(credential)
       ])
         .then(([user]) => user));
   }
