@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.1.6",
+  "version": "3.2.0-auth1",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
