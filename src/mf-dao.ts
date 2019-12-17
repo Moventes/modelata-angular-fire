@@ -7,6 +7,7 @@ import { combineLatest, Observable, of, Subscriber } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
+import { MFLogger } from './mf-logger';
 import { MFModel } from './mf-model';
 
 
@@ -20,10 +21,6 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     protected storage?: AngularFireStorage,
   ) {
     super();
-    // if (!(this as any)['initAllSubDao'] && getSubPaths(this.getNewModel()).length > 0) {
-    //   console.error(`${this.mustachePath} DAO EXTENDS MFDao But the model use data stored in other document !! `);
-    //   console.error(`${this.mustachePath} DAO MUST EXTENDS MFFlattableDao instead`);
-    // }
   }
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
@@ -158,8 +155,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             savableData: getSavableData(dataToSave)
           }))
           .catch((error) => {
-            console.error(error);
-            console.log('error for ', data);
+            MFLogger.error(error);
+            MFLogger.debug('error for ', data);
             return Promise.reject(error);
           });
 
@@ -181,8 +178,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       );
     })
       .catch((error) => {
-        console.error(error);
-        console.log('error for ', data);
+        MFLogger.error(error);
+        MFLogger.debug('error for ', data);
         return Promise.reject(error);
       });
 
@@ -253,7 +250,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       );
     }
     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-      console.error(
+      MFLogger.error(
         '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
         snapshot
       );

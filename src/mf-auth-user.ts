@@ -4,7 +4,7 @@ import { IMFLocation, IMFUpdateOptions } from '@modelata/fire';
 import { User as FirebaseUser } from 'firebase/app';
 import 'reflect-metadata';
 import { Observable, of } from 'rxjs';
-import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
+import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFRegisterOptions } from './interfaces/register-options.interface';
 import { MFCache } from './mf-cache';
@@ -26,10 +26,15 @@ export interface IMFAuthUser {
 
 export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFCache {
 
+  public cacheId = 'authUser';
 
   public readonly mustachePath: string = this.userDao.mustachePath;
   public readonly cacheable: boolean = true;
   public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
+
+  private authUser$ = this.auth.authState.pipe(
+    shareReplay({ refCount: true, bufferSize: 1 })
+  );
 
   constructor(
     protected db: AngularFirestore,
@@ -39,7 +44,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
     super();
 
     // clear all cache when auth user change
-    MFCache.setClearAllCacheObservable(this.getAuthUser().pipe(
+    MFCache.setClearAllCacheObservable(this.authUser$.pipe(
       distinctUntilChanged((previousUser, newUser) => {
         const connect = !previousUser && !!newUser;
         const disconnect = !!previousUser && !newUser;
@@ -50,15 +55,14 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
   }
 
 
-  @Cacheable
-  protected getAuthUser(): Observable<FirebaseUser> {
-    return this.auth.authState;
+  public getAuthUser(): Observable<FirebaseUser> {
+    return this.authUser$;
   }
 
 
   @Cacheable
   public get(subLocation?: Partial<IMFLocation>): Observable<M> {
-    return this.getAuthUser()
+    return this.authUser$
       .pipe(
         switchMap((firebaseUser) => {
           if (firebaseUser) {
@@ -103,7 +107,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
   }
 
   public isConnected(): Observable<boolean> {
-    return this.auth.authState
+    return this.authUser$
       .pipe(
         map(user => !!user)
       );

@@ -5,6 +5,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { MFDao } from './mf-dao';
+import { MFLogger } from './mf-logger';
 import { MFModel } from './mf-model';
 import { SubMFDao } from './mf-sub-dao';
 
@@ -28,8 +29,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     super(db, storage);
     this.initAllSubDao(db, storage);
     if (!this.subDAOs || Object.keys(this.subDAOs).length < 1) {
-      console.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
-      console.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
+      MFLogger.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
+      MFLogger.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
     }
   }
 
