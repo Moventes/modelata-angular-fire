@@ -32,7 +32,7 @@ function jsonify(obj: Object) {
 }
 
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
-  return `dao(${service.cacheId || service.mustachePath}).${methodName}(${jsonify({ params })})`;
+  return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
 export function DisableCache(target: Object) {
