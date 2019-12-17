@@ -1,9 +1,9 @@
+import { MFLogger } from '@modelata/fire';
 import * as Flatted from 'flatted';
 import 'reflect-metadata';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
-import { MFLogger } from './../mf-logger';
 
 
 

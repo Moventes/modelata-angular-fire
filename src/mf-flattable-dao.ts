@@ -1,11 +1,10 @@
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { concatMustachePaths, getLocation, getLocationFromPath, getSubPaths, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUpdateOptions, mergeModels, MFOmit } from '@modelata/fire';
+import { concatMustachePaths, getLocation, getLocationFromPath, getSubPaths, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUpdateOptions, mergeModels, MFLogger, MFOmit } from '@modelata/fire';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { MFDao } from './mf-dao';
-import { MFLogger } from './mf-logger';
 import { MFModel } from './mf-model';
 import { SubMFDao } from './mf-sub-dao';
 
@@ -156,7 +155,14 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     return super.getList(location, options)
       .pipe(switchMap(models =>
         combineLatest(
-          models.map(mainModel => this.getModelWithSubDocsFromMainModel(mainModel, options))
+          models.map((mainModel) => {
+            const opt = options;
+            delete opt.limit;
+            delete opt.offset;
+            delete opt.orderBy;
+            delete opt.where;
+            return this.getModelWithSubDocsFromMainModel(mainModel, opt);
+          })
         )
       ));
   }

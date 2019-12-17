@@ -1,5 +1,6 @@
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { MFLogger } from '@modelata/fire';
 import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFStorageOptions, IMFUpdateOptions, isCompatiblePath, MFOmit } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -7,7 +8,6 @@ import { combineLatest, Observable, of, Subscriber } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
-import { MFLogger } from './mf-logger';
 import { MFModel } from './mf-model';
 
 
