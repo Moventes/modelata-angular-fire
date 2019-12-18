@@ -1,10 +1,40 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot
+} from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFStorageOptions, IMFUpdateOptions, isCompatiblePath, MFOmit } from '@modelata/fire/lib/angular';
+import {
+  allDataExistInModel,
+  getFileProperties,
+  getLocation,
+  getLocationFromPath,
+  getPath,
+  getSavableData,
+  getSplittedPath,
+  IMFDao,
+  IMFDeleteOnDeleteFilesOptions,
+  IMFDeleteOptions,
+  IMFDeletePreviousOnUpdateFilesOptions,
+  IMFFile,
+  IMFGetListOptions,
+  IMFGetOneOptions,
+  IMFLocation,
+  IMFOffset,
+  IMFSaveOptions,
+  IMFStorageOptions,
+  IMFUpdateOptions,
+  isCompatiblePath,
+  MFOmit,
+  MFLogger
+} from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
-import { map, switchMap, take, filter } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
@@ -20,14 +50,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     protected storage?: AngularFireStorage,
   ) {
     super();
-    // if (!(this as any)['initAllSubDao'] && getSubPaths(this.getNewModel()).length > 0) {
-    //   console.error(`${this.mustachePath} DAO EXTENDS MFDao But the model use data stored in other document !! `);
-    //   console.error(`${this.mustachePath} DAO MUST EXTENDS MFFlattableDao instead`);
-    // }
   }
 
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
+  public readonly cacheId: string = null;
 
   //       ///////////////////////////////////   \\
   //      ///////////////////////////////////    \\
@@ -72,39 +99,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
           let query: firebase.firestore.CollectionReference | firebase.firestore.Query = ref;
 
-          if (options.where && options.where.length > 0) {
-            options.where.forEach((where) => {
-              if (where) {
-                query = query.where(where.field, where.operator, where.value);
-              }
-            });
-          }
-
-          if (options.orderBy) {
-            query = query.orderBy(options.orderBy.field, options.orderBy.operator);
-          }
-
-          if (offset) {
-            if (offset.startAt) {
-              query = query.startAt(offset.startAt);
-            } else if (offset.startAfter) {
-              query = query.startAfter(offset.startAfter);
-            } else if (offset.endAt) {
-              query = query.endAt(offset.endAt);
-            } else if (offset.endBefore) {
-              query = query.endBefore(offset.endBefore);
-            }
-          }
-
-          if (options.limit !== null && options.limit !== undefined && options.limit > -1) {
-            query = query.limit(options.limit);
+          if (options.completeOnFirst) {
+            query = this.constructSpecialQuery(query, options, offset);
           }
 
           return query;
 
         });
 
-        return this.getListByAFReference(collection, options);
+        return this.getListByAFReference(collection, options, offset);
       })
     );
 
@@ -157,8 +160,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             savableData: getSavableData(dataToSave)
           }))
           .catch((error) => {
-            console.error(error);
-            console.log('error for ', data);
+            MFLogger.error(error);
+            MFLogger.debug('error for ', data);
             return Promise.reject(error);
           });
 
@@ -180,8 +183,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       );
     })
       .catch((error) => {
-        console.error(error);
-        console.log('error for ', data);
+        MFLogger.error(error);
+        MFLogger.debug('error for ', data);
         return Promise.reject(error);
       });
 
@@ -252,7 +255,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       );
     }
     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-      console.error(
+      MFLogger.error(
         '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
         snapshot
       );
@@ -428,12 +431,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           getObs = reference.get().pipe(
             map(snapshot => this.getModelFromSnapshot(snapshot, options))
           );
-          // } else if (options.withSnapshot) {
-          //   getObs = reference.snapshotChanges().pipe(
-          //     map(action => this.getModelFromSnapshot(action.payload, options))
-          //   );
+
         } else {
-          // reference.ref.onSnapshot()
           getObs = new Observable((observer: Subscriber<firestore.DocumentSnapshot>) => {
             reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
@@ -442,26 +441,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             }),
             map((snapshot: firestore.DocumentSnapshot) => this.getModelFromSnapshot(snapshot, options))
           );
-          // getObs = reference.valueChanges().pipe(
-          //   map((data) => {
-          //     if (data) {
-          //       return this.getNewModel(
-          //         { ...data, _id: reference.ref.id },
-          //         getLocationFromPath(reference.ref.parent.path, this.mustachePath)
-          //       );
-          //     }
-          //     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-          //       console.error('[firestoreDao] - get return null because dbObj is null or false. dbObj :', data);
-          //     }
-          //     return null;
-          //   })
-          // );
+
         }
-        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
         return getObs;
-        // .pipe(filter((model: M) =>
-        //   !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
-        // ));
       }
       throw new Error('location is not compatible with this dao!');
     }
@@ -469,7 +451,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   @Cacheable
-  private getListByAFReference(reference: AngularFirestoreCollection<M>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+  private getListByAFReference(
+    reference: AngularFirestoreCollection<M>,
+    options: IMFGetListOptions<M> = {},
+    offset?: IMFOffset<M>
+  ): Observable<M[]> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
         let modelObs;
@@ -477,32 +463,24 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           modelObs = reference.get().pipe(
             map(querySnapshot => querySnapshot.docs.map(snapshot => this.getModelFromSnapshot(snapshot)))
           );
-          // } else if (options.withSnapshot) {
-          // modelObs = reference.snapshotChanges().pipe(
-          //   map(actions => actions.map(action => this.getModelFromSnapshot(action.payload.doc)))
-          // );
+
         } else {
           modelObs = new Observable((observer: Subscriber<firestore.QuerySnapshot>) => {
-            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
+            let query: firebase.firestore.CollectionReference | firebase.firestore.Query = reference.ref;
+
+            query = this.constructSpecialQuery(query, options, offset);
+
+            query.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
             filter((querySnap) => {
               return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
             }),
             map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap)))
           );
-          // modelObs = reference.valueChanges({ idField: '_id' }).pipe(
-          //   map(dataList =>
-          //     dataList.map(data => this.getNewModel(data, getLocationFromPath(reference.ref.path, this.mustachePath)))
-          //   )
-          // );
+
         }
-        // when we create a doc, all geter receive the created values without serverTimestamp, and the updated value with server timestamp
         return modelObs;
-        // .pipe(filter((models: M[]) =>
-        //   models.every(model =>
-        //     !model || !(model as Object).hasOwnProperty('creationDate') || !!model.creationDate
-        //   )
-        // ));
+
       }
       throw new Error('location is not compatible with this dao!');
     }
@@ -555,5 +533,41 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   private getFileProperties(model?: Partial<M>): string[] {
     return getFileProperties((model || this.getNewModel()) as Object);
+  }
+
+  private constructSpecialQuery(
+    ref: firebase.firestore.CollectionReference | firebase.firestore.Query,
+    options: IMFGetListOptions<M>,
+    offset?: IMFOffset<M>
+  ): firebase.firestore.CollectionReference | firebase.firestore.Query {
+    let query = ref;
+    if (options.where && options.where.length > 0) {
+      options.where.forEach((where) => {
+        if (where) {
+          query = query.where(where.field, where.operator, where.value);
+        }
+      });
+    }
+
+    if (options.orderBy) {
+      query = query.orderBy(options.orderBy.field, options.orderBy.operator);
+    }
+
+    if (offset) {
+      if (offset.startAt) {
+        query = query.startAt(offset.startAt);
+      } else if (offset.startAfter) {
+        query = query.startAfter(offset.startAfter);
+      } else if (offset.endAt) {
+        query = query.endAt(offset.endAt);
+      } else if (offset.endBefore) {
+        query = query.endBefore(offset.endBefore);
+      }
+    }
+
+    if (options.limit !== null && options.limit !== undefined && options.limit > -1) {
+      query = query.limit(options.limit);
+    }
+    return query;
   }
 }

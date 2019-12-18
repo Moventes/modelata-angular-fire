@@ -1,6 +1,19 @@
 import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { concatMustachePaths, getLocation, getLocationFromPath, getSubPaths, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFSaveOptions, IMFUpdateOptions, mergeModels, MFOmit } from '@modelata/fire';
+import {
+  concatMustachePaths,
+  getLocation,
+  getLocationFromPath,
+  getSubPaths,
+  IMFGetListOptions,
+  IMFGetOneOptions,
+  IMFLocation,
+  IMFSaveOptions,
+  IMFUpdateOptions,
+  mergeModels,
+  MFOmit,
+  MFLogger
+} from '@modelata/fire/lib/angular';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -28,8 +41,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     super(db, storage);
     this.initAllSubDao(db, storage);
     if (!this.subDAOs || Object.keys(this.subDAOs).length < 1) {
-      console.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
-      console.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
+      MFLogger.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
+      MFLogger.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
     }
   }
 
@@ -117,10 +130,19 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
   }
 
   public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
-    const realLocation = getLocation(location, this.mustachePath) as IMFLocation;
+    if (location && (typeof location === 'string' || location.id)) {
+      const reference = this.getReference(location) as DocumentReference;
+      return this.getByReference(reference, options);
+    }
+    throw new Error('getById missing parameter : location and/or id');
+  }
 
+
+
+  public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
+    const realLocation = getLocationFromPath(reference.parent.path, this.mustachePath, reference.id) as IMFLocation;
     return combineLatest([
-      super.get(location, options),
+      super.getByReference(reference, options),
       this.get_subDocs(realLocation, options)
     ])
       .pipe(
@@ -128,17 +150,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
           mergeModels(mainModel, subDocsByPath)
         )
       );
-
   }
 
-  public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
-    const realLocation = getLocationFromPath(reference.parent.path, this.mustachePath, reference.id) as IMFLocation;
-    return this.get(realLocation, options);
-  }
-
-  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
-    return this.getByReference(this.db.doc(path).ref, options);
-  }
 
   private getModelWithSubDocsFromMainModel(mainModel: M, options: IMFGetOneOptions = {}): Observable<M> {
     const location = getLocation(mainModel, this.mustachePath) as IMFLocation;
@@ -149,6 +162,8 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
         )
       );
   }
+
+
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     return super.getList(location, options)
       .pipe(switchMap(models =>

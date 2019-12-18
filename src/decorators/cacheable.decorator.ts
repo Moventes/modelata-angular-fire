@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
+import { MFLogger } from '@modelata/fire/lib/angular';
 
 
 
@@ -31,7 +32,7 @@ function jsonify(obj: Object) {
 }
 
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
-  return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
+  return `dao(${service.cacheId || service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
 export function DisableCache(target: Object) {
@@ -39,7 +40,7 @@ export function DisableCache(target: Object) {
 }
 
 export function Cacheable(
-  targetClass: MFDao<any>,
+  targetClass: any,
   methodName: string,
   propertyDesciptor: PropertyDescriptor
 ): PropertyDescriptor {
@@ -65,10 +66,14 @@ export function Cacheable(
       if (!cachableIsDisabled) {
         const cacheId = getCacheId(this as any, methodName, args);
         if (!MFCache.cache[cacheId]) {
+          MFLogger.debugLibrary(`add new cache entry ${cacheId}`);
           const subject = new ReplaySubject(1);
           MFCache.cache[cacheId] = {
             subject,
-            subscription: originalMethod.apply(this, args).subscribe(doc => subject.next(doc))
+            subscription: originalMethod.apply(this, args).subscribe((doc) => {
+              MFLogger.debugLibrary(`cache ${cacheId} emit`, doc);
+              subject.next(doc);
+            })
           };
         }
         return MFCache.cache[cacheId].subject;
