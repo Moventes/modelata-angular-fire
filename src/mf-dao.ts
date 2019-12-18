@@ -107,7 +107,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
         });
 
-        return this.getListByAFReference(collection, options);
+        return this.getListByAFReference(collection, options, offset);
       })
     );
 
