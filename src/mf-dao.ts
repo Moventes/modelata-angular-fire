@@ -1,13 +1,42 @@
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot
+} from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { allDataExistInModel, getFileProperties, getLocation, getLocationFromPath, getPath, getSavableData, getSplittedPath, IMFDao, IMFDeleteOnDeleteFilesOptions, IMFDeleteOptions, IMFDeletePreviousOnUpdateFilesOptions, IMFFile, IMFGetListOptions, IMFGetOneOptions, IMFLocation, IMFOffset, IMFSaveOptions, IMFStorageOptions, IMFUpdateOptions, isCompatiblePath, MFOmit } from '@modelata/fire/lib/angular';
+import {
+  allDataExistInModel,
+  getFileProperties,
+  getLocation,
+  getLocationFromPath,
+  getPath,
+  getSavableData,
+  getSplittedPath,
+  IMFDao,
+  IMFDeleteOnDeleteFilesOptions,
+  IMFDeleteOptions,
+  IMFDeletePreviousOnUpdateFilesOptions,
+  IMFFile,
+  IMFGetListOptions,
+  IMFGetOneOptions,
+  IMFLocation,
+  IMFOffset,
+  IMFSaveOptions,
+  IMFStorageOptions,
+  IMFUpdateOptions,
+  isCompatiblePath,
+  MFOmit,
+  MFLogger
+} from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { Cacheable } from './decorators/cacheable.decorator';
 import { MFCache } from './mf-cache';
-import { MFLogger } from './mf-logger';
 import { MFModel } from './mf-model';
 
 
@@ -70,32 +99,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
           let query: firebase.firestore.CollectionReference | firebase.firestore.Query = ref;
 
-          if (options.where && options.where.length > 0) {
-            options.where.forEach((where) => {
-              if (where) {
-                query = query.where(where.field, where.operator, where.value);
-              }
-            });
-          }
-
-          if (options.orderBy) {
-            query = query.orderBy(options.orderBy.field, options.orderBy.operator);
-          }
-
-          if (offset) {
-            if (offset.startAt) {
-              query = query.startAt(offset.startAt);
-            } else if (offset.startAfter) {
-              query = query.startAfter(offset.startAfter);
-            } else if (offset.endAt) {
-              query = query.endAt(offset.endAt);
-            } else if (offset.endBefore) {
-              query = query.endBefore(offset.endBefore);
-            }
-          }
-
-          if (options.limit !== null && options.limit !== undefined && options.limit > -1) {
-            query = query.limit(options.limit);
+          if (options.completeOnFirst) {
+            query = this.constructSpecialQuery(query, options, offset);
           }
 
           return query;
@@ -446,7 +451,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   }
 
   @Cacheable
-  private getListByAFReference(reference: AngularFirestoreCollection<M>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
+  private getListByAFReference(
+    reference: AngularFirestoreCollection<M>,
+    options: IMFGetListOptions<M> = {},
+    offset?: IMFOffset<M>
+  ): Observable<M[]> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
         let modelObs;
@@ -457,7 +466,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
         } else {
           modelObs = new Observable((observer: Subscriber<firestore.QuerySnapshot>) => {
-            reference.ref.onSnapshot({ includeMetadataChanges: true }, observer);
+            let query: firebase.firestore.CollectionReference | firebase.firestore.Query = reference.ref;
+
+            query = this.constructSpecialQuery(query, options, offset);
+
+            query.onSnapshot({ includeMetadataChanges: true }, observer);
           }).pipe(
             filter((querySnap) => {
               return !querySnap.metadata.hasPendingWrites && !querySnap.metadata.fromCache;
@@ -520,5 +533,41 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   private getFileProperties(model?: Partial<M>): string[] {
     return getFileProperties((model || this.getNewModel()) as Object);
+  }
+
+  private constructSpecialQuery(
+    ref: firebase.firestore.CollectionReference | firebase.firestore.Query,
+    options: IMFGetListOptions<M>,
+    offset?: IMFOffset<M>
+  ): firebase.firestore.CollectionReference | firebase.firestore.Query {
+    let query = ref;
+    if (options.where && options.where.length > 0) {
+      options.where.forEach((where) => {
+        if (where) {
+          query = query.where(where.field, where.operator, where.value);
+        }
+      });
+    }
+
+    if (options.orderBy) {
+      query = query.orderBy(options.orderBy.field, options.orderBy.operator);
+    }
+
+    if (offset) {
+      if (offset.startAt) {
+        query = query.startAt(offset.startAt);
+      } else if (offset.startAfter) {
+        query = query.startAfter(offset.startAfter);
+      } else if (offset.endAt) {
+        query = query.endAt(offset.endAt);
+      } else if (offset.endBefore) {
+        query = query.endBefore(offset.endBefore);
+      }
+    }
+
+    if (options.limit !== null && options.limit !== undefined && options.limit > -1) {
+      query = query.limit(options.limit);
+    }
+    return query;
   }
 }
