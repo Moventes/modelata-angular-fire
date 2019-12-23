@@ -5,8 +5,11 @@ import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
 
-
-
+/**
+ * Convert an object into a json string
+ *
+ * @param obj the object to convert
+ */
 function jsonify(obj: Object) {
   const seen: any[] = [];
   try {
@@ -31,14 +34,34 @@ function jsonify(obj: Object) {
   }
 }
 
+/**
+ * Get unique cache id for the request
+ *
+ * @param service service used for the request
+ * @param methodName method called
+ * @param params request params
+ * @returns a string id
+ */
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
   return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
+/**
+ * Tells the DAO to NOT cache the result
+ *
+ * @param target The property decorted
+ */
 export function DisableCache(target: Object) {
   Reflect.defineMetadata('cacheable', false, target);
 }
 
+/**
+ * Tells the Dao to cache request results
+ *
+ * @param targetClass the class containing the decorated method
+ * @param methodName the name of decorated method
+ * @param propertyDesciptor ?
+ */
 export function Cacheable(
   targetClass: any,
   methodName: string,

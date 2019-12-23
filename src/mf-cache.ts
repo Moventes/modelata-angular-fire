@@ -1,7 +1,12 @@
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
+/**
+ * Abstract class providing logic to handle cache
+ */
 export abstract class MFCache {
-
+  /**
+   * local cache store
+   */
   static readonly cache: {
     [methodId: string]: {
       subscription: Subscription,
@@ -9,15 +14,30 @@ export abstract class MFCache {
     }
   } = {};
 
+  /**
+   *
+   */
   static clearAllCacheSub: Subscription;
+
+  /**
+   *
+   */
   private clearCacheSub: Subscription;
 
+  /**
+   * Mustache collection path
+   */
   protected mustachePath: string;
 
+  /**
+   *
+   */
   constructor() {
   }
 
-
+  /**
+   * Clear local cache
+   */
   static clearAllMFCache(): void {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
       if (sub.subscription) { sub.subscription.unsubscribe(); }
@@ -25,6 +45,10 @@ export abstract class MFCache {
     });
   }
 
+  /**
+   *
+   * @param clearAllCacheAndSubscription$
+   */
   static setClearAllCacheObservable(clearAllCacheAndSubscription$: Observable<any>): void {
     if (MFCache.clearAllCacheSub) {
       MFCache.clearAllCacheSub.unsubscribe();
@@ -32,6 +56,9 @@ export abstract class MFCache {
     MFCache.clearAllCacheSub = clearAllCacheAndSubscription$.subscribe(() => MFCache.clearAllMFCache());
   }
 
+  /**
+   *
+   */
   private clearCache(): void {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
       if (cacheId.startsWith(`dao(${this.mustachePath})`)) {
@@ -41,6 +68,10 @@ export abstract class MFCache {
     });
   }
 
+  /**
+   *
+   * @param clearCacheAndSubscription$
+   */
   protected setClearCacheObservable(clearCacheAndSubscription$: Observable<any>): void {
     if (this.clearCacheSub) {
       this.clearCacheSub.unsubscribe();

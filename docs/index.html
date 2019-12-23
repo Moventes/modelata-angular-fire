@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@modelata/angular-fire</title>
+	<title>tslib</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">@modelata/angular-fire</a>
+					<a href="index.html" class="title">tslib</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> @modelata/angular-fire</h1>
+			<h1> tslib</h1>
 		</div>
 	</div>
 </header>
@@ -64,6 +64,113 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
+				<a href="#tslib" id="tslib" style="color: inherit; text-decoration: none;">
+					<h1>tslib</h1>
+				</a>
+				<p>This is a runtime library for <a href="http://www.typescriptlang.org/">TypeScript</a> that contains all of the TypeScript helper functions.</p>
+				<p>This library is primarily used by the <code>--importHelpers</code> flag in TypeScript.
+				When using <code>--importHelpers</code>, a module that uses helper functions like <code>__extends</code> and <code>__assign</code> in the following emitted file:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">var</span> __assign = (<span class="hljs-keyword">this</span> &amp;&amp; <span class="hljs-keyword">this</span>.__assign) || <span class="hljs-built_in">Object</span>.assign || <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) </span>{
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> s, i = <span class="hljs-number">1</span>, n = <span class="hljs-built_in">arguments</span>.length; i &lt; n; i++) {
+        s = <span class="hljs-built_in">arguments</span>[i];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> s) <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Object</span>.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    <span class="hljs-keyword">return</span> t;
+};
+exports.x = {};
+exports.y = __assign({}, exports.x);
+</code></pre>
+				<p>will instead be emitted as something like the following:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">var</span> tslib_1 = <span class="hljs-built_in">require</span>(<span class="hljs-string">"tslib"</span>);
+exports.x = {};
+exports.y = tslib_1.__assign({}, exports.x);</code></pre>
+				<p>Because this can avoid duplicate declarations of things like <code>__extends</code>, <code>__assign</code>, etc., this means delivering users smaller files on average, as well as less runtime overhead.
+				For optimized bundles with TypeScript, you should absolutely consider using <code>tslib</code> and <code>--importHelpers</code>.</p>
+				<a href="#installing" id="installing" style="color: inherit; text-decoration: none;">
+					<h1>Installing</h1>
+				</a>
+				<p>For the latest stable version, run:</p>
+				<a href="#npm" id="npm" style="color: inherit; text-decoration: none;">
+					<h2>npm</h2>
+				</a>
+				<pre><code class="language-sh"><span class="hljs-comment"># TypeScript 2.3.3 or later</span>
+npm install --save tslib
+
+<span class="hljs-comment"># TypeScript 2.3.2 or earlier</span>
+npm install --save tslib@1.6.1</code></pre>
+				<a href="#bower" id="bower" style="color: inherit; text-decoration: none;">
+					<h2>bower</h2>
+				</a>
+				<pre><code class="language-sh"><span class="hljs-comment"># TypeScript 2.3.3 or later</span>
+bower install tslib
+
+<span class="hljs-comment"># TypeScript 2.3.2 or earlier</span>
+bower install tslib@1.6.1</code></pre>
+				<a href="#jspm" id="jspm" style="color: inherit; text-decoration: none;">
+					<h2>JSPM</h2>
+				</a>
+				<pre><code class="language-sh"><span class="hljs-comment"># TypeScript 2.3.3 or later</span>
+jspm install tslib
+
+<span class="hljs-comment"># TypeScript 2.3.2 or earlier</span>
+jspm install tslib@1.6.1</code></pre>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h1>Usage</h1>
+				</a>
+				<p>Set the <code>importHelpers</code> compiler option on the command line:</p>
+				<pre><code>tsc --importHelpers <span class="hljs-keyword">file</span>.<span class="hljs-keyword">ts</span></code></pre><p>or in your tsconfig.json:</p>
+				<pre><code class="language-json">{
+    <span class="hljs-attr">"compilerOptions"</span>: {
+        <span class="hljs-attr">"importHelpers"</span>: <span class="hljs-literal">true</span>
+    }
+}</code></pre>
+				<a href="#for-bower-and-jspm-users" id="for-bower-and-jspm-users" style="color: inherit; text-decoration: none;">
+					<h4>For bower and JSPM users</h4>
+				</a>
+				<p>You will need to add a <code>paths</code> mapping for <code>tslib</code>, e.g. For Bower users:</p>
+				<pre><code class="language-json">{
+    <span class="hljs-attr">"compilerOptions"</span>: {
+        <span class="hljs-attr">"module"</span>: <span class="hljs-string">"amd"</span>,
+        <span class="hljs-attr">"importHelpers"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"baseUrl"</span>: <span class="hljs-string">"./"</span>,
+        <span class="hljs-attr">"paths"</span>: {
+            <span class="hljs-attr">"tslib"</span> : [<span class="hljs-string">"bower_components/tslib/tslib.d.ts"</span>]
+        }
+    }
+}</code></pre>
+				<p>For JSPM users:</p>
+				<pre><code class="language-json">{
+    <span class="hljs-attr">"compilerOptions"</span>: {
+        <span class="hljs-attr">"module"</span>: <span class="hljs-string">"system"</span>,
+        <span class="hljs-attr">"importHelpers"</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">"baseUrl"</span>: <span class="hljs-string">"./"</span>,
+        <span class="hljs-attr">"paths"</span>: {
+            <span class="hljs-attr">"tslib"</span> : [<span class="hljs-string">"jspm_packages/npm/tslib@1.10.0/tslib.d.ts"</span>]
+        }
+    }
+}</code></pre>
+				<a href="#contribute" id="contribute" style="color: inherit; text-decoration: none;">
+					<h1>Contribute</h1>
+				</a>
+				<p>There are many ways to <a href="https://github.com/Microsoft/TypeScript/blob/master/CONTRIBUTING.md">contribute</a> to TypeScript.</p>
+				<ul>
+					<li><a href="https://github.com/Microsoft/TypeScript/issues">Submit bugs</a> and help us verify fixes as they are checked in.</li>
+					<li>Review the <a href="https://github.com/Microsoft/TypeScript/pulls">source code changes</a>.</li>
+					<li>Engage with other TypeScript users and developers on <a href="http://stackoverflow.com/questions/tagged/typescript">StackOverflow</a>.</li>
+					<li>Join the <a href="http://twitter.com/#!/search/realtime/%23typescript">#typescript</a> discussion on Twitter.</li>
+					<li><a href="https://github.com/Microsoft/TypeScript/blob/master/CONTRIBUTING.md">Contribute bug fixes</a>.</li>
+					<li>Read the language specification (<a href="http://go.microsoft.com/fwlink/?LinkId=267121">docx</a>, <a href="http://go.microsoft.com/fwlink/?LinkId=267238">pdf</a>).</li>
+				</ul>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h1>Documentation</h1>
+				</a>
+				<ul>
+					<li><a href="http://www.typescriptlang.org/Tutorial">Quick tutorial</a></li>
+					<li><a href="http://www.typescriptlang.org/Handbook">Programming handbook</a></li>
+					<li><a href="https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md">Language specification</a></li>
+					<li><a href="http://www.typescriptlang.org/">Homepage</a></li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -72,68 +179,188 @@
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_cacheable_decorator_.html">&quot;decorators/cacheable.decorator&quot;</a>
+					<li class="label tsd-is-external">
+						<span>Internals</span>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_collection_path_decorator_.html">&quot;decorators/collection-<wbr>path.decorator&quot;</a>
+						<a href="modules/_src_decorators_cacheable_decorator_.html">&quot;src/decorators/cacheable.decorator&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_enumerable_decorator_.html">&quot;decorators/enumerable.decorator&quot;</a>
+						<a href="modules/_src_decorators_email_verification_link_.html">&quot;src/decorators/email-<wbr>verification-<wbr>link&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_form_decorator_.html">&quot;decorators/form.decorator&quot;</a>
+						<a href="modules/_src_decorators_form_decorator_.html">&quot;src/decorators/form.decorator&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_get_by_ref_decorator_.html">&quot;decorators/get-<wbr>by-<wbr>ref.decorator&quot;</a>
+						<a href="modules/_src_decorators_index_.html">&quot;src/decorators/index&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_storage_property_decorator_.html">&quot;decorators/storage-<wbr>property.decorator&quot;</a>
+						<a href="modules/_src_index_.html">&quot;src/index&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_storred_in_sub_doc_decorator_.html">&quot;decorators/storred-<wbr>in-<wbr>sub-<wbr>doc.decorator&quot;</a>
+						<a href="modules/_src_interfaces_control_config_interface_.html">&quot;src/interfaces/control-<wbr>config.interface&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_decorators_sub_collection_get_list_decorator_.html">&quot;decorators/sub-<wbr>collection-<wbr>get-<wbr>list.decorator&quot;</a>
+						<a href="modules/_src_interfaces_index_.html">&quot;src/interfaces/index&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_helpers_missing_field_notifier_.html">&quot;helpers/missing-<wbr>field-<wbr>notifier&quot;</a>
+						<a href="modules/_src_interfaces_register_options_interface_.html">&quot;src/interfaces/register-<wbr>options.interface&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_helpers_model_helper_.html">&quot;helpers/model.helper&quot;</a>
+						<a href="modules/_src_mf_auth_user_.html">&quot;src/mf-<wbr>auth-<wbr>user&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_helpers_object_helper_.html">&quot;helpers/object.helper&quot;</a>
+						<a href="modules/_src_mf_cache_.html">&quot;src/mf-<wbr>cache&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_helpers_string_helper_.html">&quot;helpers/string.helper&quot;</a>
+						<a href="modules/_src_mf_dao_.html">&quot;src/mf-<wbr>dao&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_index_.html">&quot;index&quot;</a>
+						<a href="modules/_src_mf_flattable_dao_.html">&quot;src/mf-<wbr>flattable-<wbr>dao&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_interfaces_control_config_interface_.html">&quot;interfaces/control-<wbr>config.interface&quot;</a>
+						<a href="modules/_src_mf_model_.html">&quot;src/mf-<wbr>model&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_interfaces_meta_ref_interface_.html">&quot;interfaces/meta-<wbr>ref.interface&quot;</a>
+						<a href="modules/_src_mf_sub_dao_.html">&quot;src/mf-<wbr>sub-<wbr>dao&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_interfaces_storage_options_interface_.html">&quot;interfaces/storage-<wbr>options.interface&quot;</a>
+					<li class="label tsd-is-external">
+						<span>Externals</span>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_mf_cache_.html">&quot;mf-<wbr>cache&quot;</a>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_auth_user_property_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/auth-<wbr>user-<wbr>property.decorator.d&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_mf_dao_.html">&quot;mf-<wbr>dao&quot;</a>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_collection_path_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/collection-<wbr>path.decorator.d&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_mf_flattable_dao_.html">&quot;mf-<wbr>flattable-<wbr>dao&quot;</a>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_enumerable_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/enumerable.decorator.d&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_mf_model_.html">&quot;mf-<wbr>model&quot;</a>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_get_by_ref_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/get-<wbr>by-<wbr>ref.decorator.d&quot;</a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_mf_sub_dao_.html">&quot;mf-<wbr>sub-<wbr>dao&quot;</a>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_storage_property_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/storage-<wbr>property.decorator.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_storred_in_sub_doc_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/storred-<wbr>in-<wbr>sub-<wbr>doc.decorator.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_sub_collection_get_list_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/sub-<wbr>collection-<wbr>get-<wbr>list.decorator.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_users_collection_path_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/users-<wbr>collection-<wbr>path.decorator.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_mf_auth_user_properties_enum_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/mf-<wbr>auth-<wbr>user-<wbr>properties.enum.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_mf_logger_level_enum_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/mf-<wbr>logger-<wbr>level.enum.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_missing_field_notifier_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/missing-<wbr>field-<wbr>notifier.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_model_helper_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/model.helper.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_object_helper_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/object.helper.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_string_helper_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/string.helper.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_auth_dao_sync_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>auth-<wbr>dao-<wbr>sync-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_controls_list_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>controls-<wbr>list.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_dao_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>dao.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_delete_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>delete-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_file_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>file.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_form_builder_data_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>form-<wbr>builder-<wbr>data.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_form_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>form-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_get_list_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>get-<wbr>list-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_get_one_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>get-<wbr>one-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_location_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>location.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_meta_ref_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>meta-<wbr>ref.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>model.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_offset_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>offset.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_order_by_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>order-<wbr>by.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_save_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>save-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_storage_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>storage-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_sub_doc_by_path_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>sub-<wbr>doc-<wbr>by-<wbr>path.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_sub_doc_with_path_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>sub-<wbr>doc-<wbr>with-<wbr>path.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_update_options_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>update-<wbr>options.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_user_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>user.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_mf_where_interface_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/mf-<wbr>where.interface.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_interfaces_tool_types_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/interfaces/tool-<wbr>types.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_mf_logger_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/mf-<wbr>logger.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_specifics_exports_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/specifics/exports.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_specifics_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/specifics/index.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules_tslib_tslib_d_.html">&quot;node_<wbr>modules/tslib/tslib.d&quot;</a>
 					</li>
 				</ul>
 			</nav>

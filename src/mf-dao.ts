@@ -41,13 +41,25 @@ import { MFModel } from './mf-model';
 
 
 /**
- * Abstract DAO class
+ * @inheritdoc
  */
 export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMFDao<M>{
-
+  /**
+   * @inheritdoc
+   */
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
+
+  /**
+   * Tru if this dao stores requests results
+   */
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
 
+  /**
+   * Must be called with super()
+   *
+   * @param db The databse to use to store data
+   * @param storage The bucket where files will be stored
+   */
   constructor(
     protected db: AngularFirestore,
     protected storage?: AngularFireStorage,
@@ -63,16 +75,34 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   //    ///////////////////////////////////      \\
   //   ///////////////////////////////////       \\
 
+  /**
+   * @inheritdoc
+   *
+   * @param data
+   * @param location
+   */
   abstract getNewModel(data?: Partial<M>, location?: Partial<IMFLocation>): M;
 
-  public get(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
-    if (location && (typeof location === 'string' || location.id)) {
-      const reference = this.getAFReference(location) as AngularFirestoreDocument<M>;
+  /**
+   * @inheritdoc
+   *
+   * @param idOrLocation
+   * @param options
+   */
+  public get(idOrLocation: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<M> {
+    if (idOrLocation && (typeof idOrLocation === 'string' || idOrLocation.id)) {
+      const reference = this.getAFReference(idOrLocation) as AngularFirestoreDocument<M>;
       return this.getByAFReference(reference, options);
     }
     throw new Error('getById missing parameter : location and/or id');
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param reference
+   * @param options
+   */
   public getByReference(reference: DocumentReference, options?: IMFGetOneOptions): Observable<M> {
     if (reference) {
       return this.getByAFReference(this.db.doc(reference), options);
@@ -80,6 +110,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByReference missing parameter : reference');
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param path
+   * @param options
+   */
   public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
     if (path) {
       return this.getByAFReference(this.db.doc(path), options);
@@ -87,10 +123,21 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByPath missing parameter : path');
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param idOrLocationOrModel
+   */
   public getReference(idOrLocationOrModel: string | Partial<IMFLocation> | M): DocumentReference | CollectionReference {
     return this.getAFReference(getLocation(idOrLocationOrModel, this.mustachePath)).ref;
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param location
+   * @param options
+   */
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     const realLocation = getLocation(location, this.mustachePath);
 
@@ -114,6 +161,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   }
 
+  /**
+   * Get list of document by collection path
+   *
+   * @param path collection path
+   * @param options get list options
+   */
   public getListByPath(path: string, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     if (path && isCompatiblePath(this.mustachePath, path)) {
       const location = getLocationFromPath(path, this.mustachePath);
@@ -122,6 +175,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByPath missing or incompatible parameter : path');
   }
 
+  /**
+   * Prepare data and location in order to create document in database
+   *
+   * @param data document data
+   * @param location location of the document
+   * @param options create options
+   */
   public async prepareToCreate(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {})
     : Promise<{ savableData: Partial<M>; savableLocation: Partial<IMFLocation> }> {
     if (!allDataExistInModel(data, this.getNewModel())) {
@@ -169,6 +229,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       });
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param data
+   * @param idOrLocation
+   * @param options
+   */
   public async create(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {}): Promise<M> {
 
     return this.prepareToCreate(data, location, options).then(({ savableLocation, savableData }) => {
@@ -191,6 +258,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param data
+   * @param idOrLocationOrModel
+   * @param options
+   */
   public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
@@ -219,6 +293,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       .then(() => data);
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param idLocationOrModel
+   * @param options
+   */
   delete(idLocationOrModel: string | IMFLocation | M, options: IMFDeleteOptions<M> = {}): Promise<void> {
 
     const realLocation = getLocation(idLocationOrModel, this.mustachePath);
@@ -236,6 +316,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return deleteFilesPromise.then(() => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete());
   }
 
+  /**
+   * Delete a model by its reference
+   *
+   * @param reference Document reference
+   */
   deleteByReference(reference: AngularFirestoreDocument<M>) {
     if (getFileProperties(this.getNewModel()).length) {
       return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
@@ -244,6 +329,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return reference.delete();
   }
 
+  /**
+   * returns a model from a snapshot
+   *
+   * @param snapshot document snapshot
+   * @param options get one options
+   */
   public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot, options: Partial<IMFGetOneOptions> = {}): M {
     if (snapshot.exists) {
       return this.getNewModel(
@@ -264,17 +355,36 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return null;
   }
 
-  public getSnapshot(location: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<DocumentSnapshot<M>> {
-    const ref = (this.getAFReference(location) as AngularFirestoreDocument<M>);
+  /**
+   * @inheritdoc
+   *
+   * @param idOrLocation
+   * @param options
+   */
+  public getSnapshot(idOrLocation: string | IMFLocation, options: IMFGetOneOptions = {}): Observable<DocumentSnapshot<M>> {
+    const ref = (this.getAFReference(idOrLocation) as AngularFirestoreDocument<M>);
     return options && options.completeOnFirst ?
       ref.get().pipe(map(snap => snap as DocumentSnapshot<M>)) :
       ref.snapshotChanges().pipe(map(action => action.payload));
   }
 
-  public async beforeSave(model: Partial<M>, location?: string | Partial<IMFLocation>): Promise<Partial<M>> {
+  /**
+   * @inheritdoc
+   *
+   * @param model
+   * @param idOrLocation
+   */
+  public async beforeSave(model: Partial<M>, idOrLocation?: string | Partial<IMFLocation>): Promise<Partial<M>> {
     return Promise.resolve(model);
   }
 
+  /**
+   * Save files from declared file properties and returns the model with storage informations and location with new document id
+   *
+   * @param model the model for which files must be stored
+   * @param location location of the model
+   * @returns Promise of an object containing the model with storage informations and location with new document id
+   */
   private async saveFiles(newModel: Partial<M>, newLocation: IMFLocation): Promise<{
     newModel: Partial<M>,
     newLocation: IMFLocation
@@ -296,6 +406,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.resolve({ newModel, newLocation });
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param fileObject
+   * @param location
+   */
   public async saveFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
     if (this.storage) {
       return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
@@ -317,6 +433,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
+  /**
+   * Delete files from declared file properties and returns the model
+   *
+   * @param model the model for which files must be deleted
+   * @param options override delete on delete default option
+   * @returns Promise of the model
+   */
   private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M> = {}): Promise<M> {
     const fileProperties = getFileProperties(model);
 
@@ -338,6 +461,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.resolve(model);
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param fileObject
+   */
   public deleteFile(fileObject: IMFFile): Promise<void> {
     if (this.storage) {
       return this.storage.ref(fileObject.storagePath).delete().toPromise().catch((err) => {
@@ -350,6 +478,14 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
+  /**
+   * Update files from declared file properties and returns the data with storage informations
+   *
+   * @param data the data from which files must be updated
+   * @param location location of the model
+   * @param options override default option
+   * @returns Promise of the model with storage informations
+   */
   private async updateFiles(
     data: Partial<M>,
     location: IMFLocation,
@@ -382,6 +518,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       Promise.resolve(data);
   }
 
+  /**
+   * Update a file
+   *
+   * @param fileObject the file to update
+   * @param location location of the paret model
+   * @param deletePrevious delete previous file before update
+   */
   public async updateFile(fileObject: IMFFile, location: IMFLocation, deletePrevious = true): Promise<IMFFile> {
     if (this.storage) {
       return ((fileObject.storagePath && deletePrevious) ? this.deleteFile(fileObject) : Promise.resolve())
@@ -391,6 +534,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return Promise.reject(new Error('AngularFireStorage was not injected'));
   }
 
+  /**
+   * Check if the model or reference is compatible with this DAO based on its path
+   *
+   * @param modelOrReference Model or reference to chheck
+   */
   public isCompatible(doc: M | DocumentReference | CollectionReference): boolean {
     return isCompatiblePath(
       this.mustachePath,
@@ -400,18 +548,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     );
   }
 
-
-
-
-
-
   //    ///////////////////////////////////
   //   ///////////////////////////////////
   //  ////////////PRIVATE////////////////
   // ///////////////////////////////////
   /////////////////////////////////////
 
-
+  /**
+   * Get angular fire reference from location
+   *
+   * @param location location
+   */
   private getAFReference<M>(location: string | Partial<IMFLocation>): AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
     const realLocation = getLocation(location, this.mustachePath);
 
@@ -420,9 +567,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       : this.db.collection<M>(getPath(this.mustachePath, realLocation));
   }
 
-
-
-
+  /**
+   * Get document from angular fire reference
+   *
+   * @param reference angular fire reference
+   * @param options get one option
+   */
   @Cacheable
   private getByAFReference(reference: AngularFirestoreDocument<M>, options: IMFGetOneOptions = {}): Observable<M> {
     if (reference) {
@@ -451,6 +601,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('getByReference missing parameter : reference');
   }
 
+  /**
+   * Get list from angular fire reference
+   *
+   * @param reference angular fire reference
+   * @param options get list options
+   * @param offset offset document
+   */
   @Cacheable
   private getListByAFReference(
     reference: AngularFirestoreCollection<M>,
@@ -498,6 +655,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return of(null);
   }
 
+  /**
+   * Get the first offset snapshot available (startAt > startAfter > endAt > endBefore)
+   *
+   * @param offsetOption The offset option value used here
+   * @param options get one options to apply
+   */
   private getOffsetSnapshots(iMFOffset: IMFOffset<M>): Observable<IMFOffset<M>> {
     if (iMFOffset) {
       if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
@@ -518,6 +681,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return of(null);
   }
 
+  /**
+   * Get a reference from a compatible path
+   *
+   * @param path The path for which get a reference
+   * @return a CollectionReference or a documentReference depending on the path param
+   */
   getReferenceFromPath(path: string): DocumentReference | AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
     if (isCompatiblePath(this.mustachePath, path)) {
       const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, this.mustachePath);
@@ -532,10 +701,22 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     throw new Error('This path is not compatible with this DAO');
   }
 
+  /**
+   * Returns array of file properties names for the partial model consumed or if missing, for the model appliable to this dao
+   *
+   * @param model Some partial or full model
+   */
   private getFileProperties(model?: Partial<M>): string[] {
     return getFileProperties((model || this.getNewModel()) as Object);
   }
 
+  /**
+   * Build get list special query from get list options
+   *
+   * @param ref collection reference
+   * @param options get list options
+   * @param offset offset
+   */
   private constructSpecialQuery(
     ref: firebase.firestore.CollectionReference | firebase.firestore.Query,
     options: IMFGetListOptions<M>,

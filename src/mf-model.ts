@@ -9,36 +9,54 @@ import { MFControlConfig } from './interfaces/control-config.interface';
  * Abstract Model class
  */
 export abstract class MFModel<M> implements IMFModel<M> {
-
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _id: string = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _collectionPath: string = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _snapshot: DocumentSnapshot<M> = null;
 
+  /**
+   * Controls configuration
+   */
   @Enumerable(false)
   public _controlsConfig: { [P in keyof this]?: MFControlConfig } = {};
 
+  /**
+   * Document was retrieved from angular fire cache
+   */
   @Enumerable(false)
   protected _fromCache: boolean = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public updateDate: Date = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public creationDate: Date = null;
 
-
-
-
   /**
-   * initializes the instance of the model with the given data and location
-   * @param data the data to inject in the instance
-   * @param mustachePath the mustache path of the collection
-   * @param location the identifier to set in the path
+   * @inheritdoc
+   *
+   * @param data
+   * @param mustachePath
+   * @param location
    */
   initialize(data: Partial<M>, mustachePath: string, location: Partial<IMFLocation>): void {
     if (location && location.id) {
@@ -104,6 +122,11 @@ export abstract class MFModel<M> implements IMFModel<M> {
 
   }
 
+  /**
+   * Returns data to build a form group
+   *
+   * @param requiredFields Controls with required validator
+   */
   toFormBuilderData(
     requiredFields: { [P in keyof this]?: boolean } = {}
   ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
@@ -146,6 +169,9 @@ export abstract class MFModel<M> implements IMFModel<M> {
     return formControls;
   }
 
+  /**
+   * return a string of the document path
+   */
   toString(): string {
     return `${this._collectionPath}/${this._id}`;
   }
