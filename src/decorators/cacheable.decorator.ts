@@ -1,11 +1,15 @@
+import { MFLogger } from '@modelata/fire/lib/angular';
 import * as Flatted from 'flatted';
 import 'reflect-metadata';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
 
-
-
+/**
+ * Convert an object into a json string
+ *
+ * @param obj the object to convert
+ */
 function jsonify(obj: Object) {
   const seen: any[] = [];
   try {
@@ -30,16 +34,36 @@ function jsonify(obj: Object) {
   }
 }
 
+/**
+ * Get unique cache id for the request
+ *
+ * @param service service used for the request
+ * @param methodName method called
+ * @param params request params
+ * @returns a string id
+ */
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
   return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
+/**
+ * Tells the DAO to NOT cache the result
+ *
+ * @param target The property decorted
+ */
 export function DisableCache(target: Object) {
   Reflect.defineMetadata('cacheable', false, target);
 }
 
+/**
+ * Tells the Dao to cache request results
+ *
+ * @param targetClass the class containing the decorated method
+ * @param methodName the name of decorated method
+ * @param propertyDesciptor ?
+ */
 export function Cacheable(
-  targetClass: MFDao<any>,
+  targetClass: any,
   methodName: string,
   propertyDesciptor: PropertyDescriptor
 ): PropertyDescriptor {
@@ -65,10 +89,14 @@ export function Cacheable(
       if (!cachableIsDisabled) {
         const cacheId = getCacheId(this as any, methodName, args);
         if (!MFCache.cache[cacheId]) {
+          MFLogger.debugLibrary(`add new cache entry ${cacheId}`);
           const subject = new ReplaySubject(1);
           MFCache.cache[cacheId] = {
             subject,
-            subscription: originalMethod.apply(this, args).subscribe(doc => subject.next(doc))
+            subscription: originalMethod.apply(this, args).subscribe((doc) => {
+              MFLogger.debugLibrary(`cache ${cacheId} emit`, doc);
+              subject.next(doc);
+            })
           };
         }
         return MFCache.cache[cacheId].subject;

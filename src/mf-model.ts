@@ -1,49 +1,62 @@
 import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { IMFLocation, IMFModel } from '@modelata/types-fire/lib/angular';
+import { createHiddenProperty, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier } from '@modelata/fire/lib/angular';
 import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
-import { Enumerable } from './decorators/enumerable.decorator';
-import { MissingFieldNotifier } from './helpers/missing-field-notifier';
-import { getPath } from './helpers/model.helper';
-import { createHiddenProperty } from './helpers/object.helper';
 import { MFControlConfig } from './interfaces/control-config.interface';
-import { MetaRef, MetaSubCollection } from './interfaces/meta-ref.interface';
 
 /**
  * Abstract Model class
  */
 export abstract class MFModel<M> implements IMFModel<M> {
-
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _id: string = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _collectionPath: string = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public _snapshot: DocumentSnapshot<M> = null;
 
+  /**
+   * Controls configuration
+   */
   @Enumerable(false)
   public _controlsConfig: { [P in keyof this]?: MFControlConfig } = {};
 
+  /**
+   * Document was retrieved from angular fire cache
+   */
   @Enumerable(false)
   protected _fromCache: boolean = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public updateDate: Date = null;
 
+  /**
+   * @inheritdoc
+   */
   @Enumerable(false)
   public creationDate: Date = null;
 
-
-
-
   /**
-   * initializes the instance of the model with the given data and location
-   * @param data the data to inject in the instance
-   * @param mustachePath the mustache path of the collection
-   * @param location the identifier to set in the path
+   * @inheritdoc
+   *
+   * @param data
+   * @param mustachePath
+   * @param location
    */
   initialize(data: Partial<M>, mustachePath: string, location: Partial<IMFLocation>): void {
     if (location && location.id) {
@@ -60,6 +73,10 @@ export abstract class MFModel<M> implements IMFModel<M> {
 
     if (data && typeof (data as any)._fromCache === 'boolean') {
       createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
+    }
+
+    if (data && !!(data as any)._snapshot) {
+      createHiddenProperty(this, 'snapshot', (data as any)._snapshot);
     }
 
     if (data) {
@@ -83,14 +100,14 @@ export abstract class MFModel<M> implements IMFModel<M> {
       for (const key in this) {
         if (key.startsWith('_') && key.endsWith('$')) {
           if (Reflect.hasMetadata('observableFromSubCollection', this, key)) {
-            const meta: MetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
+            const meta: IMFMetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
             if (meta.collectionName && meta.daoName && this._id && (this as any)[meta.daoName]) {
               const dao: MFDao<any> = (this as any)[meta.daoName];
               const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
               (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
             }
           } else if (Reflect.hasMetadata('observableFromRef', this, key)) {
-            const meta: MetaRef = Reflect.getMetadata('observableFromRef', this, key);
+            const meta: IMFMetaRef = Reflect.getMetadata('observableFromRef', this, key);
             if (meta.attributeName && meta.daoName && (data as any)[meta.attributeName] && (this as any)[meta.daoName]) {
               const dao: MFDao<any> = (this as any)[meta.daoName];
               const ref: DocumentReference = (data as any)[meta.attributeName];
@@ -105,6 +122,11 @@ export abstract class MFModel<M> implements IMFModel<M> {
 
   }
 
+  /**
+   * Returns data to build a form group
+   *
+   * @param requiredFields Controls with required validator
+   */
   toFormBuilderData(
     requiredFields: { [P in keyof this]?: boolean } = {}
   ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
@@ -147,6 +169,9 @@ export abstract class MFModel<M> implements IMFModel<M> {
     return formControls;
   }
 
+  /**
+   * return a string of the document path
+   */
   toString(): string {
     return `${this._collectionPath}/${this._id}`;
   }

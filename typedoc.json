@@ -1,0 +1,13 @@
+{
+  "out": "docs",
+  "includeDeclarations": true,
+  "exclude": [
+    "**/@angular/**/*",
+    "**/firebase/**/*",
+    "**/typescript/**/*",
+    "**/flatted/**/*",
+    "**/rxjs/**/*",
+    "**/typedoc/**/*",
+    "**/reflect-metadata/**/*"
+  ]
+}

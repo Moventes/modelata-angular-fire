@@ -1,6 +1,11 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
 import { MFModel } from './../mf-model';
 
+/**
+ * Adds validators to form control when generating form group data
+ *
+ * @param value Validators to apply
+ */
 export function FormControlValidators<M extends MFModel<M>>(value: ValidatorFn[] = []) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
@@ -12,6 +17,9 @@ export function FormControlValidators<M extends MFModel<M>>(value: ValidatorFn[]
   };
 }
 
+/**
+ * Generates form control data for this property
+ */
 export function ToFormControl<M extends MFModel<M>>() {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
@@ -21,6 +29,9 @@ export function ToFormControl<M extends MFModel<M>>() {
   };
 }
 
+/**
+ * Explicitly DOES NOT generates form control data for this property
+ */
 export function NotInFormControl<M extends MFModel<M>>() {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
@@ -30,6 +41,10 @@ export function NotInFormControl<M extends MFModel<M>>() {
   };
 }
 
+/**
+ * Generates form group data
+ * @param fn ?
+ */
 export function ToFormGroupFunction<M extends MFModel<M>>(fn: (value: any, validators: ValidatorFn[]) => FormGroup) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
