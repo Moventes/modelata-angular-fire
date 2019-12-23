@@ -1,9 +1,9 @@
+import { MFLogger } from '@modelata/fire/lib/angular';
 import * as Flatted from 'flatted';
 import 'reflect-metadata';
 import { Observable, ReplaySubject } from 'rxjs';
 import { MFCache } from './../mf-cache';
 import { MFDao } from './../mf-dao';
-import { MFLogger } from '@modelata/fire/lib/angular';
 
 
 
@@ -32,7 +32,7 @@ function jsonify(obj: Object) {
 }
 
 function getCacheId(service: MFDao<any>, methodName: string, params: any[]): string {
-  return `dao(${service.cacheId || service.mustachePath}).${methodName}(${jsonify({ params })})`;
+  return `dao(${service.mustachePath}).${methodName}(${jsonify({ params })})`;
 }
 
 export function DisableCache(target: Object) {

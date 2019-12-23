@@ -1,11 +1,10 @@
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { IMFLocation, IMFUpdateOptions } from '@modelata/fire';
+import { IMFLocation, IMFUpdateOptions } from '@modelata/fire/lib/angular';
 import { User as FirebaseUser } from 'firebase/app';
 import 'reflect-metadata';
 import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
-import { Cacheable } from './decorators/cacheable.decorator';
 import { MFRegisterOptions } from './interfaces/register-options.interface';
 import { MFCache } from './mf-cache';
 import { MFDao } from './mf-dao';
@@ -24,12 +23,8 @@ export interface IMFAuthUser {
 }
 
 
-export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFCache {
+export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
 
-  public cacheId = 'authUser';
-
-  public readonly mustachePath: string = this.userDao.mustachePath;
-  public readonly cacheable: boolean = true;
   public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
 
   private authUser$ = this.auth.authState.pipe(
@@ -41,7 +36,6 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
     protected auth: AngularFireAuth,
     protected userDao: MFDao<M> | MFFlattableDao<M>
   ) {
-    super();
 
     // clear all cache when auth user change
     MFCache.setClearAllCacheObservable(this.authUser$.pipe(
@@ -60,7 +54,6 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFC
   }
 
 
-  @Cacheable
   public get(subLocation?: Partial<IMFLocation>): Observable<M> {
     return this.authUser$
       .pipe(

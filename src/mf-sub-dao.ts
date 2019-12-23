@@ -2,7 +2,7 @@ import { MFModel } from './mf-model';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { IMFLocation } from '@modelata/fire';
+import { IMFLocation } from '@modelata/fire/lib/angular';
 import { MFDao } from './mf-dao';
 
 class BasiqueModel extends MFModel<any>{

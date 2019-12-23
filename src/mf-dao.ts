@@ -8,6 +8,7 @@ import {
 } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import {
+  MFLogger,
   allDataExistInModel,
   getFileProperties,
   getLocation,
@@ -28,8 +29,7 @@ import {
   IMFStorageOptions,
   IMFUpdateOptions,
   isCompatiblePath,
-  MFOmit,
-  MFLogger
+  MFOmit
 } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -45,6 +45,9 @@ import { MFModel } from './mf-model';
  */
 export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMFDao<M>{
 
+  public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
+  public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
+
   constructor(
     protected db: AngularFirestore,
     protected storage?: AngularFireStorage,
@@ -52,9 +55,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     super();
   }
 
-  public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
-  public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
-  public readonly cacheId: string = null;
+
 
   //       ///////////////////////////////////   \\
   //      ///////////////////////////////////    \\

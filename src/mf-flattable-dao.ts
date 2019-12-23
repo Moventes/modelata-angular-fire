@@ -11,8 +11,8 @@ import {
   IMFSaveOptions,
   IMFUpdateOptions,
   mergeModels,
-  MFOmit,
-  MFLogger
+  MFLogger,
+  MFOmit
 } from '@modelata/fire/lib/angular';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
@@ -168,7 +168,14 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     return super.getList(location, options)
       .pipe(switchMap(models =>
         combineLatest(
-          models.map(mainModel => this.getModelWithSubDocsFromMainModel(mainModel, options))
+          models.map((mainModel) => {
+            const opt = options;
+            delete opt.limit;
+            delete opt.offset;
+            delete opt.orderBy;
+            delete opt.where;
+            return this.getModelWithSubDocsFromMainModel(mainModel, opt);
+          })
         )
       ));
   }
