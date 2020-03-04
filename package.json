@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -31,14 +31,14 @@
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@angular/common": "~8.2.14",
-    "@angular/core": "~8.2.14",
-    "@angular/forms": "~8.2.14",
-    "rxjs": "~6.4.0",
-    "typescript": "~3.5.3",
-    "zone.js": "~0.9.1",
-    "@angular/fire": "^5.2.3",
-    "firebase": "^7.4.0"
+    "@angular/common": "^9.0.4",
+    "@angular/core": "^9.0.4",
+    "@angular/forms": "^9.0.4",
+    "rxjs": "^6.5.4",
+    "typescript": "^3.8.3",
+    "zone.js": "^0.10.2",
+    "@angular/fire": "^5.4.2",
+    "firebase": "^7.9.3"
   },
   "scripts": {
     "prebuild": "cti create ./src && echo \"export * from '@modelata/fire/lib/angular';\" >> ./src/index.ts",
