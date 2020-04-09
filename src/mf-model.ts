@@ -6,7 +6,6 @@ import 'reflect-metadata';
 import { MFControlConfig } from './interfaces/control-config.interface';
 
 
-
 /**
  * Abstract Model class
  */
@@ -119,9 +118,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
         }
       }
     }
-
-
-
   }
 
   /**
@@ -130,7 +126,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * @param requiredFields Controls with required validator
    */
   toFormBuilderData(
-    requiredFields: { [P in keyof this]?: boolean } & { toString?: any } = {}
+    requiredFields: { [P in keyof this]?: boolean } | { toString?: any } = {}
   ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
 
     const formControls: { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } = {
