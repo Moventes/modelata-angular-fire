@@ -5,7 +5,6 @@ import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
 import { MFControlConfig } from './interfaces/control-config.interface';
 
-
 /**
  * Abstract Model class
  */
@@ -118,6 +117,9 @@ export abstract class MFModel<M> implements IMFModel<M> {
         }
       }
     }
+
+
+
   }
 
   /**
@@ -126,7 +128,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * @param requiredFields Controls with required validator
    */
   toFormBuilderData(
-    requiredFields: { [P in keyof this]?: boolean } | { toString?: any } = {}
+    requiredFields: { [P in keyof this]?: boolean | (() => any) } = {}
   ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
 
     const formControls: { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } = {
@@ -147,7 +149,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
       ) {
 
         const validators = [...(this._controlsConfig[controlName] || {}).validators];
-        if ((requiredFields as any)[controlName]) {
+        if (requiredFields[controlName]) {
           validators.push(Validators.required);
         }
         if (this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction) {
