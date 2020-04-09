@@ -104,7 +104,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param password password to connect with
    */
   public login(email: string, password: string): Promise<firebase.auth.UserCredential> {
-    return this.auth.auth.signInWithEmailAndPassword(email, password)
+    return this.auth.signInWithEmailAndPassword(email, password)
       .catch(error => Promise.reject(error.code as loggin_error));
   }
 
@@ -131,7 +131,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param options register options
    */
   public register(user: M, password: string, options?: MFRegisterOptions): Promise<M> {
-    return this.auth.auth.createUserWithEmailAndPassword(user.email, password)
+    return this.auth.createUserWithEmailAndPassword(user.email, password)
       .then(credential => Promise.all([
         this.userDao.create(user, credential.user.uid),
         options && typeof options.sendVerificationEmail === 'boolean' && !options.sendVerificationEmail ?
@@ -147,7 +147,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param persistence 'local' | 'session' | 'none'
    */
   public setSessionPersistence(persistence: 'local' | 'session' | 'none'): Promise<void> {
-    return this.auth.auth.setPersistence(persistence);
+    return this.auth.setPersistence(persistence);
   }
 
   /**
@@ -164,7 +164,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * Log out the current user
    */
   public logout(): Promise<void> {
-    return this.auth.auth.signOut();
+    return this.auth.signOut();
   }
 
   /**
