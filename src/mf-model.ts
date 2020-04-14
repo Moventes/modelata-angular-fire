@@ -148,10 +148,17 @@ export abstract class MFModel<M> implements IMFModel<M> {
         !isRemovedControl
       ) {
 
-        const validators = [...(this._controlsConfig[controlName] || {}).validators];
+        // const validators: any = [...(this._controlsConfig[controlName] || {}).validators];
+        const validators: ValidatorFn[] = [];
+
+        if (this._controlsConfig[controlName] && this._controlsConfig[controlName].validators) {
+          validators.push(...(this._controlsConfig[controlName]).validators)
+        }
+
         if (requiredFields[controlName]) {
           validators.push(Validators.required);
         }
+
         if (this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction) {
           formControls[controlName] = this._controlsConfig[controlName].toFormGroupFunction(
             this[controlName] !== undefined ? this[controlName] : null,
