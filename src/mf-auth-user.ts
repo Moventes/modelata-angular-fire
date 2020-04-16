@@ -29,19 +29,11 @@ export interface IMFAuthUser {
 }
 
 
-/**
- * Interface allowing to link a user document to an authUser
- */
-export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
+export abstract class MFBasicAuthUser<M extends MFModel<M>> {
   /**
-   * redirect link in user verification email
-   */
-  public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
-
-  /**
-   * Observable on auth user
-   */
-  private authUser$ = this.auth.authState.pipe(
+     * Observable on auth user
+     */
+  protected authUser$ = this.auth.authState.pipe(
     shareReplay({ refCount: true, bufferSize: 1 })
   );
 
@@ -97,6 +89,68 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
       );
   }
 
+
+
+  /**
+   * Observable of the connection status (true = is connected)
+   */
+  public isConnected(): Observable<boolean> {
+    return this.authUser$
+      .pipe(
+        map(user => !!user)
+      );
+  }
+
+  /**
+   * Log out the current user
+   */
+  public logout(): Promise<void> {
+    return this.auth.signOut();
+  }
+
+  /**
+   * Update the user
+   *
+   * @param data data to update with
+   * @param location location of the user document
+   * @param options update options
+   */
+  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    return this.userDao.update(data, location, options);
+  }
+}
+
+/**
+ * Interface allowing to link a user document to an authUser
+ */
+export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFBasicAuthUser<M>{
+  /**
+   * redirect link in user verification email
+   */
+  public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
+
+
+
+  /**
+   * Must be called with super
+   *
+   * @param db AngularFirestore instance
+   * @param auth AngularFireAuth instance
+   * @param userDao The user Dao to use
+   */
+  constructor(
+    protected db: AngularFirestore,
+    protected auth: AngularFireAuth,
+    protected userDao: MFDao<M> | MFFlattableDao<M>
+  ) {
+    super(db, auth, userDao);
+
+  }
+
+
+
+
+
   /**
    * Log in
    *
@@ -150,31 +204,5 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
     return this.auth.setPersistence(persistence);
   }
 
-  /**
-   * Observable of the connection status (true = is connected)
-   */
-  public isConnected(): Observable<boolean> {
-    return this.authUser$
-      .pipe(
-        map(user => !!user)
-      );
-  }
 
-  /**
-   * Log out the current user
-   */
-  public logout(): Promise<void> {
-    return this.auth.signOut();
-  }
-
-  /**
-   * Update the user
-   *
-   * @param data data to update with
-   * @param location location of the user document
-   * @param options update options
-   */
-  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
-    return this.userDao.update(data, location, options);
-  }
 }
