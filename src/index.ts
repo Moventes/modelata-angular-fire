@@ -6,4 +6,4 @@ export * from './mf-dao';
 export * from './mf-flattable-dao';
 export * from './mf-model';
 export * from './mf-sub-dao';
-"export * from '@modelata/fire/lib/angular';" 
+export * from '@modelata/fire/lib/angular';
