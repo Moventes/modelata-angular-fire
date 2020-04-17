@@ -28,7 +28,7 @@ export class UserModel extends MFModel<UserModel> {
 
 - your models extends MFModel.
 - this minimal constructor is same for all models. userModel is instanciate by UserDao only.
-- all attributes must set with a default value (any value).
+- all attributes must be set with a default value (any value).
 
 ### PREFIX SUFFIX
 
