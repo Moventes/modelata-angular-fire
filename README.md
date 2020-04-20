@@ -46,7 +46,7 @@ export class UserModel extends MFModel<UserModel> {
 ```
 
 ### AUTOMATIQUE VALUE
-modelata-angular-fire set some an all models.
+modelata-angular-fire set some attribute an all models.
 
 - _id : document id.
 - _collectionPath : document path.
