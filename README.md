@@ -89,7 +89,7 @@ Decorator to use on a model property. Its value will then be an observable of th
  
 ```
 
-#### GetByRef
+#### @GetByRef
 ```ts
 @GetByRef(attributeName: string, daoName: string)
 ```
@@ -145,7 +145,7 @@ export class UserDaoService extends MFFlattableDao<UserModel> {
 ```
 
 
-#### InSubDoc
+#### @InSubDoc
 ```ts
 @InSubDoc(subDocPath: string)
 ```
@@ -164,7 +164,7 @@ Decorates a property that is constructed by DAO with the value of the same prope
 }
 ```
 
-#### StorageProperty
+#### @StorageProperty
 ```ts
 @StorageProperty(options: IMFStorageOptions)
 ```
@@ -194,7 +194,7 @@ Returns data to build a form group
 this.myFormGroup = this.angularFormBuilder.group(myModel.toFormBuilderData({phone:true}));
 ```
 
-#### FormControlValidators decorator
+#### @FormControlValidators decorator
 ```ts
 @FormControlValidators(value?: ValidatorFn[])
 ```
@@ -205,20 +205,20 @@ Adds validators to form control when generating form group data
     public name: string = null;
 ```
 
-#### NotInFormControl decorator
+#### @NotInFormControl decorator
 ```ts
 @NotInFormControl()
 ```
 Explicitly DOES NOT generates form control for this property
 
-#### ToFormControl decorator
+#### @ToFormControl decorator
 ```ts
 @ToFormControl()
 ```
 Generates form control for this property
 (ex: for a private attribute)
 
-#### ToFormGroupFunction decorator
+#### @ToFormGroupFunction decorator
 ```ts
 @ToFormGroupFunction(fn: function(value,validators))
 ```
@@ -286,7 +286,7 @@ If you want delete field or add calculated data, this is the method to do it.
     }
 ```
 
-#### CollectionPath decorator
+#### @CollectionPath decorator
 ```ts
 @CollectionPath('/users')
 ```
