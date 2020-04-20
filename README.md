@@ -45,6 +45,16 @@ export class UserModel extends MFModel<UserModel> {
 }
 ```
 
+### AUTOMATIQUE VALUE
+modelata-angular-fire set some an all models.
+
+- _id : document id.
+- _collectionPath : document path.
+- _snapshot : document firestore snapshot.
+- _fromCache : true if the document comes from the cache.
+- updateDate : date of last update.
+- creationDate : creation date of document in db. 
+
 ### DECORATORS
 
 modelata-angular-fire give some decorator for your model attributes.
@@ -114,6 +124,27 @@ Decorator to use on a model property. Its value will then be an observable of th
 
 ```
 
+For GetByRef AND SubCollectionGetList.  
+add MyRefDAOService via getNewModel method of UserDaoService 
+
+```ts
+export class UserDaoService extends MFFlattableDao<UserModel> {
+
+    constructor(
+        db: AngularFirestore,
+        storage: AngularFireStorage,
+        protected myRefDAOService: MyRefDAOService // Injection de dependance
+    ) {        super(db, storage);    }
+
+    getNewModel(data?: Partial<UserModel>, location?: Partial<IMFLocation>): UserModel {
+        const userModel = new UserModel(data, this.mustachePath, location, this.myRefDAOService); // add myRefDAOService for GetByRef AND SubCollectionGetList.
+        return userModel;
+    }
+}
+
+```
+
+
 #### InSubDoc
 ```ts
 @InSubDoc(subDocPath: string)
@@ -131,6 +162,20 @@ Decorates a property that is constructed by DAO with the value of the same prope
     phone: Observable<RefDocModel> = null;
 // ....
 }
+```
+
+#### StorageProperty
+```ts
+@StorageProperty(options: IMFStorageOptions)
+```
+Decorates a property that is a file to save in firebase Storage.  
+The property must be of type : IMFFile.
+```ts
+  @StorageProperty({
+    deletePreviousOnUpdate: false,
+    deleteOnDelete: true
+  })
+  picture: IMFFile = null;
 ```
 
 ### FORM
@@ -197,48 +242,279 @@ public geopos:{lat:string,long:string} = null;
 
 ### BASE
 
-#### getNewModel
+```ts
+@Injectable({
+    providedIn: 'root'
+})
+@CollectionPath('/users')
+export class UserDaoService extends MFDao<UserModel> {
 
+    constructor(
+        db: AngularFirestore,
+        storage: AngularFireStorage,
+    ) {
+        super(db, storage);
+    }
+
+    getNewModel(data?: Partial<UserModel>, location?: Partial<IMFLocation>): UserModel {
+        const userModel = new UserModel(data, this.mustachePath, location);
+        return userModel;
+    }
+}
+```
+
+- your DAOs extends MFDao ( or MFFlattableDao if you use '@InSubDoc' decorator in model).
+- this minimal constructor is same for all DAOs. 
+- this minimal getNewModel methode is same for all DAOs.
+- DAOs are all decorated by @CollectionPath.
+
+#### getNewModel
+getNewModel methode is used by MFDao, MFFlattableDao and by your components/service for instanciate a new model.  
+If you want to add data calculated from existing data (or any data that is not in database) to your models, this is the method to do it.
+
+#### beforeSave
+beforeSave methode is called by MFDao or MFFlattableDao on all model just before saving it to the database.  
+If you want delete field or add calculated data, this is the method to do it.
+
+```ts
+    beforeSave(dataReadyToSave, idOrLocation){
+        if (dataReadyToSave.birthdate){
+            dataReadyToSave.age = dataReadyToSave.birthdate.toAge();
+            delete dataReadyToSave.birthdate;
+        }
+        return dataReadyToSave;
+    }
+```
+
+#### CollectionPath decorator
+```ts
+@CollectionPath('/users')
+```
+CollectionPath decorator must be used on all DAO.  
+CollectionPath take in parameter a string representing the collection path in firestore db.  
+If the collection is a subcollection (collection in a document), use the "mustache" syntaxe for all document id.
+```ts
+@CollectionPath('/users/{userId}/mySubCollection/{mySubDocId}/subSubcollection')
+```
+All methods that need an id or a location (like "get"), now take a Location with ids mentioned in CollectionPath.
+```ts
+const location = {
+    id:'mySubSubDocId',
+    mySubDocId:'id',
+    userId:'id'
+}
+```
 
 ### PUBLIC METHOD
 
 #### get
+```ts
+get(idOrLocation: string | IMFLocation, options?: IMFGetOneOptions)
+```
+Get a model from database from id or location
+
+- options :
+```ts
+export interface IMFGetOneOptions {
+  /**
+   * Document will include an hidden property containing document snapshot
+   */
+  withSnapshot?: boolean;
+
+  /**
+   * Observable returned will complete on first result
+   */
+  completeOnFirst?: boolean;
+
+  /**
+   * Request result will be cached in order to get a faster answer on same getOne request
+   */
+  cacheable?: boolean;
+
+  /**
+   * Display an error in console when requested document not exists (default: true)
+   */
+  warnOnMissing?: boolean;
+}
+```
 
 #### getByReference
+```ts
+getByReference(reference: DocumentReference, options?: IMFGetOneOptions)
+```
+Get a model from database from its reference
 
 #### getByPath
+```ts
+getByPath(path: string, options?: IMFGetOneOptions)
+```
+Get a model from database from its path
 
 #### getList
+```ts
+getList(location?: MFOmit<IMFLocation, "id">, options?: IMFGetListOptions<M>)
+```
+Get a list of documents in the collection
 
-#### getListByPath
+ - options :
+ ```ts
+ export interface IMFGetListOptions<M> {
+  /**
+   * Documents will include an hidden property containing document snapshote
+   */
+  withSnapshot?: boolean;
 
-#### update
+  /**
+   * Observable returned will complete on first result
+   */
+  completeOnFirst?: boolean;
 
-#### create
+  /**
+   * Where conditions
+   */
+  where?: IMFWhere[];
 
-#### delete
+  /**
+   * Order by
+   */
+  orderBy?: IMFOrderBy;
 
-#### deleteByReference
+  /**
+   * Maximum result returned
+   */
+  limit?: number;
 
-#### getReference
+  /**
+   * boundary of the get, only one is applied
+   */
+  offset?: IMFOffset<M>;
 
-#### getReferenceFromPath
-
-#### getSnapshot
+  /**
+   * Request result will be cached in order to get a faster answer on same getList request
+   */
+  cacheable?: boolean;
+}
+ ```
 
 #### getModelFromSnapshot
+```ts
+getModelFromSnapshot(snapshot: DocumentSnapshot, options?: Partial<IMFGetOneOptions>)
+```
+get a model from a snapshot
 
+#### getListByPath
+```ts
+getListByPath(path: string, options?: IMFGetListOptions<M>)
+```
+Get list of document by collection path
 
-#### beforeSave
+#### update
+```ts
+update(data: Partial<M>, location?: string | IMFLocation | M, options?: IMFUpdateOptions<M>)
+```
+update some field of a model.
+
+- options :
+```ts
+/**
+ * List of file properties of the model M for which stored files MUST (true) or MUST NOT be deleted on document update
+ * (Overrides behaviour configured in model decorators)
+ */
+export type IMFDeletePreviousOnUpdateFilesOptions<M extends IMFModel<M>> = {
+  /**
+   * File property : true => the previous file will be deleted if updated
+   * File property : false => the fprevious ile will NOT be deleted if updated
+   */[fileAttribute in NonFunctionPropertyNames<M>]?: boolean;
+};
+
+/**
+ * Options to pass to update method
+ */
+export interface IMFUpdateOptions<M extends IMFModel<M>> {
+  deletePreviousOnUpdateFiles?: IMFDeletePreviousOnUpdateFilesOptions<M>;
+}
+```
+
+#### create
+```ts
+create(data: M, location?: string | Partial<IMFLocation>, options?: IMFSaveOptions)
+```
+save a new model in db, update if already exist.
+
+- options :
+```ts
+export interface IMFSaveOptions {
+  /**
+   * If document already exists, it will be fully overwritten
+   */
+  overwrite?: boolean;
+}
+```
+
+#### delete
+```ts
+delete(idLocationOrModel: string | IMFLocation | M, options?: IMFDeleteOptions<M>)
+```
+Delete a model by id
+
+- options :
+
+```ts
+/**
+ * List of file properties of the model M for which stored files MUST (true) or MUST NOT be deleted on document deletion
+ * (Overrides behaviour configured in model decorators)
+ */
+export declare type IMFDeleteOnDeleteFilesOptions<M extends IMFModel<M>> = {
+  /**
+   * File property : true => the file will be deleted
+   * File property : false => the file will NOT be deleted
+   */
+  [fileAttribute in NonFunctionPropertyNames<M>]?: boolean;
+};
+
+/**
+ * Options to pass to delete method
+ */
+export interface IMFDeleteOptions<M extends IMFModel<M>> {
+  deleteOnDeleteFiles?: IMFDeleteOnDeleteFilesOptions<M>;
+  cascadeOnDelete?: boolean;
+}
+```
+
+#### deleteByReference
+```ts
+deleteByReference(reference: AngularFirestoreDocument<M>)
+```
+Delete a model by its reference
+
+#### getReference
+```ts
+getReference(idOrLocationOrModel: string | Partial<IMFLocation> | M)
+```
+Get a reference from an id, a location or directly from model
+
+#### getReferenceFromPath
+```ts
+getReferenceFromPath(path: string)
+```
+Get a reference from a compatible path
+
+#### getSnapshot
+```ts
+getSnapshot(idOrLocation: string | IMFLocation, options?: IMFGetOneOptions)
+```
+Get a document snapshot from database from an id or a location
+
 
 #### isCompatible
+```ts
+isCompatible(doc: M | DocumentReference | CollectionReference)
+```
+Check if the model or reference is compatible with this DAO based on its path
 
 
-#### saveFile
 
-#### deleteFile
 
-#### updateFile
 
 
 
@@ -247,3 +523,12 @@ public geopos:{lat:string,long:string} = null;
 ### DECORATOR
 
 ### FUNCTIONS
+
+
+## ----- AUTHENTICATION -----
+
+### BASE
+
+### FUNCTIONS
+
+### DECORATOR
