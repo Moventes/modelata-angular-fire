@@ -1,6 +1,6 @@
 # modelata angular fire
 
-modelata-angular-fire is a wrapper of @angular/fire with firestore for angular application
+modelata-angular-fire is a wrapper of @angular/fire with firestore for angular application    
 modelata-angular-fire implement and extend modelata-fire
 
 modelata-angular-fire gives abstract class and abstract dao to be extend.
