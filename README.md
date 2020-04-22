@@ -75,6 +75,14 @@ Decorator to use on a model property. Its value will then be an observable of th
 
     @SubCollectionGetList('subCollectionName','_subUserDAOService')
     _subUserCollectionDocs$: Observable<SubUserCollectionDocModel[]> = null;
+    
+    @SubCollectionGetList('subCollectionName','subUserDAOService',{
+        orderBy:{
+            field:'myDate',
+            operator:'asc'
+        }
+    })
+    _subUserCollectionDocsSorted$: Observable<SubUserCollectionDocModel[]> = null;
 
      constructor(
          data: Partial<UserModel>,
