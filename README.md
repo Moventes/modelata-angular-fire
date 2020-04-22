@@ -73,14 +73,14 @@ Decorator to use on a model property. Its value will then be an observable of th
  ```ts
  export class UserModel extends MFModel<UserModel> {
 
-    @SubCollectionGetList('subCollectionName','subUserDAOService')
+    @SubCollectionGetList('subCollectionName','_subUserDAOService')
     _subUserCollectionDocs$: Observable<SubUserCollectionDocModel[]> = null;
 
      constructor(
          data: Partial<UserModel>,
         mustachePath: string,
         location: Partial<IMFLocation>,
-        protected subUserDAOService: SubUserDAOService
+        protected _subUserDAOService: SubUserDAOService // dao attribute name must be start with an underscore, else the DAO try to save it in database (cf prefix/suffix)
     ) {
         super();
         super.initialize(data, mustachePath, location);
@@ -106,16 +106,16 @@ Decorator to use on a model property. Its value will then be an observable of th
 ```ts
  export class UserModel extends MFModel<UserModel> {
 
-    @GetByRef('myRefDoc','myRefDAOService')
+    @GetByRef('myRefDoc','_myRefDAOService')
     _myRef$: Observable<RefDocModel> = null;
 
     myRefDoc: DocumentReference = null;
 
      constructor(
-         data: Partial<UserModel>,
+        data: Partial<UserModel>,
         mustachePath: string,
         location: Partial<IMFLocation>,
-        protected myRefDAOService: MyRefDAOService
+        protected _myRefDAOService: MyRefDAOService // dao attribute name must be start with an underscore, else the DAO try to save it in database (cf prefix/suffix)
     ) {
         super();
         super.initialize(data, mustachePath, location);
@@ -520,9 +520,50 @@ Check if the model or reference is compatible with this DAO based on its path
 
 ## ----- CACHE -----
 
+with modelata-angular-fire, all database request result are cached with a bypass ( like behaviorSubject )
+
+all current cached results are automatically destroyed on auth user logout.
+
+### MFCache class
+### FUNCTIONS
+
+#### clearAllMFCache
+```ts
+MFCache.clearAllMFCache()
+```
+
+#### setClearAllCacheObservable(clearAllCacheAndSubscription$: Observable<any>)
+```ts
+MFCache.setClearAllCacheObservable(clearAllCacheAndSubscription$: Observable<any>)
+```
+
 ### DECORATOR
 
-### FUNCTIONS
+#### DisableCache
+dao class decorator 
+Tells the DAO to NOT cache the result
+
+```ts
+@DisableCache  // without '()'
+export class UserDaoService extends MFDao<UserModel>
+```
+
+#### Cacheable
+method decorator  
+Tells the Dao to cache request results
+
+```ts
+export class UserDaoService extends MFDao<UserModel>{
+// ...
+
+@Cacheable
+public getFooByBar():Observable<Foo>{
+    // return myObservable
+}
+
+}
+```
+
 
 
 ## ----- AUTHENTICATION -----

@@ -50,7 +50,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   public readonly mustachePath: string = Reflect.getMetadata('mustachePath', this.constructor);
 
   /**
-   * Tru if this dao stores requests results
+   * True if this dao stores requests results
    */
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
 
@@ -183,7 +183,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param options create options
    */
   public async prepareToCreate(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {})
-    : Promise<{ savableData: Partial<M>; savableLocation: Partial<IMFLocation> }> {
+    : Promise<{ savableData: Partial<M>; savableLocation: Partial<IMFLocation>; }> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
@@ -387,7 +387,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    */
   private async saveFiles(newModel: Partial<M>, newLocation: IMFLocation): Promise<{
     newModel: Partial<M>,
-    newLocation: IMFLocation
+    newLocation: IMFLocation;
   }> {
     const fileKeys = getFileProperties(newModel as Object);
     if (fileKeys.length) {
