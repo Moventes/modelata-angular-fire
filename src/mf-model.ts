@@ -115,10 +115,12 @@ export abstract class MFModel<M> implements IMFModel<M> {
             }
           }
         } else if (
-          (this[key] as unknown as MFDao<any>).hasOwnProperty &&
-          (this[key] as unknown as MFDao<any>).hasOwnProperty('cacheable') &&
-          (this[key] as unknown as MFDao<any>).hasOwnProperty('isCompatible') &&
-          (this[key] as unknown as MFDao<any>).hasOwnProperty('mustachePath')
+          ((this[key] as unknown).constructor &&
+            ((this[key] as unknown).constructor as any).__proto__ &&
+            ((this[key] as unknown).constructor as any).__proto__.name === 'MFDao') ||
+          ((this[key] as unknown as MFDao<any>).hasOwnProperty &&
+            (this[key] as unknown as MFDao<any>).hasOwnProperty('db') &&
+            (this[key] as unknown as MFDao<any>).hasOwnProperty('mustachePath'))
         ) {
           // is dao without underscore
           MFLogger.error(`/!\\ ${key} is part of model and seems to be a DAO, but it should start with an underscore ! else modelata will try to save it in db !!!!!!`);
