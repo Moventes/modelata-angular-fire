@@ -115,6 +115,8 @@ export abstract class MFModel<M> implements IMFModel<M> {
             }
           }
         } else if (
+          key &&
+          !key.startsWith('_') &&
           this[key] &&
           (
             ((this[key] as unknown).constructor &&
