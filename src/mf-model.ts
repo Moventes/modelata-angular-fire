@@ -1,6 +1,6 @@
 import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { createHiddenProperty, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier } from '@modelata/fire/lib/angular';
+import { createHiddenProperty, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier, MFLogger } from '@modelata/fire/lib/angular';
 import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
 import { MFControlConfig } from './interfaces/control-config.interface';
@@ -114,6 +114,14 @@ export abstract class MFModel<M> implements IMFModel<M> {
               (this as any)[key] = dao.getByReference(ref);
             }
           }
+        } else if (
+          (this[key] as unknown as MFDao<any>).hasOwnProperty &&
+          (this[key] as unknown as MFDao<any>).hasOwnProperty('cacheable') &&
+          (this[key] as unknown as MFDao<any>).hasOwnProperty('isCompatible') &&
+          (this[key] as unknown as MFDao<any>).hasOwnProperty('mustachePath')
+        ) {
+          // is dao without underscore
+          MFLogger.error(`/!\\ ${key} is part of model and seems to be a DAO, but it should start with an underscore ! else modelata will try to save it in db !!!!!!`);
         }
       }
     }
@@ -152,7 +160,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
         const validators: ValidatorFn[] = [];
 
         if (this._controlsConfig[controlName] && this._controlsConfig[controlName].validators) {
-          validators.push(...(this._controlsConfig[controlName]).validators)
+          validators.push(...(this._controlsConfig[controlName]).validators);
         }
 
         if (requiredFields[controlName]) {
