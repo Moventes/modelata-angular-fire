@@ -1,4 +1,4 @@
-import { FormGroup, ValidatorFn } from '@angular/forms';
+import { FormGroup, ValidatorFn, AbstractControlOptions } from '@angular/forms';
 import { MFModel } from './../mf-model';
 
 /**
@@ -45,7 +45,9 @@ export function NotInFormControl<M extends MFModel<M>>() {
  * Generates form group data
  * @param fn ?
  */
-export function ToFormGroupFunction<M extends MFModel<M>>(fn: (value: any, validators: ValidatorFn[]) => FormGroup) {
+export function ToFormGroupFunction<M extends MFModel<M>>(
+  fn: (value?: any, options?: AbstractControlOptions, specialData?: any) => FormGroup
+) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {
       target._controlsConfig[propertyKey] = {};

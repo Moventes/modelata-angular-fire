@@ -54,6 +54,7 @@ modelata-angular-fire set some attribute an all models.
 - _fromCache : true if the document comes from the cache.
 - updateDate : date of last update.
 - creationDate : creation date of document in db. 
+- deleted : boolean used for soft deletion mode
 
 ### DECORATORS
 
@@ -313,6 +314,19 @@ const location = {
 }
 ```
 
+#### @DeletionMode decorator
+```ts
+@DeletionMode(MFDeleteMode.SOFT)
+```
+DeletionMode decorator is used for set the deletion strategy for this DAO. (default : HARD)
+DeletionMode take in parameter a enum value MFDeleteMode.SOFT or MFDeleteMode.HARD.  
+MFDeleteMode.SOFT :  
+ - when a dao delete a document (with delete methode), the document is just updated with delete = true;  
+ - all getList calls have a "where filter" on deleted field  
+ MFDeleteMode.HARD :
+ - when a dao delete a document (with delete methode), the document is definitely deleted.  
+
+
 ### PUBLIC METHOD
 
 #### get
@@ -486,6 +500,7 @@ export declare type IMFDeleteOnDeleteFilesOptions<M extends IMFModel<M>> = {
 export interface IMFDeleteOptions<M extends IMFModel<M>> {
   deleteOnDeleteFiles?: IMFDeleteOnDeleteFilesOptions<M>;
   cascadeOnDelete?: boolean;
+  mode?: MFDeleteMode; // used for override defaultvalue (HARD or @DeletionMode)
 }
 ```
 
@@ -581,3 +596,6 @@ public getFooByBar():Observable<Foo>{
 ### FUNCTIONS
 
 ### DECORATOR
+
+
+## ----- LOGS -----

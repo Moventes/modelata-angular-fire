@@ -1,5 +1,5 @@
 import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
-import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { FormGroup, ValidatorFn, Validators, AbstractControlOptions } from '@angular/forms';
 import { createHiddenProperty, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier, MFLogger } from '@modelata/fire/lib/angular';
 import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
@@ -50,6 +50,12 @@ export abstract class MFModel<M> implements IMFModel<M> {
    */
   @Enumerable(false)
   public creationDate: Date = null;
+
+  /**
+ * @inheritdoc
+ */
+  @Enumerable(false)
+  public deleted = false;
 
   /**
    * @inheritdoc
@@ -141,15 +147,20 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * Returns data to build a form group
    *
    * @param requiredFields Controls with required validator
+   * @param updateOn The event name for controls to update upon (set on each control).
    */
   toFormBuilderData(
-    requiredFields: { [P in keyof this]?: boolean | (() => any) } = {}
-  ): { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } {
+    requiredFields: { [P in keyof this]?: boolean | (() => any) } = {},
+    updateOn?: 'change' | 'blur' | 'submit' |
+      { [P in keyof this]?: 'change' | 'blur' | 'submit' | (() => any) } |
+    { except: { [P in keyof M]?: 'change' | 'blur' | 'submit' | null | (() => any) }; default: 'change' | 'blur' | 'submit'; },
+    dataForToFormGroupFunctions: { [P in keyof this]?: any } = {}
+  ): { [P in keyof this]?: ([any, AbstractControlOptions] | FormGroup) } {
 
-    const formControls: { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) } = {
-      _id: [this._id, ([] as ValidatorFn[])],
-      _collectionPath: [this._collectionPath, ([] as ValidatorFn[])]
-    } as { [P in keyof this]?: ([any, ValidatorFn[]] | FormGroup) };
+    const formControls: { [P in keyof this]?: ([any, AbstractControlOptions] | FormGroup) } = {
+      _id: [this._id, { validators: ([] as ValidatorFn[]) }],
+      _collectionPath: [this._collectionPath, { validators: ([] as ValidatorFn[]) }]
+    } as { [P in keyof this]?: ([any, AbstractControlOptions] | FormGroup) };
 
     for (const controlNameP in this) {
       const controlName = controlNameP.toString() as keyof this;
@@ -162,8 +173,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
         ) &&
         !isRemovedControl
       ) {
-
-        // const validators: any = [...(this._controlsConfig[controlName] || {}).validators];
         const validators: ValidatorFn[] = [];
 
         if (this._controlsConfig[controlName] && this._controlsConfig[controlName].validators) {
@@ -174,16 +183,42 @@ export abstract class MFModel<M> implements IMFModel<M> {
           validators.push(Validators.required);
         }
 
+        const options: AbstractControlOptions = { validators };
+        if (updateOn) {
+          if (typeof updateOn === 'string') {
+            options.updateOn = updateOn;
+          } else if ((updateOn as any).default) {
+            if ((updateOn as any).except && (updateOn as any).except.hasOwnProperty(controlName)) {
+              if (typeof (updateOn as any).except[controlName] === 'string') {
+                options.updateOn = (updateOn as any).except[controlName];
+              }
+            } else {
+              options.updateOn = (updateOn as any).default;
+            }
+          } else if ((updateOn as any)[controlName]) {
+            options.updateOn = (updateOn as any)[controlName];
+          }
+        }
         if (this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction) {
           formControls[controlName] = this._controlsConfig[controlName].toFormGroupFunction(
             this[controlName] !== undefined ? this[controlName] : null,
-            validators
+            options,
+            dataForToFormGroupFunctions[controlName]
           );
         } else {
           formControls[controlName] = [
             this[controlName] !== undefined ? this[controlName] : null,
-            validators
+            options
           ];
+        }
+        if (
+          dataForToFormGroupFunctions[controlName] &&
+          !(this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction)
+        ) {
+          MFLogger.error(
+            `speacial data given to a ${controlName} field that is not in formGroup or without toFormGroupFunction`,
+            dataForToFormGroupFunctions[controlName]
+          );
         }
       }
     }

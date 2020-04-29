@@ -29,7 +29,8 @@ import {
   IMFStorageOptions,
   IMFUpdateOptions,
   isCompatiblePath,
-  MFOmit
+  MFOmit,
+  MFDeleteMode
 } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
@@ -53,6 +54,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * True if this dao stores requests results
    */
   public readonly cacheable: boolean = Reflect.getMetadata('cacheable', this.constructor);
+
+  /**
+   * soft or hard (default: hard)
+   */
+  public readonly deletionMode: MFDeleteMode = Reflect.getMetadata('deletionMode', this.constructor) || MFDeleteMode.HARD;
 
   /**
    * Must be called with super()
@@ -140,22 +146,35 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    */
   public getList(location?: MFOmit<IMFLocation, 'id'>, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     const realLocation = getLocation(location, this.mustachePath);
+    const getListOptions = { ...options };
+    if (!getListOptions.includeDeleted) {
+      if (!getListOptions.where) {
+        getListOptions.where = [];
+      }
+      if (!getListOptions.where.some(w => w.field === 'deleted')) {
+        getListOptions.where.push({ field: 'deleted', operator: '==', value: false });
+      } else {
+        MFLogger.error('getList called with where option on "deleted" field. this where option is automatically used by modelata');
+      }
+    } else if (getListOptions.where && getListOptions.where.some(w => w.field === 'deleted')) {
+      MFLogger.error('getList called with where option on "deleted" field. this where option is automatically used by modelata. if you want get deleted documents, use includeDeleted option instead!');
+    }
 
-    return this.getOffsetSnapshots(options.offset).pipe(
+    return this.getOffsetSnapshots(getListOptions.offset).pipe(
       switchMap((offset) => {
         const collection = this.db.collection<M>(getPath(this.mustachePath, realLocation), (ref) => {
 
           let query: firebase.firestore.CollectionReference | firebase.firestore.Query = ref;
 
-          if (options.completeOnFirst) {
-            query = this.constructSpecialQuery(query, options, offset);
+          if (getListOptions.completeOnFirst) {
+            query = this.constructSpecialQuery(query, getListOptions, offset);
           }
 
           return query;
 
         });
 
-        return this.getListByAFReference(collection, options, offset);
+        return this.getListByAFReference(collection, getListOptions, offset);
       })
     );
 
@@ -170,7 +189,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   public getListByPath(path: string, options: IMFGetListOptions<M> = {}): Observable<M[]> {
     if (path && isCompatiblePath(this.mustachePath, path)) {
       const location = getLocationFromPath(path, this.mustachePath);
-      return this.getList(location, options);
+      return this.getList(location, { ...options });
     }
     throw new Error('getByPath missing or incompatible parameter : path');
   }
@@ -182,7 +201,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param location location of the document
    * @param options create options
    */
-  public async prepareToCreate(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {})
+  private async prepareToCreate(data: M, location?: string | Partial<IMFLocation>, options: IMFSaveOptions = {})
     : Promise<{ savableData: Partial<M>; savableLocation: Partial<IMFLocation>; }> {
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
@@ -313,7 +332,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       deleteFilesPromise = Promise.resolve(null);
     }
 
-    return deleteFilesPromise.then(() => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete());
+    return deleteFilesPromise.then(() => {
+      if (options.mode === MFDeleteMode.SOFT || (options.mode !== MFDeleteMode.HARD && this.deletionMode !== MFDeleteMode.HARD)) {
+        return (this.getAFReference(realLocation) as AngularFirestoreDocument<MFModel<M>>).update({ deleted: true });
+      }
+      return (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).delete();
+    });
   }
 
   /**
@@ -321,10 +345,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    *
    * @param reference Document reference
    */
-  deleteByReference(reference: AngularFirestoreDocument<M>) {
-    if (getFileProperties(this.getNewModel()).length) {
+  deleteByReference(reference: AngularFirestoreDocument<M>, options: IMFDeleteOptions<M> = {}) {
+    if (getFileProperties(this.getNewModel()).length || (options.mode !== MFDeleteMode.HARD && this.deletionMode === MFDeleteMode.SOFT)) {
       return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
-        .then(model => this.delete(model));
+        .then(model => this.delete(model, options));
     }
     return reference.delete();
   }
@@ -666,12 +690,12 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
         throw new Error('Two many offset options');
       } else if (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt) {
-        return combineLatest(
+        return combineLatest([
           this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
           this.getSnapshotFromIMFOffsetPart(iMFOffset.startAfter),
           this.getSnapshotFromIMFOffsetPart(iMFOffset.endAt),
           this.getSnapshotFromIMFOffsetPart(iMFOffset.startAt)
-        ).pipe(
+        ]).pipe(
           map(([endBefore, startAfter, endAt, startAt]) => ({
             endBefore, startAfter, endAt, startAt
           }))
