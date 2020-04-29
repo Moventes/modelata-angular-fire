@@ -46,7 +46,7 @@ export function NotInFormControl<M extends MFModel<M>>() {
  * @param fn ?
  */
 export function ToFormGroupFunction<M extends MFModel<M>>(
-  fn: (value?: any, options?: AbstractControlOptions, specialData?: any) => FormGroup
+  fn: (value?: any, options?: AbstractControlOptions, specialData?: any) => ([any, AbstractControlOptions] | FormGroup)
 ) {
   return function (target: M, propertyKey: keyof M) {
     if (!target._controlsConfig[propertyKey]) {

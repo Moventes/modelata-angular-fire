@@ -6,5 +6,5 @@ import { FormGroup, ValidatorFn, AbstractControlOptions } from '@angular/forms';
 export interface MFControlConfig {
   validators?: ValidatorFn[];
   notControl?: boolean;
-  toFormGroupFunction?: (value?: any, options?: AbstractControlOptions, specialData?: any) => FormGroup;
+  toFormGroupFunction?: (value?: any, options?: AbstractControlOptions, specialData?: any) => [any, AbstractControlOptions] | FormGroup;
 }
