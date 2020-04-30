@@ -229,18 +229,25 @@ Generates form control for this property
 
 #### @ToFormGroupFunction decorator
 ```ts
-@ToFormGroupFunction(fn: function(value,validators))
+@ToFormGroupFunction(fn: function(value,options: AbstractControlOptions,speacialData:any))
 ```
 Generates specific form group data with the given function
 
 ```ts
-@ToFormGroupFunction((geopos,validators)=>{
-    return {
-        lat: [geopos.lat, [...validators, Validator.latitude]],
-        long: [geopos.long, [...validators, Validator.longitude]],
-    }
-})
-public geopos:{lat:string,long:string} = null;
+    @ToFormGroupFunction<AnswerModel>((defaultValue?: any, options: AbstractControlOptions = {}, sectionModel?: SectionModel) => {
+        if (!options.validators) {
+            options.validators = [];
+        }
+        if (sectionModel && sectionModel.textMaxLength) {
+            (options.validators as ValidatorFn[]).push(Validators.maxLength(sectionModel.textMaxLength));
+        }
+        if (sectionModel && sectionModel.textMinLength) {
+            (options.validators as ValidatorFn[]).push(Validators.minLength(sectionModel.textMinLength));
+        }
+        return [defaultValue, options];
+
+    })
+    answer: string = null;
 ```
 
 
