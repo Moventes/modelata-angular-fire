@@ -27,11 +27,27 @@ export abstract class MFModel<M> implements IMFModel<M> {
   @Enumerable(false)
   public _snapshot: DocumentSnapshot<M> = null;
 
-  /**
-   * Controls configuration
-   */
-  @Enumerable(false)
-  public _controlsConfig: { [P in keyof this]?: MFControlConfig } = {};
+  // /**
+  //  * Controls configuration
+  //  */
+  // @Enumerable(false)
+  // // tslint:disable-next-line: variable-name
+  // private __controlsConfig: {
+  //   [P in keyof this]?: MFControlConfig;
+  // };
+  // public get _controlsConfig(): {
+  //   [P in keyof this]?: MFControlConfig;
+  // } {
+  //   if (!this.__controlsConfig) {
+  //     this.__controlsConfig = {};
+  //   }
+  //   return this.__controlsConfig;
+  // }
+  // public set _controlsConfig(value: {
+  //   [P in keyof this]?: MFControlConfig;
+  // }) {
+  //   this.__controlsConfig = value;
+  // }
 
   /**
    * Document was retrieved from angular fire cache
@@ -163,10 +179,15 @@ export abstract class MFModel<M> implements IMFModel<M> {
     } as { [P in keyof this]?: ([any, AbstractControlOptions] | FormGroup) };
 
     for (const controlNameP in this) {
+      let controlConfig: MFControlConfig = {};
+      if (Reflect.hasMetadata('controlConfig', this, controlNameP)) {
+        controlConfig = Reflect.getMetadata('controlConfig', this, controlNameP);
+      }
+
       const controlName = controlNameP.toString() as keyof this;
       const isVisibleProperty = !(controlName as string).startsWith('_') && typeof (this as any)[controlName] !== 'function';
-      const isForcedControl = this._controlsConfig[controlName] && !this._controlsConfig[controlName].notControl;
-      const isRemovedControl = this._controlsConfig[controlName] && this._controlsConfig[controlName].notControl;
+      const isForcedControl = !controlConfig.notControl;
+      const isRemovedControl = controlConfig.notControl;
       if (
         (
           isVisibleProperty || isForcedControl
@@ -175,8 +196,8 @@ export abstract class MFModel<M> implements IMFModel<M> {
       ) {
         const validators: ValidatorFn[] = [];
 
-        if (this._controlsConfig[controlName] && this._controlsConfig[controlName].validators) {
-          validators.push(...(this._controlsConfig[controlName]).validators);
+        if (controlConfig.validators) {
+          validators.push(...(controlConfig).validators);
         }
 
         if (requiredFields[controlName]) {
@@ -199,8 +220,8 @@ export abstract class MFModel<M> implements IMFModel<M> {
             options.updateOn = (updateOn as any)[controlName];
           }
         }
-        if (this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction) {
-          formControls[controlName] = this._controlsConfig[controlName].toFormGroupFunction(
+        if (controlConfig.toFormGroupFunction) {
+          formControls[controlName] = controlConfig.toFormGroupFunction(
             this[controlName] !== undefined ? this[controlName] : null,
             options,
             dataForToFormGroupFunctions[controlName]
@@ -213,7 +234,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
         }
         if (
           dataForToFormGroupFunctions[controlName] &&
-          !(this._controlsConfig[controlName] && this._controlsConfig[controlName].toFormGroupFunction)
+          !(controlConfig.toFormGroupFunction)
         ) {
           MFLogger.error(
             `speacial data given to a ${controlName} field that is not in formGroup or without toFormGroupFunction`,

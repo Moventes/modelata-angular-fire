@@ -1,5 +1,6 @@
 import { FormGroup, ValidatorFn, AbstractControlOptions } from '@angular/forms';
 import { MFModel } from './../mf-model';
+import { MFControlConfig } from './../interfaces/control-config.interface';
 
 /**
  * Adds validators to form control when generating form group data
@@ -7,16 +8,15 @@ import { MFModel } from './../mf-model';
  * @param value Validators to apply
  */
 export function FormControlValidators<M extends MFModel<M>>(value: ValidatorFn[] = []) {
-  return function (target: M, propertyKey: keyof M) {
-    if (!target._controlsConfig) {
-      target._controlsConfig = {};
+  return function (target: M, propertyKey: string) {
+    let controlConfig: MFControlConfig = {};
+    if (Reflect.hasMetadata('controlConfig', target, propertyKey)) {
+      controlConfig = Reflect.getMetadata('controlConfig', target, propertyKey);
     }
-    if (!target._controlsConfig[propertyKey]) {
-      target._controlsConfig[propertyKey] = {};
+    if (!controlConfig.validators || controlConfig.validators.length === 0) {
+      controlConfig.validators = value;
     }
-    if (!target._controlsConfig[propertyKey].validators || target._controlsConfig[propertyKey].validators.length === 0) {
-      target._controlsConfig[propertyKey].validators = value;
-    }
+    Reflect.defineMetadata('controlConfig', controlConfig, target, propertyKey);
   };
 }
 
@@ -24,14 +24,14 @@ export function FormControlValidators<M extends MFModel<M>>(value: ValidatorFn[]
  * Generates form control data for this property
  */
 export function ToFormControl<M extends MFModel<M>>() {
-  return function (target: M, propertyKey: keyof M) {
-    if (!target._controlsConfig) {
-      target._controlsConfig = {};
+  return function (target: M, propertyKey: string) {
+    let controlConfig: MFControlConfig = {};
+    if (Reflect.hasMetadata('controlConfig', target, propertyKey)) {
+      controlConfig = Reflect.getMetadata('controlConfig', target, propertyKey);
     }
-    if (!target._controlsConfig[propertyKey]) {
-      target._controlsConfig[propertyKey] = {};
-    }
-    target._controlsConfig[propertyKey].notControl = false;
+    controlConfig.notControl = false;
+    Reflect.defineMetadata('controlConfig', controlConfig, target, propertyKey);
+
   };
 }
 
@@ -39,14 +39,14 @@ export function ToFormControl<M extends MFModel<M>>() {
  * Explicitly DOES NOT generates form control data for this property
  */
 export function NotInFormControl<M extends MFModel<M>>() {
-  return function (target: M, propertyKey: keyof M) {
-    if (!target._controlsConfig) {
-      target._controlsConfig = {};
+  return function (target: M, propertyKey: string) {
+    let controlConfig: MFControlConfig = {};
+    if (Reflect.hasMetadata('controlConfig', target, propertyKey)) {
+      controlConfig = Reflect.getMetadata('controlConfig', target, propertyKey);
     }
-    if (!target._controlsConfig[propertyKey]) {
-      target._controlsConfig[propertyKey] = {};
-    }
-    target._controlsConfig[propertyKey].notControl = true;
+    controlConfig.notControl = true;
+    Reflect.defineMetadata('controlConfig', controlConfig, target, propertyKey);
+
   };
 }
 
@@ -57,13 +57,13 @@ export function NotInFormControl<M extends MFModel<M>>() {
 export function ToFormGroupFunction<M extends MFModel<M>>(
   fn: (value?: any, options?: AbstractControlOptions, specialData?: any) => ([any, AbstractControlOptions] | FormGroup)
 ) {
-  return function (target: M, propertyKey: keyof M) {
-    if (!target._controlsConfig) {
-      target._controlsConfig = {};
+  return function (target: M, propertyKey: string) {
+    let controlConfig: MFControlConfig = {};
+    if (Reflect.hasMetadata('controlConfig', target, propertyKey)) {
+      controlConfig = Reflect.getMetadata('controlConfig', target, propertyKey);
     }
-    if (!target._controlsConfig[propertyKey]) {
-      target._controlsConfig[propertyKey] = {};
-    }
-    target._controlsConfig[propertyKey].toFormGroupFunction = fn;
+    controlConfig.toFormGroupFunction = fn;
+    Reflect.defineMetadata('controlConfig', controlConfig, target, propertyKey);
+
   };
 }
