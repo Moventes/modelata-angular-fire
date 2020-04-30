@@ -104,7 +104,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
     if (data) {
       for (const key in data) {
         if (typeof data[key] !== 'function') {
-          if (!key.startsWith('_')) {
+          if (!['_id', '_collectionPath', '_fromCache', '_snapshot'].includes(key)) {
             if (this.hasOwnProperty(key)) {
               if (data[key] && typeof (data[key] as any).toDate === 'function') {
                 (this as any)[key] = (data[key] as any).toDate();
