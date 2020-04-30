@@ -197,10 +197,27 @@ we have four decorators for add any validators on model attribute or add/remove 
 Returns data to build a form group
 
 - @param an object {[modelAttributeName]:requiredBoolean} . 
+- @param value changes trigger ex:
+```ts
+'blur' // all control on blur
+
+{ 
+    anwser:'blur'
+    name:'change'
+} // each control with his value, other to default
+
+{
+    default:'blur',
+    except:{
+        name:'change'
+    }
+} // all control to blur except name on change
+```  
+- @param an object {[modelAttributeName]:anyValue } - to give some data to  ToFormGroupFunction.
 
 ```ts
 // myComponent.component.ts
-this.myFormGroup = this.angularFormBuilder.group(myModel.toFormBuilderData({phone:true}));
+this.myFormGroup = this.angularFormBuilder.group(myModel.toFormBuilderData({phone:true},'blur',{anwser:sectionModel}));
 ```
 
 #### @FormControlValidators decorator
