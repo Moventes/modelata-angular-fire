@@ -6,6 +6,47 @@ modelata-angular-fire implement and extend modelata-fire
 modelata-angular-fire gives abstract class and abstract dao to be extend.
 
 
+
+
+## Summary
+
+### Model
+
+A model/class describes a type of document stored in Firestore.
+
+Modelata adds the following features to it:
+
+- simplified retrieval of a sub-collection content : @SubCollectionGetList
+- simplified retrieval of a document referenced by a property of this class  : @GetByRef
+- simplified storage and retreival of a file referenced by a property of this class and stored in Firebase Storage: @StorageProperty
+- "controlsConfig" generation of this class, to be used as parameter of myFormBuilder.group() 
+
+
+### DAO service
+
+Modelata provides the following "CRUD" functions to manipulate easily documents stored in Firestore:
+
+- get list of documents in the collection
+- get one document (by id or path or reference)
+- create/save a new document (use getNewModel() to get a new blank instance of document)
+- udpate an existing document 
+- delete (hard: remove it from Firestore / soft: add "deleted" flag)
+
+
+
+### Auth User
+
+This Modelata service makes it easy to manage the current authenticated user:
+
+- register and login by email & password
+- is connected ?
+- get data about him (his "FirebaseUser" and his Firestore own document)
+- logout
+
+
+----------------
+
+
 ## ----- MFModel -----
 
 ### BASE
