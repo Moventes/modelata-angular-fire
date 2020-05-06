@@ -52,12 +52,13 @@ export abstract class MFBasicAuthUser<M extends MFModel<M>> {
 
     // clear all cache when auth user change
     MFCache.setClearAllCacheObservable(this.authUser$.pipe(
-      distinctUntilChanged((previousUser, newUser) => {
-        const connect = !previousUser && !!newUser;
-        const disconnect = !!previousUser && !newUser;
-        const change = !!previousUser && !!newUser && previousUser.uid !== newUser.uid;
-        return !(connect || disconnect || change);
-      })
+      distinctUntilChanged((previousUser: FirebaseUser, newUser: FirebaseUser) => {
+        const connecting = !previousUser && !!newUser;
+        const disconnecting = !!previousUser && !newUser;
+        const switching = !!previousUser && !!newUser && previousUser.uid !== newUser.uid;
+        //return "true" if there is no change (to handle) between previous and new value
+        return !disconnecting && !switching;
+      }) // Only emit when the current value is different than the last.
     ));
   }
 

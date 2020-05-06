@@ -40,7 +40,9 @@ export abstract class MFCache {
    */
   static clearAllMFCache(): void {
     Object.entries(MFCache.cache).forEach(([cacheId, sub]) => {
-      if (sub.subscription) { sub.subscription.unsubscribe(); }
+      if (sub.subscription) {
+        sub.subscription.unsubscribe();
+      }
       delete MFCache.cache[cacheId];
     });
   }
