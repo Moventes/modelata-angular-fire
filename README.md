@@ -86,7 +86,7 @@ export class UserModel extends MFModel<UserModel> {
 }
 ```
 
-### AUTOMATIQUE VALUE
+### COMMON ATTRIBUTES
 modelata-angular-fire set some attribute an all models.
 
 - _id : document id.
@@ -96,6 +96,13 @@ modelata-angular-fire set some attribute an all models.
 - updateDate : date of last update.
 - creationDate : creation date of document in db. 
 - deleted : boolean used for soft deletion mode
+
+### COMMON METHODS
+
+- toString()
+- toFormBuilderData()
+- existsInDB()
+- initialize()
 
 ### DECORATORS
 
