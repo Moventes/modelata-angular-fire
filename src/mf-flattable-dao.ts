@@ -48,8 +48,7 @@ export abstract class MFFlattableDao<M extends MFModel<M>> extends MFDao<M>{
     super(db, storage);
     this.initAllSubDao(db, storage);
     if (!this.subDAOs || Object.keys(this.subDAOs).length < 1) {
-      MFLogger.error(`${this.mustachePath} DAO EXTENDS MFFlattableDao But the model dont use any data stored in other document !! `);
-      MFLogger.error(`${this.mustachePath} DAO MUST EXTENDS MFDao instead`);
+      MFLogger.error(`This DAO service (${this.mustachePath}) extends "MFFlattableDao" while the corresponding model class does not have any attribute with "@InSubDoc" => add this decorator or extend "MFDao" instead`);
     }
   }
 

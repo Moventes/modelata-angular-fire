@@ -150,7 +150,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
           )
         ) {
           // is dao without underscore
-          MFLogger.error(`/!\\ ${key} is part of model and seems to be a DAO, but it should start with an underscore ! else modelata will try to save it in db !!!!!!`);
+          MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" because this attribute seems to be an injected DAO (otherwise, it will be saved into Firestore!)`);
         }
       }
     }

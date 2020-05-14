@@ -100,7 +100,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       const reference = this.getAFReference(idOrLocation) as AngularFirestoreDocument<M>;
       return this.getByAFReference(reference, options);
     }
-    throw new Error('getById missing parameter : location and/or id');
+    throw new Error('getById missing parameter : "location" or "id"');
   }
 
   /**
@@ -154,10 +154,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       if (!getListOptions.where.some(w => w.field === 'deleted')) {
         getListOptions.where.push({ field: 'deleted', operator: '==', value: false });
       } else {
-        MFLogger.error('getList called with where option on "deleted" field. this where option is automatically used by modelata');
+        MFLogger.error('The query option "where: {field:deleted}" is already added automatically to all getList() queries');
       }
     } else if (getListOptions.where && getListOptions.where.some(w => w.field === 'deleted')) {
-      MFLogger.error('getList called with where option on "deleted" field. this where option is automatically used by modelata. if you want get deleted documents, use includeDeleted option instead!');
+      MFLogger.error('The query option "where: {field:deleted}" is already added automatically to all getList() queries. If you want to get deleted documents, use "includeDeleted" option instead.');
     }
 
     return this.getOffsetSnapshots(getListOptions.offset).pipe(
@@ -360,7 +360,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param options get one options
    */
   public getModelFromSnapshot(snapshot: firestore.DocumentSnapshot, options: Partial<IMFGetOneOptions> = {}): M {
-    if (snapshot.exists) {
+    if (snapshot && snapshot.exists) {
       return this.getNewModel(
         {
           ...snapshot.data() as Partial<M>,
@@ -371,10 +371,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       );
     }
     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
-      MFLogger.error(
-        '[firestoreDao] - getNewModelFromDb return null because dbObj.exists is null or false. dbObj :',
-        snapshot
-      );
+      MFLogger.error('The data document of this snapshot does not exist (maybe deleted?):', snapshot);
     }
     return null;
   }
@@ -454,7 +451,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           });
         });
     }
-    return Promise.reject(new Error('AngularFireStorage was not injected'));
+    return Promise.reject(new Error('"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor'));
   }
 
   /**
@@ -499,7 +496,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         return Promise.reject(err);
       });
     }
-    return Promise.reject(new Error('AngularFireStorage was not injected'));
+    return Promise.reject(new Error('"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor'));
   }
 
   /**
@@ -555,7 +552,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         .then(() => this.saveFile(fileObject, location));
 
     }
-    return Promise.reject(new Error('AngularFireStorage was not injected'));
+    return Promise.reject(new Error('"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor'));
   }
 
   /**
@@ -620,9 +617,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         }
         return getObs;
       }
-      throw new Error('location is not compatible with this dao!');
+      throw new Error(`getByReference() : the "reference" parameter (${reference?.ref?.path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`);
+      // the model or reference is compatible with this DAO based on its path
     }
-    throw new Error('getByReference missing parameter : reference');
+    throw new Error('getByReference() missing parameter "reference"');
   }
 
   /**
@@ -664,9 +662,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         return modelObs;
 
       }
-      throw new Error('location is not compatible with this dao!');
+      throw new Error(`getListByReference() : the "reference" parameter (${reference?.ref?.path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`);
     }
-    throw new Error('getListByReference missing parameter : reference');
+    throw new Error('getListByReference() missing parameter : reference');
   }
 
   private getSnapshotFromIMFOffsetPart(elem: string | DocumentSnapshot<M>): Observable<DocumentSnapshot<M>> {
@@ -688,7 +686,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   private getOffsetSnapshots(iMFOffset: IMFOffset<M>): Observable<IMFOffset<M>> {
     if (iMFOffset) {
       if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
-        throw new Error('Two many offset options');
+        throw new Error('Only one offset at a time can be defined as query parameter');
       } else if (iMFOffset.endBefore || iMFOffset.startAfter || iMFOffset.endAt || iMFOffset.startAt) {
         return combineLatest([
           this.getSnapshotFromIMFOffsetPart(iMFOffset.endBefore),
@@ -714,15 +712,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
   getReferenceFromPath(path: string): DocumentReference | AngularFirestoreDocument<M> | AngularFirestoreCollection<M> {
     if (isCompatiblePath(this.mustachePath, path)) {
       const { pathSplitted, mustachePathSplitted } = getSplittedPath(path, this.mustachePath);
-      if (pathSplitted.length === mustachePathSplitted.length + 1) {
+      const pathLength = pathSplitted.length;
+      const moustacheLength = mustachePathSplitted.length;
+      if (pathLength === moustacheLength + 1) {
         return this.db.doc<M>(path);
       }
-      if (pathSplitted.length === mustachePathSplitted.length) {
+      if (pathLength === moustacheLength) {
         return this.db.collection<M>(path);
       }
-      throw new Error('Unable to establish if path is for doc or collection');
+      throw new Error(`getReferenceFromPath() : the "path" parameter (${path}) contains ${pathLength} IDs  whereas  the DAO service's @CollectionPath (${this.mustachePath}) contains ${moustacheLength} IDs`);
     }
-    throw new Error('This path is not compatible with this DAO');
+    throw new Error(`getReferenceFromPath() : the "path" parameter (${path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`);
   }
 
   /**
