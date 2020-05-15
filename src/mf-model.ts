@@ -255,6 +255,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
   }
 
   public existsInDB(): boolean {
-    return !!this._collectionPath && !!this._id && !!this._snapshot && !!this.creationDate;
+    return !!this._collectionPath && !!this._id && !!this._snapshot;
   }
 }
