@@ -237,7 +237,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           .then(() => this.saveFiles(model, realLocation as IMFLocation))
           .then(({ newModel: dataToSave, newLocation }) => ({
             savableLocation: newLocation,
-            savableData: getSavableData(dataToSave)
+            savableData: this.clearNullAttributes(getSavableData(dataToSave))
           }))
           .catch((error) => {
             MFLogger.error(error);
@@ -246,6 +246,24 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           });
 
       });
+  }
+  private clearNullAttributes(modelToClear: Partial<M>): Partial<M> {
+    return Object.keys(modelToClear)
+    .filter(key =>
+      !(modelToClear[(key as keyof M)] == null)
+    )
+    .reduce(
+      (clearedObj: Partial<M>, keyp) => {
+        const key: keyof M = keyp as keyof M;
+        if (modelToClear[key] && (modelToClear[key] as any).constructor.name === 'Object') {
+          (clearedObj[key] as any) = getSavableData<any>((modelToClear[key] as any));
+        } else {
+          clearedObj[key] = modelToClear[key];
+        }
+        return clearedObj;
+      },
+      {}
+    );
   }
 
   /**
@@ -294,13 +312,24 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
     return this.beforeSave(data, realLocation)
       .then((model) => {
-        const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (data as any)[key] && (data as any)[key]._file);
-        if (fileProperties.length) {
+        const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (model as any)[key] && (model as any)[key]._file);
+        const nullOrUndefinedProperties = Object.keys(model).filter((key) => model[(key as keyof M)] == null);
+        if (fileProperties.length || nullOrUndefinedProperties.length) {
           return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
             .then((dbModel) => {
-              fileProperties.forEach((key) => {
-                (model as any)[key] = { ...(dbModel as any)[key], ...(model as any)[key] };
-              });
+              if(nullOrUndefinedProperties.length){
+                // remove null or undefined properties that are not in existing data
+                nullOrUndefinedProperties.forEach((key) => {
+                  if(dbModel[(key as keyof M)] == null){
+                    delete model[(key as keyof M)];
+                  }
+                });
+              }
+              if(fileProperties.length ){
+                fileProperties.forEach((key) => {
+                  (model as any)[key] = { ...(dbModel as any)[key], ...(model as any)[key] };
+                });  
+              }
               return this.updateFiles(model, realLocation as IMFLocation, options ? options.deletePreviousOnUpdateFiles : undefined);
             });
         }
@@ -435,7 +464,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    */
   public async saveFile(fileObject: IMFFile, location: IMFLocation): Promise<IMFFile> {
     if (this.storage) {
-      return this.storage.upload(`${getPath(this.mustachePath, location)}/${fileObject._file.name}`, fileObject._file)
+      if(fileObject && fileObject._file){
+        const filePath = `${getPath(this.mustachePath, location)}/${fileObject._file.name}`;
+        console.log('uploading file into Firebase Storage at '+filePath);
+        return this.storage.upload(filePath, fileObject._file)
         .then((uploadTask) => {
           const newFile = {
             ...fileObject,
@@ -445,11 +477,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
             contentLastModificationDate: new Date(fileObject._file.lastModified)
           };
           delete newFile._file;
-          return uploadTask.ref.getDownloadURL().then((url) => {
+          return uploadTask.ref.getDownloadURL().then((url:string) => {
+            console.log('File uploaded at '+url);
             newFile.url = url;
             return newFile;
           });
         });
+      }
     }
     return Promise.reject(new Error('"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor'));
   }

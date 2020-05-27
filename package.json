@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.4.9",
+  "version": "3.4.10",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -26,7 +26,7 @@
     "zone.js": "~0.10.2"
   },
   "dependencies": {
-    "@modelata/fire": ">=3.3.10",
+    "@modelata/fire": "latest",
     "flatted": "^2.0.2",
     "reflect-metadata": "^0.1.13"
   },
