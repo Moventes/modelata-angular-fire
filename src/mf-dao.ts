@@ -447,8 +447,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     newLocation: IMFLocation;
   }> {
     const fileKeys = this.getFileProperties(modelToSave);
-    console.log('[mf-dao#saveFiles] will save IMFFile properties ', fileKeys);
     if (fileKeys.length) {
+      console.log('[mf-dao#saveFiles] will save IMFFile properties ', fileKeys);
       if (!newLocation.id) {
         newLocation.id = modelToSave._id || this.db.createId();
       }
