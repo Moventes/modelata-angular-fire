@@ -303,6 +303,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param options
    */
   public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    // console.log('mf-dao#update - (0) doc to save ', data);
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject('try to update/add an attribute that is not defined in the model');
     }
@@ -313,7 +314,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     return this.beforeSave(data, realLocation)
       .then((model) => {
         const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (model as any)[key] && (model as any)[key]._file);
-        const nullOrUndefinedProperties = Object.keys(model).filter((key) => model[(key as keyof M)] == null);
+        const nullOrUndefinedProperties = Object.keys(model).filter(key => model[(key as keyof M)] == null);
         if (fileProperties.length || nullOrUndefinedProperties.length) {
           return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
             .then((dbModel) => {
@@ -322,6 +323,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
                 nullOrUndefinedProperties.forEach((key) => {
                   if(dbModel[(key as keyof M)] == null){
                     delete model[(key as keyof M)];
+                    // console.log(`removing empty property \\"${key}\\" before save`);
                   }
                 });
               }
@@ -330,6 +332,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
                   (model as any)[key] = { ...(dbModel as any)[key], ...(model as any)[key] };
                 });  
               }
+              // console.log('mf-dao#update - (1) doc to save ', model);
               return this.updateFiles(model, realLocation as IMFLocation, options ? options.deletePreviousOnUpdateFiles : undefined);
             });
         }
@@ -337,6 +340,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
       })
       .then(newModel => getSavableData(newModel))
+      .then((newModel) => {
+        console.log('[mf-dao#update] updating into Firestore the doc ', newModel);
+        return newModel;
+      })
       .then(savable => (this.getAFReference(realLocation) as AngularFirestoreDocument<M>).update(savable))
       .then(() => data);
   }
