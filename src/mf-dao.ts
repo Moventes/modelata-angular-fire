@@ -313,7 +313,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
 
     return this.beforeSave(data, realLocation)
       .then((model) => {
-        const fileProperties = this.getFileProperties(this.getNewModel()).filter(key => (model as any)[key] && (model as any)[key]._file);
+        const fileProperties = this.getFileProperties().filter(key => (model as any)[key] && (model as any)[key]._file);
         const nullOrUndefinedProperties = Object.keys(model).filter(key => model[(key as keyof M)] == null);
         if (fileProperties.length || nullOrUndefinedProperties.length) {
           return this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
@@ -359,7 +359,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     const realLocation = getLocation(idLocationOrModel, this.mustachePath);
     let deleteFilesPromise: Promise<M>;
 
-    if (this.getFileProperties(this.getNewModel()).length) {
+    if (this.getFileProperties().length) {
       deleteFilesPromise = (idLocationOrModel.hasOwnProperty('_collectionPath') ? // is model ? ok : get model
         Promise.resolve(idLocationOrModel as M) :
         this.get(realLocation as IMFLocation, { completeOnFirst: true }).toPromise()
@@ -382,7 +382,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param reference Document reference
    */
   deleteByReference(reference: AngularFirestoreDocument<M>, options: IMFDeleteOptions<M> = {}) {
-    if (getFileProperties(this.getNewModel()).length || (options.mode !== MFDeleteMode.HARD && this.deletionMode === MFDeleteMode.SOFT)) {
+    if (this.getFileProperties().length || (options.mode !== MFDeleteMode.HARD && this.deletionMode === MFDeleteMode.SOFT)) {
       return this.getByAFReference(reference, { completeOnFirst: true }).toPromise()
         .then(model => this.delete(model, options));
     }
@@ -442,25 +442,26 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param location location of the model
    * @returns Promise of an object containing the model with storage informations and location with new document id
    */
-  private async saveFiles(newModel: Partial<M>, newLocation: IMFLocation): Promise<{
+  private async saveFiles(modelToSave: Partial<M>, newLocation: IMFLocation): Promise<{
     newModel: Partial<M>,
     newLocation: IMFLocation;
   }> {
-    const fileKeys = getFileProperties(newModel as Object);
+    const fileKeys = this.getFileProperties(modelToSave);
+    console.log('[mf-dao#saveFiles] will save IMFFile properties ', fileKeys);
     if (fileKeys.length) {
       if (!newLocation.id) {
-        newLocation.id = newModel._id || this.db.createId();
+        newLocation.id = modelToSave._id || this.db.createId();
       }
-      return Promise.all(fileKeys.filter(key => (newModel as any)[key] && (newModel as any)[key]._file).map((key) => {
-        return this.saveFile((newModel as any)[key], newLocation as IMFLocation)
-          .then((file) => {
-            (newModel as any)[key] = file;
+      return Promise.all(fileKeys.filter(filterKey => !!modelToSave[(filterKey as keyof M)]).map((fileModelKey) => {
+        return this.saveFile(modelToSave[(fileModelKey as keyof M)], newLocation as IMFLocation)
+          .then((savedFile) => {
+            (modelToSave as any)[fileModelKey] = savedFile;
           });
       })).then(() => {
-        return { newModel, newLocation };
+        return { newModel: modelToSave, newLocation };
       });
     }
-    return Promise.resolve({ newModel, newLocation });
+    return Promise.resolve({ newModel: modelToSave, newLocation });
   }
 
   /**
@@ -473,7 +474,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     if (this.storage) {
       if(fileObject && fileObject._file){
         const filePath = `${getPath(this.mustachePath, location)}/${fileObject._file.name}`;
-        console.log('uploading file into Firebase Storage at '+filePath);
+        console.log(`[mf-dao#saveFile] uploading file ${filePath}`);
         return this.storage.upload(filePath, fileObject._file)
         .then((uploadTask) => {
           const newFile = {
@@ -485,7 +486,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           };
           delete newFile._file;
           return uploadTask.ref.getDownloadURL().then((url:string) => {
-            console.log('File uploaded at '+url);
+            console.log(`[mf-dao#saveFile] File uploaded at ${url}`);
             newFile.url = url;
             return newFile;
           });
@@ -503,7 +504,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @returns Promise of the model
    */
   private async deleteFiles(model: M, options: IMFDeleteOnDeleteFilesOptions<M> = {}): Promise<M> {
-    const fileProperties = getFileProperties(model);
+    const fileProperties = this.getFileProperties(model);
 
     return fileProperties.length ?
       Promise.all(fileProperties.filter(key => (model as any)[key]).map((key) => {
@@ -513,7 +514,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
           (
             typeof (options as any)[key] === 'boolean' ?
               (options as any)[key] :
-              (Reflect.getMetadata('storageProperty', model, key) as IMFStorageOptions).deleteOnDelete
+              this.getStorageOptions(key).deleteOnDelete
           )
         ) {
           return this.deleteFile(property);
@@ -553,8 +554,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
     location: IMFLocation,
     options: IMFDeletePreviousOnUpdateFilesOptions<M> = {}
   ): Promise<Partial<M>> {
-    const emptyModel = this.getNewModel();
-    const fileProperties = getFileProperties(emptyModel);
+    const fileProperties = this.getFileProperties();
 
     return fileProperties.length ?
       Promise.all(fileProperties.filter((key: string) => (data as any)[key] && (data as any)[key]._file).map((key) => {
@@ -562,14 +562,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
         if (
           property
         ) {
+          const deletePrevious = (
+            typeof (options as any)[key] === 'boolean' ?
+              (options as any)[key] :
+              this.getStorageOptions(key).deletePreviousOnUpdate
+          );
           return this.updateFile(
             property,
             location,
-            (
-              typeof (options as any)[key] === 'boolean' ?
-                (options as any)[key] :
-                (Reflect.getMetadata('storageProperty', emptyModel, key) as IMFStorageOptions).deletePreviousOnUpdate
-            )
+            deletePrevious
           )
             .then((newFileObject) => {
               (data as any)[key] = newFileObject;
@@ -772,7 +773,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
    * @param model Some partial or full model
    */
   private getFileProperties(model?: Partial<M>): string[] {
-    return getFileProperties((model || this.getNewModel()) as Object);
+    return getFileProperties<M>((model || this.getNewModel()));
   }
 
   /**
@@ -816,5 +817,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache implements IMF
       query = query.limit(options.limit);
     }
     return query;
+  }
+
+  private getStorageOptions(propertyName:string):IMFStorageOptions{
+    return (Reflect.getMetadata('storageProperty', this.getNewModel(), propertyName) as IMFStorageOptions);
   }
 }
