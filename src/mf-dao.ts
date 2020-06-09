@@ -447,8 +447,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
       deleteFilesPromise = (idLocationOrModel.hasOwnProperty('_collectionPath') // is model ? ok : get model
         ? Promise.resolve(idLocationOrModel as M)
         : this.get(realLocation as IMFLocation, {
-            completeOnFirst: true,
-          }).toPromise()
+          completeOnFirst: true,
+        }).toPromise()
       ).then((model) =>
         this.deleteFiles(
           model,
@@ -604,11 +604,11 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     fileObject: IMFFile,
     location: IMFLocation,
   ): Promise<IMFFile> {
-    if (this.storage) {
-      if (fileObject && fileObject._file) {
+    if (fileObject && fileObject._file) {
+      if (this.storage) {
         const filePath = `${getPath(this.mustachePath, location)}/${
           fileObject._file.name
-        }`;
+          }`;
         console.log(`[mf-dao#saveFile] uploading file ${filePath}`);
         return this.storage
           .upload(filePath, fileObject._file)
@@ -629,13 +629,17 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
               return newFile;
             });
           });
+      } else {
+        return Promise.reject(
+          new Error(
+            '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
+          ),
+        );
       }
+    } else {
+      return Promise.resolve(fileObject);
+      // no file to save
     }
-    return Promise.reject(
-      new Error(
-        '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
-      ),
-    );
   }
 
   /**
@@ -653,22 +657,22 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
 
     return fileProperties.length
       ? Promise.all(
-          fileProperties
-            .filter((key) => (model as any)[key])
-            .map((key) => {
-              const property = (model as any)[key] as IMFFile;
-              if (
-                property &&
-                property.storagePath &&
-                (typeof (options as any)[key] === 'boolean'
-                  ? (options as any)[key]
-                  : this.getStorageOptions(key).deleteOnDelete)
-              ) {
-                return this.deleteFile(property);
-              }
-              return Promise.resolve();
-            }),
-        ).then(() => model)
+        fileProperties
+          .filter((key) => (model as any)[key])
+          .map((key) => {
+            const property = (model as any)[key] as IMFFile;
+            if (
+              property &&
+              property.storagePath &&
+              (typeof (options as any)[key] === 'boolean'
+                ? (options as any)[key]
+                : this.getStorageOptions(key).deleteOnDelete)
+            ) {
+              return this.deleteFile(property);
+            }
+            return Promise.resolve();
+          }),
+      ).then(() => model)
       : Promise.resolve(model);
   }
 
@@ -678,23 +682,28 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param fileObject
    */
   public deleteFile(fileObject: IMFFile): Promise<void> {
-    if (this.storage) {
-      return this.storage
-        .ref(fileObject.storagePath)
-        .delete()
-        .toPromise()
-        .catch((err) => {
-          if (err.code === 'storage/object-not-found') {
-            return Promise.resolve();
-          }
-          return Promise.reject(err);
-        });
+    if (fileObject && fileObject.storagePath) {
+      if (this.storage) {
+        return this.storage
+          .ref(fileObject.storagePath)
+          .delete()
+          .toPromise()
+          .catch((err) => {
+            if (err.code === 'storage/object-not-found') {
+              return Promise.resolve();
+            }
+            return Promise.reject(err);
+          });
+      } else {
+        return Promise.reject(
+          new Error(
+            '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
+          ),
+        );
+      }
+    } else {
+      return Promise.resolve();
     }
-    return Promise.reject(
-      new Error(
-        '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
-      ),
-    );
   }
 
   /**
@@ -714,26 +723,26 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
 
     return fileProperties.length
       ? Promise.all(
-          fileProperties
-            .filter(
-              (key: string) => (data as any)[key] && (data as any)[key]._file,
-            )
-            .map((key) => {
-              const property = (data as any)[key] as IMFFile;
-              if (property) {
-                const deletePrevious =
-                  typeof (options as any)[key] === 'boolean'
-                    ? (options as any)[key]
-                    : this.getStorageOptions(key).deletePreviousOnUpdate;
-                return this.updateFile(property, location, deletePrevious).then(
-                  (newFileObject) => {
-                    (data as any)[key] = newFileObject;
-                  },
-                );
-              }
-              return Promise.resolve(null);
-            }),
-        ).then(() => data)
+        fileProperties
+          .filter(
+            (key: string) => (data as any)[key] && (data as any)[key]._file,
+          )
+          .map((key) => {
+            const property = (data as any)[key] as IMFFile;
+            if (property) {
+              const deletePrevious =
+                typeof (options as any)[key] === 'boolean'
+                  ? (options as any)[key]
+                  : this.getStorageOptions(key).deletePreviousOnUpdate;
+              return this.updateFile(property, location, deletePrevious).then(
+                (newFileObject) => {
+                  (data as any)[key] = newFileObject;
+                },
+              );
+            }
+            return Promise.resolve(null);
+          }),
+      ).then(() => data)
       : Promise.resolve(data);
   }
 
@@ -749,17 +758,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     location: IMFLocation,
     deletePrevious = true,
   ): Promise<IMFFile> {
-    if (this.storage) {
-      return (fileObject.storagePath && deletePrevious
-        ? this.deleteFile(fileObject)
-        : Promise.resolve()
-      ).then(() => this.saveFile(fileObject, location));
-    }
-    return Promise.reject(
-      new Error(
-        '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
-      ),
-    );
+    return (deletePrevious
+      ? this.deleteFile(fileObject)
+      : Promise.resolve()
+    ).then(() => this.saveFile(fileObject, location));
   }
 
   /**
@@ -773,8 +775,8 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     return isCompatiblePath(
       this.mustachePath,
       (doc as M)._collectionPath ||
-        (doc as DocumentReference).path ||
-        (doc as CollectionReference).path,
+      (doc as DocumentReference).path ||
+      (doc as CollectionReference).path,
     );
   }
 
