@@ -106,11 +106,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
         if (typeof data[key] !== 'function') {
           if (!['_id', '_collectionPath', '_fromCache', '_snapshot'].includes(key)) {
             if (this.hasOwnProperty(key)) {
-              if (data[key] && typeof (data[key] as any).toDate === 'function') {
-                (this as any)[key] = (data[key] as any).toDate();
-              } else {
-                (this as any)[key] = data[key];
-              }
+              (this as any)[key] = data[key];
             } else {
               MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
             }
@@ -154,9 +150,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
         }
       }
     }
-
-
-
   }
 
   /**

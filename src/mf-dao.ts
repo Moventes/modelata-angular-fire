@@ -508,7 +508,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
   ): M {
     if (snapshot && snapshot.exists) {
       return this.getNewModel({
-        ...(snapshot.data() as Partial<M>),
+        ...(this.convertDataFromDb(snapshot.data()) as Partial<M>),
         _id: snapshot.id,
         _collectionPath: snapshot.ref.parent.path,
         _snapshot: snapshot,
@@ -523,6 +523,37 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
       );
     }
     return null;
+  }
+
+  private convertDataFromDb(data: firestore.DocumentData): firestore.DocumentData {
+    if (data) {
+      const convertedData: any = {};
+      for (const key in data) {
+        if (data.hasOwnProperty(key) && data[key]) {
+
+          if (typeof (data[key] as any).toDate === 'function') {
+            // attribute is a Firebase Timestamp
+            convertedData[key] = (data[key] as any).toDate();
+
+          } else if (Array.isArray(data[key])) {
+            // attribute is an array
+            convertedData[key] = [];
+            data[key].forEach((item: any, idx: number) => {
+              convertedData[key][idx] = this.convertDataFromDb(item);
+            });
+
+          } else if (typeof (data[key] as any) === 'object') {
+            // attribute is an object
+            convertedData[key] = this.convertDataFromDb(data[key]);
+          } else {
+            convertedData[key] = data[key];
+          }
+        }
+      }
+      return convertedData;
+    } else {
+      return data;
+    }
   }
 
   /**
