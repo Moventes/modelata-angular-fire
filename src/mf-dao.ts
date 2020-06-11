@@ -507,8 +507,9 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     options: Partial<IMFGetOneOptions> = {},
   ): M {
     if (snapshot && snapshot.exists) {
+      const convertedData = this.convertDataFromDb(snapshot.data()) as Partial<M>;
       return this.getNewModel({
-        ...(this.convertDataFromDb(snapshot.data()) as Partial<M>),
+        ...convertedData,
         _id: snapshot.id,
         _collectionPath: snapshot.ref.parent.path,
         _snapshot: snapshot,
@@ -527,35 +528,34 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
 
   private convertDataFromDb(data: firestore.DocumentData): firestore.DocumentData {
     if (data) {
-      const convertedData: any = {};
       for (const key in data) {
         if (data.hasOwnProperty(key) && data[key]) {
 
           if (typeof (data[key] as any).toDate === 'function') {
             // attribute is a Firebase Timestamp
-            convertedData[key] = (data[key] as any).toDate();
+            data[key] = (data[key] as any).toDate();
 
           } else if (Array.isArray(data[key])) {
             // attribute is an array
-            convertedData[key] = [];
-            data[key].forEach((item: any, idx: number) => {
-              convertedData[key][idx] = this.convertDataFromDb(item);
-            });
-
+            if (data[key].length > 0) {
+              data[key].forEach((item: any, idx: number) => {
+                data[key][idx] = this.convertDataFromDb(item);
+              });
+            }
           } else if (typeof (data[key] as any) === 'object') {
             // attribute is an object
-            convertedData[key] = this.convertDataFromDb(data[key]);
-          } else {
-            convertedData[key] = data[key];
+            if (!this.isDocumentReference(data[key])) {
+              data[key] = this.convertDataFromDb(data[key]);
+            }
           }
         }
       }
-      return convertedData;
-    } else {
-      return data;
     }
+    return data;
   }
-
+  private isDocumentReference(data: any): boolean {
+    return data && data.id && data.parent && data.path && data.firestore;
+  }
   /**
    * @inheritdoc
    *
