@@ -1,6 +1,6 @@
 import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators, AbstractControlOptions } from '@angular/forms';
-import { createHiddenProperty, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier, MFLogger } from '@modelata/fire/lib/angular';
+import { createHiddenProperty, isHiddenProperty, isDocumentReference, isDaoObject, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier, MFLogger } from '@modelata/fire/lib/angular';
 import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
 import { MFControlConfig } from './interfaces/control-config.interface';
@@ -111,40 +111,36 @@ export abstract class MFModel<M> implements IMFModel<M> {
               MissingFieldNotifier.notifyMissingField(this.constructor.name, key);
             }
           } else {
-
+            // already included in "this" just above
           }
         }
       }
       for (const key in this) {
-        if (key.startsWith('_') && key.endsWith('$')) {
-          if (Reflect.hasMetadata('observableFromSubCollection', this, key)) {
-            const meta: IMFMetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
-            if (meta.collectionName && meta.daoName && this._id && (this as any)[meta.daoName]) {
-              const dao: MFDao<any> = (this as any)[meta.daoName];
-              const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
-              (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
-            }
-          } else if (Reflect.hasMetadata('observableFromRef', this, key)) {
-            const meta: IMFMetaRef = Reflect.getMetadata('observableFromRef', this, key);
-            if (meta.attributeName && meta.daoName && (data as any)[meta.attributeName] && (this as any)[meta.daoName]) {
-              const dao: MFDao<any> = (this as any)[meta.daoName];
-              const ref: DocumentReference = (data as any)[meta.attributeName];
-              (this as any)[key] = dao.getByReference(ref);
-            }
+        const hiddenProperty = isHiddenProperty(key);
+
+        if (Reflect.hasMetadata('observableFromSubCollection', this, key)) {
+          const meta: IMFMetaSubCollection = Reflect.getMetadata('observableFromSubCollection', this, key);
+          if (meta.collectionName && meta.daoName && this._id && (this as any)[meta.daoName]) {
+            const dao: MFDao<any> = (this as any)[meta.daoName];
+            const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
+            (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
           }
-        } else if (
-          key &&
-          !key.startsWith('_') &&
-          this[key] &&
-          (
-            ((this[key] as unknown).constructor &&
-              ((this[key] as unknown).constructor as any).__proto__ &&
-              ((this[key] as unknown).constructor as any).__proto__.name === 'MFDao') ||
-            ((this[key] as unknown as MFDao<any>).hasOwnProperty &&
-              (this[key] as unknown as MFDao<any>).hasOwnProperty('db') &&
-              (this[key] as unknown as MFDao<any>).hasOwnProperty('mustachePath'))
-          )
-        ) {
+          if (!hiddenProperty) {
+            MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" and followed by "$" because this attribute seems to be an observable on a sub-collection`);
+          }
+        } else if (Reflect.hasMetadata('observableFromRef', this, key)) {
+          const meta: IMFMetaRef = Reflect.getMetadata('observableFromRef', this, key);
+          if (meta.attributeName && meta.daoName && (data as any)[meta.attributeName] && (this as any)[meta.daoName]) {
+            const dao: MFDao<any> = (this as any)[meta.daoName];
+            const ref: DocumentReference = (data as any)[meta.attributeName];
+            (this as any)[key] = dao.getByReference(ref);
+          }
+          if (!hiddenProperty) {
+            MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" and followed by "$" because this attribute seems to be an observable on a document reference`);
+          }
+        } else if (isDocumentReference(this[key]) && !this.hasOwnProperty(`_${key}$`)) {
+          MFLogger.warn(`You should define an attribute "_${key}$" in this model class with "@observableFromRef" metadata`);
+        } else if (!hiddenProperty && isDaoObject(this[key])) {
           // is dao without underscore
           MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" because this attribute seems to be an injected DAO (otherwise, it will be saved into Firestore!)`);
         }
@@ -158,7 +154,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * @param requiredFields Controls with required validator
    * @param updateOn The event name for controls to update upon (set on each control).
    */
-  toFormBuilderData(
+  public toFormBuilderData(
     requiredFields: { [P in keyof this]?: boolean | (() => any) } = {},
     updateOn?: 'change' | 'blur' | 'submit' |
       { [P in keyof this]?: 'change' | 'blur' | 'submit' | (() => any) } |
@@ -243,7 +239,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
   /**
    * return a string of the document path
    */
-  toString(): string {
+  public toString(): string {
     return `${this._collectionPath}/${this._id}`;
   }
 

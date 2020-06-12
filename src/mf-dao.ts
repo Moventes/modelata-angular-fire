@@ -15,6 +15,8 @@ import {
   getLocationFromPath,
   getPath,
   getSavableData,
+  clearNullAttributes,
+  convertDataFromDb,
   getSplittedPath,
   IMFDao,
   IMFDeleteOnDeleteFilesOptions,
@@ -171,7 +173,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
       if (!getListOptions.where) {
         getListOptions.where = [];
       }
-      if (!getListOptions.where.some((w) => w.field === 'deleted')) {
+      if (!getListOptions.where.some(w => w.field === 'deleted')) {
         getListOptions.where.push({
           field: 'deleted',
           operator: '==',
@@ -184,7 +186,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
       }
     } else if (
       getListOptions.where &&
-      getListOptions.where.some((w) => w.field === 'deleted')
+      getListOptions.where.some(w => w.field === 'deleted')
     ) {
       MFLogger.error(
         'The query option "where: {field:deleted}" is already added automatically to all getList() queries. If you want to get deleted documents, use "includeDeleted" option instead.',
@@ -284,7 +286,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
         .then(() => this.saveFiles(model, realLocation as IMFLocation))
         .then(({ newModel: dataToSave, newLocation }) => ({
           savableLocation: newLocation,
-          savableData: this.clearNullAttributes(getSavableData(dataToSave)),
+          savableData: clearNullAttributes(getSavableData(dataToSave)),
         }))
         .catch((error) => {
           MFLogger.error(error);
@@ -292,24 +294,6 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
           return Promise.reject(error);
         });
     });
-  }
-  private clearNullAttributes(modelToClear: Partial<M>): Partial<M> {
-    return Object.keys(modelToClear)
-      .filter((key) => !(modelToClear[key as keyof M] == null))
-      .reduce((clearedObj: Partial<M>, keyp) => {
-        const key: keyof M = keyp as keyof M;
-        if (
-          modelToClear[key] &&
-          (modelToClear[key] as any).constructor.name === 'Object'
-        ) {
-          (clearedObj[key] as any) = getSavableData<any>(
-            modelToClear[key] as any,
-          );
-        } else {
-          clearedObj[key] = modelToClear[key];
-        }
-        return clearedObj;
-      }, {});
   }
 
   /**
@@ -436,7 +420,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param idLocationOrModel
    * @param options
    */
-  delete(
+  public delete(
     idLocationOrModel: string | IMFLocation | M,
     options: IMFDeleteOptions<M> = {},
   ): Promise<void> {
@@ -480,7 +464,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    *
    * @param reference Document reference
    */
-  deleteByReference(
+  public deleteByReference(
     reference: AngularFirestoreDocument<M>,
     options: IMFDeleteOptions<M> = {},
   ) {
@@ -507,7 +491,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     options: Partial<IMFGetOneOptions> = {},
   ): M {
     if (snapshot && snapshot.exists) {
-      const convertedData = this.convertDataFromDb(snapshot.data()) as Partial<M>;
+      const convertedData = convertDataFromDb(snapshot.data()) as Partial<M>;
       return this.getNewModel({
         ...convertedData,
         _id: snapshot.id,
@@ -526,36 +510,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     return null;
   }
 
-  private convertDataFromDb(data: firestore.DocumentData): firestore.DocumentData {
-    if (data) {
-      for (const key in data) {
-        if (data.hasOwnProperty(key) && data[key]) {
 
-          if (typeof (data[key] as any).toDate === 'function') {
-            // attribute is a Firebase Timestamp
-            data[key] = (data[key] as any).toDate();
-
-          } else if (Array.isArray(data[key])) {
-            // attribute is an array
-            if (data[key].length > 0) {
-              data[key].forEach((item: any, idx: number) => {
-                data[key][idx] = this.convertDataFromDb(item);
-              });
-            }
-          } else if (typeof (data[key] as any) === 'object') {
-            // attribute is an object
-            if (!this.isDocumentReference(data[key])) {
-              data[key] = this.convertDataFromDb(data[key]);
-            }
-          }
-        }
-      }
-    }
-    return data;
-  }
-  private isDocumentReference(data: any): boolean {
-    return data && data.id && data.parent && data.path && data.firestore;
-  }
   /**
    * @inheritdoc
    *
