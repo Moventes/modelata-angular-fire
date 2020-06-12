@@ -321,7 +321,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
             savableData,
           );
         }
-        return save.then((ref) =>
+        return save.then(ref =>
           this.getNewModel(data, { ...savableLocation, id: ref.id }),
         );
       })
@@ -344,7 +344,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     location?: string | IMFLocation | M,
     options: IMFUpdateOptions<M> = {},
   ): Promise<Partial<M>> {
-    // console.log('mf-dao#update - (0) doc to save ', data);
+    // MFLogger.debug('mf-dao#update - (0) doc to save ', data);
     if (!allDataExistInModel(data, this.getNewModel())) {
       return Promise.reject(
         'try to update/add an attribute that is not defined in the model',
@@ -376,7 +376,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
                 nullOrUndefinedProperties.forEach((key) => {
                   if (dbModel[key as keyof M] == null) {
                     delete model[key as keyof M];
-                    // console.log(`removing empty property \\"${key}\\" before save`);
+                    // MFLogger.debug(`removing empty property \\"${key}\\" before save`);
                   }
                 });
               }
@@ -388,7 +388,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
                   };
                 });
               }
-              // console.log('mf-dao#update - (1) doc to save ', model);
+              // MFLogger.debug('mf-dao#update - (1) doc to save ', model);
               return this.updateFiles(
                 model,
                 realLocation as IMFLocation,
@@ -398,15 +398,15 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
         }
         return Promise.resolve(model);
       })
-      .then((newModel) => getSavableData(newModel))
+      .then(newModel => getSavableData(newModel))
       .then((newModel) => {
-        console.log(
+        MFLogger.debug(
           '[mf-dao#update] updating into Firestore the doc ',
           newModel,
         );
         return newModel;
       })
-      .then((savable) =>
+      .then(savable =>
         (this.getAFReference(realLocation) as AngularFirestoreDocument<
           M
         >).update(savable),
@@ -558,13 +558,13 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
   }> {
     const fileKeys = this.getFileProperties(modelToSave);
     if (fileKeys.length) {
-      console.log('[mf-dao#saveFiles] will save IMFFile properties ', fileKeys);
+      MFLogger.debug('[mf-dao#saveFiles] will save IMFFile properties ', fileKeys);
       if (!newLocation.id) {
         newLocation.id = modelToSave._id || this.db.createId();
       }
       return Promise.all(
         fileKeys
-          .filter((filterKey) => !!modelToSave[filterKey as keyof M])
+          .filter(filterKey => !!modelToSave[filterKey as keyof M])
           .map((fileModelKey) => {
             return this.saveFile(
               modelToSave[fileModelKey as keyof M],
@@ -595,7 +595,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
         const filePath = `${getPath(this.mustachePath, location)}/${
           fileObject._file.name
           }`;
-        console.log(`[mf-dao#saveFile] uploading file ${filePath}`);
+        MFLogger.debug(`[mf-dao#saveFile] uploading file ${filePath}`);
         return this.storage
           .upload(filePath, fileObject._file)
           .then((uploadTask) => {
@@ -610,7 +610,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
             };
             delete newFile._file;
             return uploadTask.ref.getDownloadURL().then((url: string) => {
-              console.log(`[mf-dao#saveFile] File uploaded at ${url}`);
+              MFLogger.debug(`[mf-dao#saveFile] File uploaded at ${url}`);
               newFile.url = url;
               return newFile;
             });

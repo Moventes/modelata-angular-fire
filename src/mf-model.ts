@@ -125,7 +125,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
             const collectionPath = `${this._collectionPath}/${this._id}/${meta.collectionName}`;
             (this as any)[key] = dao.getListByPath(collectionPath, meta.options);
           }
-          if (!hiddenProperty) {
+          if (!hiddenProperty || !key.endsWith('$')) {
             MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" and followed by "$" because this attribute seems to be an observable on a sub-collection`);
           }
         } else if (Reflect.hasMetadata('observableFromRef', this, key)) {
@@ -135,7 +135,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
             const ref: DocumentReference = (data as any)[meta.attributeName];
             (this as any)[key] = dao.getByReference(ref);
           }
-          if (!hiddenProperty) {
+          if (!hiddenProperty || !key.endsWith('$')) {
             MFLogger.error(`The attribute name "${key}" of this model class should be preceded by "_" and followed by "$" because this attribute seems to be an observable on a document reference`);
           }
         } else if (isDocumentReference(this[key]) && !this.hasOwnProperty(`_${key}$`)) {
@@ -174,7 +174,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
       }
 
       const controlName = controlNameP.toString() as keyof this;
-      const isVisibleProperty = !(controlName as string).startsWith('_') && typeof (this as any)[controlName] !== 'function';
+      const isVisibleProperty = !isHiddenProperty(controlName as string) && typeof (this as any)[controlName] !== 'function';
       const isForcedControl = !controlConfig.notControl;
       const isRemovedControl = controlConfig.notControl;
       if (
