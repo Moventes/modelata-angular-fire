@@ -137,7 +137,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param path
    * @param options
    */
-  public getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
+  private getByPath(path: string, options?: IMFGetOneOptions): Observable<M> {
     if (path) {
       return this.getByAFReference(this.db.doc(path), options);
     }
@@ -221,7 +221,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param path collection path
    * @param options get list options
    */
-  public getListByPath(
+  private getListByPath(
     path: string,
     options: IMFGetListOptions<M> = {},
   ): Observable<M[]> {
