@@ -221,7 +221,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param path collection path
    * @param options get list options
    */
-  private getListByPath(
+  public getListByPath(
     path: string,
     options: IMFGetListOptions<M> = {},
   ): Observable<M[]> {
