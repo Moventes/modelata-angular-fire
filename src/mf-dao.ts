@@ -510,6 +510,20 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     return null;
   }
 
+  /**
+   * return a snapshot from a reference object
+   *
+   * @param ref
+   * @param options
+   */
+  private getSnapshotFromRef(
+    ref: AngularFirestoreDocument<M>,
+    options: IMFGetOneOptions = {}
+  ): Observable<DocumentSnapshot<M>> {
+    return options && options.completeOnFirst
+      ? ref.get().pipe(map(snap => snap as DocumentSnapshot<M>))
+      : ref.snapshotChanges().pipe(map(action => action.payload));
+  }
 
   /**
    * @inheritdoc
@@ -524,9 +538,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     const ref = this.getAFReference(idOrLocation) as AngularFirestoreDocument<
       M
     >;
-    return options && options.completeOnFirst
-      ? ref.get().pipe(map((snap) => snap as DocumentSnapshot<M>))
-      : ref.snapshotChanges().pipe(map((action) => action.payload));
+    return this.getSnapshotFromRef(ref, options);
   }
 
   /**
@@ -800,34 +812,10 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
   ): Observable<M> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
-        let getObs;
-        if (options.completeOnFirst) {
-          getObs = reference
-            .get()
-            .pipe(
-              map((snapshot) => this.getModelFromSnapshot(snapshot, options)),
-            );
-        } else {
-          getObs = new Observable(
-            (observer: Subscriber<firestore.DocumentSnapshot>) => {
-              reference.ref.onSnapshot(
-                { includeMetadataChanges: true },
-                observer,
-              );
-            },
-          ).pipe(
-            filter((querySnap) => {
-              return (
-                !querySnap.metadata.hasPendingWrites &&
-                !querySnap.metadata.fromCache
-              );
-            }),
-            map((snapshot: firestore.DocumentSnapshot) =>
-              this.getModelFromSnapshot(snapshot, options),
-            ),
+        return this.getSnapshotFromRef(reference, options)
+          .pipe(
+            map(snapshot => this.getModelFromSnapshot(snapshot, options)),
           );
-        }
-        return getObs;
       }
       throw new Error(
         `getByReference() : the "reference" parameter (${reference?.ref?.path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`,
