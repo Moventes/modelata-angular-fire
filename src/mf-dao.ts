@@ -38,14 +38,14 @@ import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
-import { Cacheable } from './decorators/cacheable.decorator';
-import { MFCache } from './mf-cache';
+// import { Cacheable } from './decorators/cacheable.decorator';
+// import { MFCache } from './mf-cache';
 import { MFModel } from './mf-model';
 
 /**
  * @inheritdoc
  */
-export abstract class MFDao<M extends MFModel<M>> extends MFCache
+export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
   implements IMFDao<M> {
   /**
    * @inheritdoc
@@ -58,10 +58,10 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
   /**
    * True if this dao stores requests results
    */
-  public readonly cacheable: boolean = Reflect.getMetadata(
-    'cacheable',
-    this.constructor,
-  );
+  // public readonly cacheable: boolean = Reflect.getMetadata(
+  //   'cacheable',
+  //   this.constructor,
+  // );
 
   /**
    * soft or hard (default: hard)
@@ -79,7 +79,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
     protected db: AngularFirestore,
     protected storage?: AngularFireStorage,
   ) {
-    super();
+    // super();
   }
 
   //       ///////////////////////////////////   \\
@@ -793,7 +793,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param reference angular fire reference
    * @param options get one option
    */
-  @Cacheable
+  // @Cacheable
   private getByAFReference(
     reference: AngularFirestoreDocument<M>,
     options: IMFGetOneOptions = {},
@@ -844,7 +844,7 @@ export abstract class MFDao<M extends MFModel<M>> extends MFCache
    * @param options get list options
    * @param offset offset document
    */
-  @Cacheable
+  // @Cacheable
   private getListByAFReference(
     reference: AngularFirestoreCollection<M>,
     options: IMFGetListOptions<M> = {},
