@@ -39,6 +39,7 @@ import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { MFModel } from './mf-model';
+import { NgModel } from '@angular/forms';
 
 /**
  * @inheritdoc
@@ -507,10 +508,8 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
     idOrLocation: string | IMFLocation,
     options: IMFGetOneOptions = {},
   ): Observable<DocumentSnapshot<M>> {
-    const ref = this.getAFReference(idOrLocation) as AngularFirestoreDocument<
-      M
-    >;
-    return this.getSnapshotFromRef(ref, options);
+    const ref = this.getAFReference(idOrLocation) as AngularFirestoreDocument<M>;
+    return ref.get().pipe(map(snap => snap as DocumentSnapshot<M>));
   }
 
   /**
@@ -760,13 +759,46 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
    * @param ref
    * @param options
    */
-  private getSnapshotFromRef(
+  private getModelFromRef(
     ref: AngularFirestoreDocument<M>,
     options: IMFGetOneOptions = {}
-  ): Observable<DocumentSnapshot<M>> {
+  ): Observable<M> {
     return options && options.completeOnFirst
-      ? ref.get().pipe(map(snap => snap as DocumentSnapshot<M>))
-      : ref.snapshotChanges().pipe(map(action => action.payload));
+      ? ref.get().pipe(map(snap => this.getModelFromSnapshot(snap as DocumentSnapshot<M>, options)))
+      : ref.valueChanges().pipe(
+        map(model => this.getNewModel({
+          ...convertDataFromDb(model) as Partial<M>,
+          _id: ref.ref.id,
+          _collectionPath: ref.ref.parent.path,
+          _snapshot: null,
+        }))
+      );
+      // : ref.valueChanges().pipe(map(model => ({ ...model, _id: ref.ref.id })));
+  }
+
+    /**
+   * return models from collections reference
+   *
+   * @param reference
+   * @param options
+   * @param offset
+   */
+  private getModelsFromCollectionReference(
+    reference: AngularFirestoreCollection<M>,
+    options: IMFGetListOptions<M> = {},
+    offset?: IMFOffset<M>,
+  ): Observable<M[]> {
+    return options.completeOnFirst
+      ? reference.get().pipe(
+        map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap))))
+      : this.db.collection<M>(reference.ref.path, ref =>
+          this.constructSpecialQuery(ref, options, offset))
+        .valueChanges({ idField: '_id' })
+        .pipe(map(arrayOfModel => arrayOfModel.map(model => this.getNewModel({
+          ...convertDataFromDb(model) as Partial<M>,
+          _collectionPath: reference.ref.path,
+          _snapshot: null,
+        }))));
   }
 
   /**
@@ -796,10 +828,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
   ): Observable<M> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
-        return this.getSnapshotFromRef(reference, options)
-          .pipe(
-            map(snapshot => this.getModelFromSnapshot(snapshot, options)),
-          );
+        return this.getModelFromRef(reference, options);
       }
       throw new Error(
         `getByReference(): the given model (${reference?.ref?.path?.split('/').slice(-2)[0]}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath.split('/').slice(-1)[0]})`
@@ -823,35 +852,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
   ): Observable<M[]> {
     if (reference) {
       if (this.isCompatible(reference.ref)) {
-        let modelObs;
-        if (options.completeOnFirst) {
-          modelObs = reference
-            .get()
-            .pipe(
-              map(querySnapshot =>
-                querySnapshot.docs.map(snapshot =>
-                  this.getModelFromSnapshot(snapshot),
-                ),
-              ),
-            );
-        } else {
-          modelObs = new Observable(
-            (observer: Subscriber<firestore.QuerySnapshot>) => {
-              let query:
-                | firebase.firestore.CollectionReference
-                | firebase.firestore.Query = reference.ref;
-
-              query = this.constructSpecialQuery(query, options, offset);
-
-              query.onSnapshot({ includeMetadataChanges: true }, observer);
-            },
-          ).pipe(
-            map(querySnap =>
-              querySnap.docs.map(snap => this.getModelFromSnapshot(snap)),
-            ),
-          );
-        }
-        return modelObs;
+        return this.getModelsFromCollectionReference(reference, options, offset);
       }
       throw new Error(
         `getListByReference() : the "reference" parameter (${reference?.ref?.path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`,
