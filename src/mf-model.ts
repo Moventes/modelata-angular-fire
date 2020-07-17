@@ -1,6 +1,18 @@
 import { DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { FormGroup, ValidatorFn, Validators, AbstractControlOptions } from '@angular/forms';
-import { createHiddenProperty, isHiddenProperty, isDocumentReference, isDaoObject, Enumerable, getPath, IMFLocation, IMFMetaRef, IMFMetaSubCollection, IMFModel, MissingFieldNotifier, MFLogger } from '@modelata/fire/lib/angular';
+import { createHiddenProperty,
+  isHiddenProperty,
+  isDocumentReference,
+  isDaoObject,
+  Enumerable,
+  getPath,
+  IMFLocation,
+  IMFMetaRef,
+  IMFMetaSubCollection,
+  IMFModel,
+  MissingFieldNotifier,
+  MFLogger
+} from '@modelata/fire/lib/angular';
 import { MFDao } from 'mf-dao';
 import 'reflect-metadata';
 import { MFControlConfig } from './interfaces/control-config.interface';

@@ -37,16 +37,13 @@ import {
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
 import { combineLatest, Observable, of, Subscriber } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
-// import { Cacheable } from './decorators/cacheable.decorator';
-// import { MFCache } from './mf-cache';
+import { map, switchMap, take } from 'rxjs/operators';
 import { MFModel } from './mf-model';
 
 /**
  * @inheritdoc
  */
-export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
-  implements IMFDao<M> {
+export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
   /**
    * @inheritdoc
    */
@@ -54,14 +51,6 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     'mustachePath',
     this.constructor,
   );
-
-  /**
-   * True if this dao stores requests results
-   */
-  // public readonly cacheable: boolean = Reflect.getMetadata(
-  //   'cacheable',
-  //   this.constructor,
-  // );
 
   /**
    * soft or hard (default: hard)
@@ -78,9 +67,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
   constructor(
     protected db: AngularFirestore,
     protected storage?: AngularFireStorage,
-  ) {
-    // super();
-  }
+  ) { }
 
   //       ///////////////////////////////////   \\
   //      ///////////////////////////////////    \\
@@ -360,10 +347,10 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     return this.beforeSave(data, realLocation)
       .then((model) => {
         const fileProperties = this.getFileProperties().filter(
-          (key) => (model as any)[key] && (model as any)[key]._file,
+          key => (model as any)[key] && (model as any)[key]._file,
         );
         const nullOrUndefinedProperties = Object.keys(model).filter(
-          (key) => model[key as keyof M] == null,
+          key => model[key as keyof M] == null,
         );
         if (fileProperties.length || nullOrUndefinedProperties.length) {
           return this.get(realLocation as IMFLocation, {
@@ -433,7 +420,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
         : this.get(realLocation as IMFLocation, {
           completeOnFirst: true,
         }).toPromise()
-      ).then((model) =>
+      ).then(model =>
         this.deleteFiles(
           model,
           options ? options.deleteOnDeleteFiles : undefined,
@@ -475,7 +462,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     ) {
       return this.getByAFReference(reference, { completeOnFirst: true })
         .toPromise()
-        .then((model) => this.delete(model, options));
+        .then(model => this.delete(model, options));
     }
     return reference.delete();
   }
@@ -508,21 +495,6 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
       );
     }
     return null;
-  }
-
-  /**
-   * return a snapshot from a reference object
-   *
-   * @param ref
-   * @param options
-   */
-  private getSnapshotFromRef(
-    ref: AngularFirestoreDocument<M>,
-    options: IMFGetOneOptions = {}
-  ): Observable<DocumentSnapshot<M>> {
-    return options && options.completeOnFirst
-      ? ref.get().pipe(map(snap => snap as DocumentSnapshot<M>))
-      : ref.snapshotChanges().pipe(map(action => action.payload));
   }
 
   /**
@@ -586,10 +558,10 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
             });
           }),
       ).then(() => {
-        return { newModel: modelToSave, newLocation };
+        return { newLocation, newModel: modelToSave };
       });
     }
-    return Promise.resolve({ newModel: modelToSave, newLocation });
+    return Promise.resolve({ newLocation, newModel: modelToSave });
   }
 
   /**
@@ -627,17 +599,17 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
               return newFile;
             });
           });
-      } else {
-        return Promise.reject(
+      }
+      return Promise.reject(
           new Error(
             '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
           ),
         );
-      }
-    } else {
-      return Promise.resolve(fileObject);
-      // no file to save
+
     }
+    return Promise.resolve(fileObject);
+      // no file to save
+
   }
 
   /**
@@ -656,7 +628,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     return fileProperties.length
       ? Promise.all(
         fileProperties
-          .filter((key) => (model as any)[key])
+          .filter(key => (model as any)[key])
           .map((key) => {
             const property = (model as any)[key] as IMFFile;
             if (
@@ -692,16 +664,14 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
             }
             return Promise.reject(err);
           });
-      } else {
-        return Promise.reject(
+      }
+      return Promise.reject(
           new Error(
             '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
           ),
         );
-      }
-    } else {
-      return Promise.resolve();
     }
+    return Promise.resolve();
   }
 
   /**
@@ -785,6 +755,21 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
   /////////////////////////////////////
 
   /**
+   * return a snapshot from a reference object
+   *
+   * @param ref
+   * @param options
+   */
+  private getSnapshotFromRef(
+    ref: AngularFirestoreDocument<M>,
+    options: IMFGetOneOptions = {}
+  ): Observable<DocumentSnapshot<M>> {
+    return options && options.completeOnFirst
+      ? ref.get().pipe(map(snap => snap as DocumentSnapshot<M>))
+      : ref.snapshotChanges().pipe(map(action => action.payload));
+  }
+
+  /**
    * Get angular fire reference from location
    *
    * @param location location
@@ -805,7 +790,6 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
    * @param reference angular fire reference
    * @param options get one option
    */
-  // @Cacheable
   private getByAFReference(
     reference: AngularFirestoreDocument<M>,
     options: IMFGetOneOptions = {},
@@ -818,7 +802,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
           );
       }
       throw new Error(
-        `getByReference() : the "reference" parameter (${reference?.ref?.path}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath})`,
+        `getByReference(): the given model (${reference?.ref?.path?.split('/').slice(-2)[0]}) is not compatible with the DAO service's @CollectionPath (${this.mustachePath.split('/').slice(-1)[0]})`
       );
       // the model or reference is compatible with this DAO based on its path
     }
@@ -832,7 +816,6 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
    * @param options get list options
    * @param offset offset document
    */
-  // @Cacheable
   private getListByAFReference(
     reference: AngularFirestoreCollection<M>,
     options: IMFGetListOptions<M> = {},
@@ -845,8 +828,8 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
           modelObs = reference
             .get()
             .pipe(
-              map((querySnapshot) =>
-                querySnapshot.docs.map((snapshot) =>
+              map(querySnapshot =>
+                querySnapshot.docs.map(snapshot =>
                   this.getModelFromSnapshot(snapshot),
                 ),
               ),
@@ -863,14 +846,8 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
               query.onSnapshot({ includeMetadataChanges: true }, observer);
             },
           ).pipe(
-            filter((querySnap) => {
-              return (
-                !querySnap.metadata.hasPendingWrites &&
-                !querySnap.metadata.fromCache
-              );
-            }),
-            map((querySnap) =>
-              querySnap.docs.map((snap) => this.getModelFromSnapshot(snap)),
+            map(querySnap =>
+              querySnap.docs.map(snap => this.getModelFromSnapshot(snap)),
             ),
           );
         }
@@ -905,7 +882,7 @@ export abstract class MFDao<M extends MFModel<M>> /*extends MFCache*/
     iMFOffset: IMFOffset<M>,
   ): Observable<IMFOffset<M>> {
     if (iMFOffset) {
-      if (Object.values(iMFOffset).filter((value) => !!value).length > 1) {
+      if (Object.values(iMFOffset).filter(value => !!value).length > 1) {
         throw new Error(
           'Only one offset at a time can be defined as query parameter',
         );

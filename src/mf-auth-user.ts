@@ -4,9 +4,8 @@ import { IMFLocation, IMFUpdateOptions } from '@modelata/fire/lib/angular';
 import { User as FirebaseUser } from 'firebase/app';
 import 'reflect-metadata';
 import { Observable, of } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { MFRegisterOptions } from './interfaces/register-options.interface';
-// import { MFCache } from './mf-cache';
 import { MFDao } from './mf-dao';
 import { MFFlattableDao } from './mf-flattable-dao';
 import { MFModel } from './mf-model';
@@ -48,19 +47,7 @@ export abstract class MFBasicAuthUser<M extends MFModel<M>> {
     protected db: AngularFirestore,
     protected auth: AngularFireAuth,
     protected userDao: MFDao<M> | MFFlattableDao<M>
-  ) {
-
-    // clear all cache when auth user change
-    // MFCache.setClearAllCacheObservable(this.authUser$.pipe(
-    //   distinctUntilChanged((previousUser: FirebaseUser, newUser: FirebaseUser) => {
-    //     const connecting = !previousUser && !!newUser;
-    //     const disconnecting = !!previousUser && !newUser;
-    //     const switching = !!previousUser && !!newUser && previousUser.uid !== newUser.uid;
-    //     //return "true" if there is no change (to handle) between previous and new value
-    //     return !disconnecting && !switching;
-    //   }) // Only emit when the current value is different than the last.
-    // ));
-  }
+  ) { }
 
   /**
    * Get an observable of auth user
