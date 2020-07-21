@@ -250,7 +250,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
   /**
    * return the state of the existance of the object in database
    */
-  public existsInDB(): boolean {
+  public get existsInDB(): boolean {
     return this._existsInDB;
   }
 
