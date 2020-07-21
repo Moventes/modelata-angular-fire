@@ -33,13 +33,13 @@ import {
   isCompatiblePath,
   MFOmit,
   MFDeleteMode,
+  createHiddenProperty,
 } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
 import 'reflect-metadata';
-import { combineLatest, Observable, of, Subscriber } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { MFModel } from './mf-model';
-import { NgModel } from '@angular/forms';
 
 /**
  * @inheritdoc
@@ -168,7 +168,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
           value: false,
         });
       } else {
-        MFLogger.error(
+        MFLogger.warn(
           'The query option "where: {field:deleted}" is already added automatically to all getList() queries',
         );
       }
@@ -176,7 +176,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       getListOptions.where &&
       getListOptions.where.some(w => w.field === 'deleted')
     ) {
-      MFLogger.error(
+      MFLogger.warn(
         'The query option "where: {field:deleted}" is already added automatically to all getList() queries. If you want to get deleted documents, use "includeDeleted" option instead.',
       );
     }
@@ -217,7 +217,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       const location = getLocationFromPath(path, this.mustachePath);
       return this.getList(location, { ...options });
     }
-    throw new Error('getByPath missing or incompatible parameter : path');
+    throw new Error(`getByPath missing or incompatible parameter : path => ${path} =/= ${this.mustachePath}`);
   }
 
   /**
@@ -479,13 +479,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
     options: Partial<IMFGetOneOptions> = {},
   ): M {
     if (snapshot && snapshot.exists) {
-      const convertedData = convertDataFromDb(snapshot.data()) as Partial<M>;
-      return this.getNewModel({
-        ...convertedData,
-        _id: snapshot.id,
-        _collectionPath: snapshot.ref.parent.path,
-        _snapshot: snapshot,
-      });
+      return this.getNewModelFromData(snapshot.data() as M, snapshot.ref.parent.path, snapshot.id);
     }
     if (typeof options.warnOnMissing !== 'boolean' || options.warnOnMissing) {
       MFLogger.warn(
@@ -754,6 +748,28 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
   /////////////////////////////////////
 
   /**
+   * create a new model from data and set the existsInDB attribut
+   *
+   * @param data
+   * @param id
+   */
+  private getNewModelFromData(model: M, collectionPath: string, id: string = null): M {
+    const convertedModel = {
+      ...convertDataFromDb(model) as Partial<M>,
+      _collectionPath: collectionPath,
+    };
+
+    if (id) {
+      convertedModel._id = id;
+    }
+
+    const createdModel = this.getNewModel(convertedModel);
+    createHiddenProperty(createdModel, '_existsInDB', true);
+
+    return createdModel;
+  }
+
+  /**
    * return a snapshot from a reference object
    *
    * @param ref
@@ -766,17 +782,12 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
     return options && options.completeOnFirst
       ? ref.get().pipe(map(snap => this.getModelFromSnapshot(snap as DocumentSnapshot<M>, options)))
       : ref.valueChanges().pipe(
-        map(model => this.getNewModel({
-          ...convertDataFromDb(model) as Partial<M>,
-          _id: ref.ref.id,
-          _collectionPath: ref.ref.parent.path,
-          _snapshot: null,
-        }))
+        map(model => this.getNewModelFromData(model, ref.ref.parent.path, ref.ref.id))
       );
       // : ref.valueChanges().pipe(map(model => ({ ...model, _id: ref.ref.id })));
   }
 
-    /**
+  /**
    * return models from collections reference
    *
    * @param reference
@@ -789,16 +800,19 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
     offset?: IMFOffset<M>,
   ): Observable<M[]> {
     return options.completeOnFirst
-      ? reference.get().pipe(
-        map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap))))
+      ? reference.get()
+        .pipe(
+          map(querySnap => querySnap.docs.map(snap => this.getModelFromSnapshot(snap)))
+        )
+
       : this.db.collection<M>(reference.ref.path, ref =>
           this.constructSpecialQuery(ref, options, offset))
         .valueChanges({ idField: '_id' })
-        .pipe(map(arrayOfModel => arrayOfModel.map(model => this.getNewModel({
-          ...convertDataFromDb(model) as Partial<M>,
-          _collectionPath: reference.ref.path,
-          _snapshot: null,
-        }))));
+        .pipe(
+          map(arrayOfModel => arrayOfModel.map(model =>
+            this.getNewModelFromData(model, reference.ref.path)
+          ))
+        );
   }
 
   /**

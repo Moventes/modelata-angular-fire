@@ -33,12 +33,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
   @Enumerable(false)
   public _collectionPath: string = null;
 
-  /**
-   * @inheritdoc
-   */
-  @Enumerable(false)
-  public _snapshot: DocumentSnapshot<M> = null;
-
   // /**
   //  * Controls configuration
   //  */
@@ -86,6 +80,12 @@ export abstract class MFModel<M> implements IMFModel<M> {
   public deleted = false;
 
   /**
+   * describe the existance of the object in the database
+   */
+  @Enumerable(false)
+  protected _existsInDB = false;
+
+  /**
    * @inheritdoc
    *
    * @param data
@@ -105,18 +105,10 @@ export abstract class MFModel<M> implements IMFModel<M> {
       createHiddenProperty(this, 'collectionPath', (data as any)._collectionPath);
     }
 
-    if (data && typeof (data as any)._fromCache === 'boolean') {
-      createHiddenProperty(this, 'fromCache', (data as any)._fromCache);
-    }
-
-    if (data && !!(data as any)._snapshot) {
-      createHiddenProperty(this, 'snapshot', (data as any)._snapshot);
-    }
-
     if (data) {
       for (const key in data) {
         if (typeof data[key] !== 'function') {
-          if (!['_id', '_collectionPath', '_fromCache', '_snapshot'].includes(key)) {
+          if (!['_id', '_collectionPath'].includes(key)) {
             if (this.hasOwnProperty(key)) {
               (this as any)[key] = data[key];
             } else {
@@ -255,7 +247,11 @@ export abstract class MFModel<M> implements IMFModel<M> {
     return `${this._collectionPath}/${this._id}`;
   }
 
+  /**
+   * return the state of the existance of the object in database
+   */
   public existsInDB(): boolean {
-    return !!this._collectionPath && !!this._id && !!this._snapshot;
+    return this._existsInDB;
   }
+
 }

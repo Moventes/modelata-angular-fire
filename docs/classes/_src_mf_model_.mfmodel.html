@@ -111,9 +111,9 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#_collectionpath" class="tsd-kind-icon">_collection<wbr>Path</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="_src_mf_model_.mfmodel.html#_existsindb" class="tsd-kind-icon">_exists<wbr>InDB</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><a href="_src_mf_model_.mfmodel.html#_fromcache" class="tsd-kind-icon">_from<wbr>Cache</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#_id" class="tsd-kind-icon">_id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#_snapshot" class="tsd-kind-icon">_snapshot</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#creationdate" class="tsd-kind-icon">creation<wbr>Date</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#deleted" class="tsd-kind-icon">deleted</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_src_mf_model_.mfmodel.html#updatedate" class="tsd-kind-icon">update<wbr>Date</a></li>
@@ -140,7 +140,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#_collectionpath">_collectionPath</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L34">src/mf-model.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L34">src/mf-model.ts:34</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -150,12 +150,27 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+					<a name="_existsindb" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _exists<wbr>InDB</h3>
+					<div class="tsd-signature tsd-kind-icon">_exists<wbr>InDB<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L86">src/mf-model.ts:86</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>describe the existance of the object in the database</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 					<a name="_fromcache" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> _from<wbr>Cache</h3>
 					<div class="tsd-signature tsd-kind-icon">_from<wbr>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L68">src/mf-model.ts:68</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L62">src/mf-model.ts:62</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -171,28 +186,12 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#_id">_id</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L28">src/mf-model.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L28">src/mf-model.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Document Id</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="_snapshot" class="tsd-anchor"></a>
-					<h3>_snapshot</h3>
-					<div class="tsd-signature tsd-kind-icon">_snapshot<span class="tsd-signature-symbol">:</span> <a href="../modules/_node_modules__modelata_fire_lib_angular_specifics_exports_d_.html#documentsnapshot" class="tsd-signature-type">DocumentSnapshot</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">M</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = null</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#_snapshot">_snapshot</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L40">src/mf-model.ts:40</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Document snapshot if asked in options</p>
 						</div>
 					</div>
 				</section>
@@ -203,7 +202,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#creationdate">creationDate</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L80">src/mf-model.ts:80</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L74">src/mf-model.ts:74</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -219,7 +218,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#deleted">deleted</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L86">src/mf-model.ts:86</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L80">src/mf-model.ts:80</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -235,7 +234,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#updatedate">updateDate</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L74">src/mf-model.ts:74</a></li>
+							<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L68">src/mf-model.ts:68</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -257,9 +256,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L258">src/mf-model.ts:258</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L253">src/mf-model.ts:253</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>return the state of the existance of the object in database</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
@@ -275,7 +279,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html">IMFModel</a>.<a href="../interfaces/_node_modules__modelata_fire_lib_angular_interfaces_mf_model_interface_d_.imfmodel.html#initialize">initialize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L95">src/mf-model.ts:95</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L95">src/mf-model.ts:95</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -318,7 +322,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L169">src/mf-model.ts:169</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L161">src/mf-model.ts:161</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -364,7 +368,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/04e1f11/src/mf-model.ts#L254">src/mf-model.ts:254</a></li>
+									<li>Defined in <a href="https://github.com/Moventes/modelata-angular-fire/blob/fcbf65c/src/mf-model.ts#L246">src/mf-model.ts:246</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -400,13 +404,13 @@
 								<a href="_src_mf_model_.mfmodel.html#_collectionpath" class="tsd-kind-icon">_collection<wbr>Path</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
+								<a href="_src_mf_model_.mfmodel.html#_existsindb" class="tsd-kind-icon">_exists<wbr>InDB</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-protected">
 								<a href="_src_mf_model_.mfmodel.html#_fromcache" class="tsd-kind-icon">_from<wbr>Cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="_src_mf_model_.mfmodel.html#_id" class="tsd-kind-icon">_id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="_src_mf_model_.mfmodel.html#_snapshot" class="tsd-kind-icon">_snapshot</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="_src_mf_model_.mfmodel.html#creationdate" class="tsd-kind-icon">creation<wbr>Date</a>
