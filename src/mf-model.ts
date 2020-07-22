@@ -83,7 +83,7 @@ export abstract class MFModel<M> implements IMFModel<M> {
    * describe the existance of the object in the database
    */
   @Enumerable(false)
-  protected _existsInDB = false;
+  public _existsInDB = false;
 
   /**
    * @inheritdoc
@@ -245,13 +245,6 @@ export abstract class MFModel<M> implements IMFModel<M> {
    */
   public toString(): string {
     return `${this._collectionPath}/${this._id}`;
-  }
-
-  /**
-   * return the state of the existance of the object in database
-   */
-  public get existsInDB(): boolean {
-    return this._existsInDB;
   }
 
 }
