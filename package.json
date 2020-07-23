@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.5.5",
+  "version": "3.5.6",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -41,7 +41,7 @@
     "firebase": "^7.13.2"
   },
   "scripts": {
-    "prebuild": "cti create ./src && echo \"export * from '@modelata/fire/lib/angular';\" >> ./src/index.ts",
+    "prebuild": "cti create ./src && echo export * from '@modelata/fire/lib/angular';>> ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
