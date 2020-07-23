@@ -309,9 +309,12 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
             savableData,
           );
         }
-        return save.then(ref =>
-          this.getNewModel(data, { ...savableLocation, id: ref.id }),
-        );
+        return save.then((ref) => {
+          createHiddenProperty(data, '_existsInDB', true);
+          const updatedModel = this.getNewModel(data, { ...savableLocation, id: ref.id });
+          createHiddenProperty(updatedModel, '_existsInDB', true);
+          return updatedModel;
+        });
       })
       .catch((error) => {
         MFLogger.error(error);
@@ -399,7 +402,10 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
           M
         >).update(savable),
       )
-      .then(() => data);
+      .then(() => {
+        createHiddenProperty(data, '_existsInDB', true);
+        return data;
+      });
   }
 
   /**
