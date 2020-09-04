@@ -1,6 +1,6 @@
 {
   "name": "@modelata/angular-fire",
-  "version": "3.5.4",
+  "version": "3.5.5",
   "description": "@modelata/types-fire implementation for angular",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -46,6 +46,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "prepublishOnly": "npm run build",
+    "build:watch": "tsc --watch",
     "doc": "typedoc src && touch docs/.nojekyll"
   },
   "repository": {

@@ -36,9 +36,10 @@ import {
   createHiddenProperty,
 } from '@modelata/fire/lib/angular';
 import { firestore } from 'firebase/app';
+import 'firebase/firestore';
 import 'reflect-metadata';
 import { combineLatest, Observable, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 import { MFModel } from './mf-model';
 
 /**
@@ -98,7 +99,9 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       const reference = this.getAFReference(
         idOrLocation,
       ) as AngularFirestoreDocument<M>;
-      return this.getByAFReference(reference, options);
+      return this.getByAFReference(reference, options).pipe(
+        tap(model => model._existsInDB = true)
+      );
     }
     throw new Error('getById missing parameter : "location" or "id"');
   }
@@ -200,6 +203,8 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
 
         return this.getListByAFReference(collection, getListOptions, offset);
       }),
+    ).pipe(
+      tap(modelA => modelA.forEach(model => model._existsInDB = true))
     );
   }
 
@@ -241,8 +246,8 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       );
     }
 
-    (data as any).updateDate = firestore.FieldValue.serverTimestamp();
-    (data as any).creationDate = firestore.FieldValue.serverTimestamp();
+    (data as any).updateDate = new Date();
+    (data as any).creationDate = new Date();
     const realLocation: Partial<IMFLocation> = getLocation(
       location || data,
       this.mustachePath,
@@ -309,9 +314,12 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
             savableData,
           );
         }
-        return save.then(ref =>
-          this.getNewModel(data, { ...savableLocation, id: ref.id }),
-        );
+        return save
+          .then(ref => this.getNewModel(data, { ...savableLocation, id: ref.id }))
+          .then((model) => {
+            model._existsInDB = true;
+            return model;
+          });
       })
       .catch((error) => {
         MFLogger.error(error);
@@ -343,7 +351,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       this.mustachePath,
     );
 
-    (data as any)['updateDate'] = firestore.FieldValue.serverTimestamp();
+    (data as any)['updateDate'] = new Date();
 
     return this.beforeSave(data, realLocation)
       .then((model) => {
@@ -764,7 +772,8 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
     }
 
     const createdModel = this.getNewModel(convertedModel);
-    createHiddenProperty(createdModel, '_existsInDB', true);
+    createdModel._existsInDB = true;
+    // createHiddenProperty(createdModel, '_existsInDB', true);
 
     return createdModel;
   }
