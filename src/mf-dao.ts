@@ -407,7 +407,10 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
           M
         >).update(savable),
       )
-      .then(() => data);
+      .then(() => {
+        createHiddenProperty(data, '_existsInDB', true);
+        return data;
+      });
   }
 
   /**
