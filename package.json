@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@angular-devkit/schematics": "^11.0.7",
+    "@angular/cli": "^11.0.7",
     "@modelata/fire": "^3.4.6",
     "flatted": "^2.0.2",
     "reflect-metadata": "^0.1.13"
