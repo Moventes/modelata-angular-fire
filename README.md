@@ -5,6 +5,10 @@ modelata-angular-fire implement and extend modelata-fire
 
 modelata-angular-fire gives abstract class and abstract dao to be extend.
 
+[consult doc](https://moventes.github.io/modelata-angular-fire/globals.html)
+
+[get the demo app](https://gitlab.com/modelata/test-angular-fire)
+
 ## Summary
 
 ### Model
@@ -64,8 +68,10 @@ export class UserModel extends MFModel<UserModel> {
 
 ### PREFIX SUFFIX
 
-its possible to add attribute don't save in database.  
-prefix it by an underscrore or suffix it by \$ if is an observable.
+its possible to add attributes in the model
+
+attributes prefixed with \_ will not be saved in database  
+attributes that are observables must be suffixed by \$
 
 ```ts
 export class UserModel extends MFModel<UserModel> {
@@ -112,7 +118,9 @@ Decorator to use on a model property. Its value will then be an observable of th
 - @param daoName dao used to fetch documents list
 - @param options getListOptions (withSnapshot, completeOnFirst, where, orderBy, limit, offset, cacheable)
 
-/!\ for use this Decorator, you must have the dao in your model.
+/!\ to use this Decorator, you must inject the dao as a dependency in your model's constructor. /!\
+
+/!\ keep in mind that dependency injection is one way only and avoid injecting parents'dao in children models /!\ 
 
 ```ts
 export class UserModel extends MFModel<UserModel> {
@@ -150,7 +158,7 @@ Decorator to use on a model property. Its value will then be an observable of th
 - @param attributeName The attribute refencing a document from database
 - @param daoName The DAO used to fetch the document
 
-/!\ for use this Decorator, you must have the dao in your model.
+/!\ to use this Decorator, you must inject the dao as a dependency in your model's constructor. /!\
 
 ```ts
 export class UserModel extends MFModel<UserModel> {
@@ -163,7 +171,7 @@ export class UserModel extends MFModel<UserModel> {
     data: Partial<UserModel>,
     mustachePath: string,
     location: Partial<IMFLocation>,
-    protected _myRefDAOService: MyRefDAOService, // dao attribute name must be start with an underscore, else the DAO try to save it in database (cf prefix/suffix)
+    protected _myRefDAOService: MyRefDAOService, // dao attribute name must be start with an underscore, or else the DAO will try to save it in database (cf prefix/suffix)
   ) {
     super();
     super.initialize(data, mustachePath, location);
@@ -179,7 +187,7 @@ export class UserDaoService extends MFFlattableDao<UserModel> {
   constructor(
     db: AngularFirestore,
     storage: AngularFireStorage,
-    protected myRefDAOService: MyRefDAOService, // Injection de dependance
+    protected myRefDAOService: MyRefDAOService, // Dependency injection
   ) {
     super(db, storage);
   }
