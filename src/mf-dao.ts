@@ -140,6 +140,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
    *
    * @param idOrLocationOrModel
    */
+
   public getReference(
     idOrLocationOrModel: string | Partial<IMFLocation> | M,
   ): DocumentReference | CollectionReference {
@@ -580,8 +581,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
   ): Promise<IMFFile> {
     if (fileObject && fileObject._file) {
       if (this.storage) {
-        const filePath = `${getPath(this.mustachePath, location)}/${
-          fileObject._file.name
+        const filePath = `${getPath(this.mustachePath, location)}/${fileObject._file.name
           }`;
         MFLogger.debug(`[mf-dao#saveFile] uploading file ${filePath}`);
         return this.storage
@@ -605,14 +605,14 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
           });
       }
       return Promise.reject(
-          new Error(
-            '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
-          ),
-        );
+        new Error(
+          '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
+        ),
+      );
 
     }
     return Promise.resolve(fileObject);
-      // no file to save
+    // no file to save
 
   }
 
@@ -670,10 +670,10 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
           });
       }
       return Promise.reject(
-          new Error(
-            '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
-          ),
-        );
+        new Error(
+          '"storage: AngularFireStorage" is missing as parameter of DAO service\'s constructor',
+        ),
+      );
     }
     return Promise.resolve();
   }
@@ -796,7 +796,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
       : ref.valueChanges().pipe(
         map(model => this.getNewModelFromData(model, ref.ref.parent.path, ref.ref.id))
       );
-      // : ref.valueChanges().pipe(map(model => ({ ...model, _id: ref.ref.id })));
+    // : ref.valueChanges().pipe(map(model => ({ ...model, _id: ref.ref.id })));
   }
 
   /**
@@ -818,7 +818,7 @@ export abstract class MFDao<M extends MFModel<M>> implements IMFDao<M> {
         )
 
       : this.db.collection<M>(reference.ref.path, ref =>
-          this.constructSpecialQuery(ref, options, offset))
+        this.constructSpecialQuery(ref, options, offset))
         .valueChanges({ idField: '_id' })
         .pipe(
           map(arrayOfModel => arrayOfModel.map(model =>
