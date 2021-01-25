@@ -4,9 +4,8 @@ import { IMFLocation, IMFUpdateOptions } from '@modelata/fire/lib/angular';
 import { User as FirebaseUser } from 'firebase/app';
 import 'reflect-metadata';
 import { Observable, of } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { MFRegisterOptions } from './interfaces/register-options.interface';
-import { MFCache } from './mf-cache';
 import { MFDao } from './mf-dao';
 import { MFFlattableDao } from './mf-flattable-dao';
 import { MFModel } from './mf-model';
@@ -29,19 +28,11 @@ export interface IMFAuthUser {
 }
 
 
-/**
- * Interface allowing to link a user document to an authUser
- */
-export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
+export abstract class MFBasicAuthUser<M extends MFModel<M>> {
   /**
-   * redirect link in user verification email
-   */
-  public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
-
-  /**
-   * Observable on auth user
-   */
-  private authUser$ = this.auth.authState.pipe(
+     * Observable on auth user
+     */
+  protected authUser$ = this.auth.authState.pipe(
     shareReplay({ refCount: true, bufferSize: 1 })
   );
 
@@ -56,18 +47,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
     protected db: AngularFirestore,
     protected auth: AngularFireAuth,
     protected userDao: MFDao<M> | MFFlattableDao<M>
-  ) {
-
-    // clear all cache when auth user change
-    MFCache.setClearAllCacheObservable(this.authUser$.pipe(
-      distinctUntilChanged((previousUser, newUser) => {
-        const connect = !previousUser && !!newUser;
-        const disconnect = !!previousUser && !newUser;
-        const change = !!previousUser && !!newUser && previousUser.uid !== newUser.uid;
-        return !(connect || disconnect || change);
-      })
-    ));
-  }
+  ) { }
 
   /**
    * Get an observable of auth user
@@ -97,6 +77,68 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
       );
   }
 
+
+
+  /**
+   * Observable of the connection status (true = is connected)
+   */
+  public isConnected(): Observable<boolean> {
+    return this.authUser$
+      .pipe(
+        map(user => !!user)
+      );
+  }
+
+  /**
+   * Log out the current user
+   */
+  public logout(): Promise<void> {
+    return this.auth.signOut();
+  }
+
+  /**
+   * Update the user
+   *
+   * @param data data to update with
+   * @param location location of the user document
+   * @param options update options
+   */
+  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
+    return this.userDao.update(data, location, options);
+  }
+}
+
+/**
+ * Interface allowing to link a user document to an authUser
+ */
+export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> extends MFBasicAuthUser<M>{
+  /**
+   * redirect link in user verification email
+   */
+  public readonly verificationMustacheLink: string = Reflect.getMetadata('verificationMustacheLink', this.constructor);
+
+
+
+  /**
+   * Must be called with super
+   *
+   * @param db AngularFirestore instance
+   * @param auth AngularFireAuth instance
+   * @param userDao The user Dao to use
+   */
+  constructor(
+    protected db: AngularFirestore,
+    protected auth: AngularFireAuth,
+    protected userDao: MFDao<M> | MFFlattableDao<M>
+  ) {
+    super(db, auth, userDao);
+
+  }
+
+
+
+
+
   /**
    * Log in
    *
@@ -104,7 +146,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param password password to connect with
    */
   public login(email: string, password: string): Promise<firebase.auth.UserCredential> {
-    return this.auth.auth.signInWithEmailAndPassword(email, password)
+    return this.auth.signInWithEmailAndPassword(email, password)
       .catch(error => Promise.reject(error.code as loggin_error));
   }
 
@@ -131,7 +173,7 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param options register options
    */
   public register(user: M, password: string, options?: MFRegisterOptions): Promise<M> {
-    return this.auth.auth.createUserWithEmailAndPassword(user.email, password)
+    return this.auth.createUserWithEmailAndPassword(user.email, password)
       .then(credential => Promise.all([
         this.userDao.create(user, credential.user.uid),
         options && typeof options.sendVerificationEmail === 'boolean' && !options.sendVerificationEmail ?
@@ -147,34 +189,8 @@ export abstract class MFAuthUser<M extends MFModel<M> & IMFAuthUser> {
    * @param persistence 'local' | 'session' | 'none'
    */
   public setSessionPersistence(persistence: 'local' | 'session' | 'none'): Promise<void> {
-    return this.auth.auth.setPersistence(persistence);
+    return this.auth.setPersistence(persistence);
   }
 
-  /**
-   * Observable of the connection status (true = is connected)
-   */
-  public isConnected(): Observable<boolean> {
-    return this.authUser$
-      .pipe(
-        map(user => !!user)
-      );
-  }
 
-  /**
-   * Log out the current user
-   */
-  public logout(): Promise<void> {
-    return this.auth.auth.signOut();
-  }
-
-  /**
-   * Update the user
-   *
-   * @param data data to update with
-   * @param location location of the user document
-   * @param options update options
-   */
-  public update(data: Partial<M>, location?: string | IMFLocation | M, options: IMFUpdateOptions<M> = {}): Promise<Partial<M>> {
-    return this.userDao.update(data, location, options);
-  }
 }

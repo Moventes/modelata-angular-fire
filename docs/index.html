@@ -56,7 +56,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1> tslib</h1>
+			<h1>tslib</h1>
 		</div>
 	</div>
 </header>
@@ -95,10 +95,18 @@ exports.y = tslib_1.__assign({}, exports.x);</code></pre>
 					<h2>npm</h2>
 				</a>
 				<pre><code class="language-sh"><span class="hljs-comment"># TypeScript 2.3.3 or later</span>
-npm install --save tslib
+npm install tslib
 
 <span class="hljs-comment"># TypeScript 2.3.2 or earlier</span>
-npm install --save tslib@1.6.1</code></pre>
+npm install tslib@1.6.1</code></pre>
+				<a href="#yarn" id="yarn" style="color: inherit; text-decoration: none;">
+					<h2>yarn</h2>
+				</a>
+				<pre><code class="language-sh"><span class="hljs-comment"># TypeScript 2.3.3 or later</span>
+yarn add tslib
+
+<span class="hljs-comment"># TypeScript 2.3.2 or earlier</span>
+yarn add tslib@1.6.1</code></pre>
 				<a href="#bower" id="bower" style="color: inherit; text-decoration: none;">
 					<h2>bower</h2>
 				</a>
@@ -146,7 +154,7 @@ jspm install tslib@1.6.1</code></pre>
         <span class="hljs-attr">"importHelpers"</span>: <span class="hljs-literal">true</span>,
         <span class="hljs-attr">"baseUrl"</span>: <span class="hljs-string">"./"</span>,
         <span class="hljs-attr">"paths"</span>: {
-            <span class="hljs-attr">"tslib"</span> : [<span class="hljs-string">"jspm_packages/npm/tslib@1.10.0/tslib.d.ts"</span>]
+            <span class="hljs-attr">"tslib"</span> : [<span class="hljs-string">"jspm_packages/npm/tslib@1.[version].0/tslib.d.ts"</span>]
         }
     }
 }</code></pre>
@@ -160,7 +168,6 @@ jspm install tslib@1.6.1</code></pre>
 					<li>Engage with other TypeScript users and developers on <a href="http://stackoverflow.com/questions/tagged/typescript">StackOverflow</a>.</li>
 					<li>Join the <a href="http://twitter.com/#!/search/realtime/%23typescript">#typescript</a> discussion on Twitter.</li>
 					<li><a href="https://github.com/Microsoft/TypeScript/blob/master/CONTRIBUTING.md">Contribute bug fixes</a>.</li>
-					<li>Read the language specification (<a href="http://go.microsoft.com/fwlink/?LinkId=267121">docx</a>, <a href="http://go.microsoft.com/fwlink/?LinkId=267238">pdf</a>).</li>
 				</ul>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h1>Documentation</h1>
@@ -168,7 +175,6 @@ jspm install tslib@1.6.1</code></pre>
 				<ul>
 					<li><a href="http://www.typescriptlang.org/Tutorial">Quick tutorial</a></li>
 					<li><a href="http://www.typescriptlang.org/Handbook">Programming handbook</a></li>
-					<li><a href="https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md">Language specification</a></li>
 					<li><a href="http://www.typescriptlang.org/">Homepage</a></li>
 				</ul>
 			</div>
@@ -181,9 +187,6 @@ jspm install tslib@1.6.1</code></pre>
 					</li>
 					<li class="label tsd-is-external">
 						<span>Internals</span>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_decorators_cacheable_decorator_.html">&quot;src/decorators/cacheable.decorator&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_src_decorators_email_verification_link_.html">&quot;src/decorators/email-<wbr>verification-<wbr>link&quot;</a>
@@ -210,9 +213,6 @@ jspm install tslib@1.6.1</code></pre>
 						<a href="modules/_src_mf_auth_user_.html">&quot;src/mf-<wbr>auth-<wbr>user&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_src_mf_cache_.html">&quot;src/mf-<wbr>cache&quot;</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="modules/_src_mf_dao_.html">&quot;src/mf-<wbr>dao&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -232,6 +232,9 @@ jspm install tslib@1.6.1</code></pre>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_collection_path_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/collection-<wbr>path.decorator.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_deletion_mode_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/deletion-<wbr>mode.decorator.d&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_node_modules__modelata_fire_lib_angular_decorators_enumerable_decorator_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/decorators/enumerable.decorator.d&quot;</a>
@@ -261,7 +264,13 @@ jspm install tslib@1.6.1</code></pre>
 						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_mf_auth_user_properties_enum_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/mf-<wbr>auth-<wbr>user-<wbr>properties.enum.d&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_mf_delete_mode_enum_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/mf-<wbr>delete-<wbr>mode.enum.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_node_modules__modelata_fire_lib_angular_enums_mf_logger_level_enum_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/enums/mf-<wbr>logger-<wbr>level.enum.d&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_firestore_helper_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/firestore.helper.d&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module tsd-is-external">
 						<a href="modules/_node_modules__modelata_fire_lib_angular_helpers_index_d_.html">&quot;node_<wbr>modules/@modelata/fire/lib/angular/helpers/index.d&quot;</a>
